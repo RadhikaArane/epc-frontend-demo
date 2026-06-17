@@ -1,0 +1,335 @@
+<div class="content container-fluid">
+
+    <!-- Breadcrumb -->
+    <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+        <div class="d-flex my-xl-auto right-content align-items-center flex-wrap w-100 justify-content-between gap-2">
+            <div class="me-0">
+                <app-breadcrumbs title="State Data Overview" [breadcrumbItems]="breadCrumbItems()">
+                </app-breadcrumbs>
+            </div>
+            <div>
+                <button class="btn btn-primary shadow-sm" type="button" style="border-radius: 8px;" (click)="onExportClick()">
+                    <i class="bi bi-file-earmark-arrow-down me-2"></i>
+                    Export
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div>
+        <div class="card border mb-3">
+            <div class="card-body">
+                <div class="row align-items-center g-2">
+                    <div class="col-12 col-md-6">
+                        <h3 class="mb-0 text-center text-md-start">WestBengal List ({{this.scrappingDate() |date}})</h3>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="d-flex flex-column flex-sm-row justify-content-center justify-content-md-end gap-2">
+                            <button class="btn btn-primary" (click)="BacktoDashboard()">
+                                Back
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+
+                    <!-- Card header: page size + project filter -->
+                    <div class="card-header">
+                        <div class="row g-2 align-items-center">
+                            <!-- Page size selector -->
+                            <div class="col-12 col-md-6">
+                                <div class="dataTables_length">
+                                    <label class="d-inline-flex align-items-center mb-0">
+                                        <span class="me-1">Show</span>
+                                        <select class="form-select form-select-sm mx-1" style="width: auto;"
+                                            [value]="pageSize()" (change)="onPageSizeChange($event)"
+                                            [disabled]="isLoading()">
+                                            <option [value]="10">10</option>
+                                            <option [value]="25">25</option>
+                                            <option [value]="50">50</option>
+                                            <option [value]="100">100</option>
+                                        </select>
+                                        <span>entries</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Project filter dropdown -->
+
+
+
+                        </div>
+                    </div>
+
+                    <!-- Card body -->
+                    <div class="card-body p-2">
+                        <div class="custom-datatable-filter">
+                            <div class="dataTables_wrapper dt-bootstrap5 no-footer">
+
+                                <!-- Loading Overlay -->
+                                @if (isLoading()) {
+                                <div class="position-relative" style="min-height: 400px;">
+                                    <div class="position-absolute top-50 start-50 translate-middle">
+                                        <div class="text-center">
+                                            <div class="spinner-border text-primary" role="status"
+                                                style="width: 3rem; height: 3rem;">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <p class="mt-2 text-muted">Loading vendor...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                } @else {
+
+                                <!-- Table -->
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-bordered mb-0">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>Sr No</th>
+                                                <th>Farmer Registration Number</th>
+                                                <th>Name of Beneficiary</th>
+                                                <th>Beneficiary Type</th>
+                                                <th>Farmer Category</th>
+                                                <th>Sex</th>
+                                                <th>Farmer Status</th>
+                                                <th>Epic Number</th>
+                                                <th>Aadhar Number</th>
+                                                <th>Enrollment Number</th>
+                                                <th>District Name</th>
+                                                <th>Block Name</th>
+                                                <th>Gram Panchayet</th>
+                                                <th>Mouza Name</th>
+                                                <th>Police Station</th>
+                                                <th>Post Office</th>
+                                                <th>Sub Division</th>
+                                                <th>Pincode</th>
+                                                <th>Mobile No</th>
+                                                <th>Irrigation Type</th>
+                                                <th>Irrigation Area</th>
+                                                <th>Crop Type</th>
+                                                <th>Crop Spacing</th>
+                                                <th>Is Pump Available</th>
+                                                <th>Pump Type</th>
+                                                <th>Pump Capacity</th>
+                                                <th>Indicative Cost</th>
+                                                <th>Water Source</th>
+                                                <th>Other Water Source</th>
+                                                <th>Registration Date</th>
+                                                <th>Current Status</th>
+                                                <th>DLIC Number</th>
+                                                <th>DLIC Date</th>
+                                                <th>Quotation No</th>
+                                                <th>Quotation Date</th>
+                                                <th>Total Amount</th>
+                                                <th>PMKSY Subsidy</th>
+                                                <th>BKSY Subsidy</th>
+                                                <th>GST Amount</th>
+                                                <th>Farmers Share</th>
+                                                <th>PMKSY Subsidy (Addl. Item)</th>
+                                                <th>BKSY Subsidy (Addl. Item)</th>
+                                                <th>GST Amount (Addl. Item)</th>
+                                                <th>Farmers Share (Addl. Item)</th>
+                                                <th>Total Subsidy</th>
+                                                <th>Total Farmer Share</th>
+                                                <th>Paid By Farmer</th>
+                                                <th>Type of Payment</th>
+                                                <th>Payment Reference</th>
+                                                <th>Payment Date</th>
+                                                <th>Joint Insp. Date</th>
+                                                <th>Quot. Approval Date</th>
+                                                <th>Work Order Date</th>
+                                                <th>Work Order Memo</th>
+                                                <th>Inspection Date</th>
+                                                <th>Installation Date</th>
+                                                <th>Bill No.</th>
+                                                <th>Tax Inv. No.</th>
+                                                <th>Bill Date</th>
+                                                <th>Approved on</th>
+                                                <th>PMKSY Amount Paid</th>
+                                                <th>PMKSY CGST</th>
+                                                <th>PMKSY SGST</th>
+                                                <th>PMKSY TDS</th>
+                                                <th>PMKSY Released On</th>
+                                                <th>PMKSY Transaction Ref.</th>
+                                                <th>PMKSY Transaction Date</th>
+                                                <th>PMKSY Paid By</th>
+                                                <th>BKSY Amount Paid</th>
+                                                <th>BKSY CGST</th>
+                                                <th>BKSY SGST</th>
+                                                <th>BKSY TDS</th>
+                                                <th>BKSY Released On</th>
+                                                <th>BKSY Transaction Ref.</th>
+                                                <th>BKSY Transaction Date</th>
+                                                <th>BKSY Paid By</th>
+                                                <th>Doc. Upload Status</th>
+                                                <th>Financial Year</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (overview().length > 0) {
+                                            @for (overview of overview(); track overview.Id) {
+                                            <tr>
+                                                <td>{{ $index + 1 }}</td>
+                                                <td>{{ overview['Farmer Registration Number'] }}</td>
+                                                <td>{{ overview['Name of Beneficiary'] }}</td>
+                                                <td>{{ overview['Beneficiary Type'] }}</td>
+                                                <td>{{ overview['Farmer Category'] }}</td>
+                                                <td>{{ overview.Sex }}</td>
+                                                <td>{{ overview['Farmer Status'] }}</td>
+                                                <td>{{ overview['Epic Number'] }}</td>
+                                                <td>{{ overview['Aadhar Number'] }}</td>
+                                                <td>{{ overview['Enrollment Number'] }}</td>
+                                                <td>{{ overview['District Name'] }}</td>
+                                                <td>{{ overview['Block Name'] }}</td>
+                                                <td>{{ overview['Gram Panchayet'] }}</td>
+                                                <td>{{ overview['Mouza Name'] }}</td>
+                                                <td>{{ overview['Police Station'] }}</td>
+                                                <td>{{ overview['Post Office'] }}</td>
+                                                <td>{{ overview['Sub Division'] }}</td>
+                                                <td class="text-end">{{ overview.Pincode }}</td>
+                                                <td>{{ overview['Mobile No'] }}</td>
+                                                <td>{{ overview['Irrigation Type'] }}</td>
+                                                <td class="text-end">{{ overview['Irrigation Area'] }}</td>
+                                                <td>{{ overview['Crop Type'] }}</td>
+                                                <td>{{ overview['Crop Spacing'] }}</td>
+                                                <td>{{ overview['Is Pump Available'] }}</td>
+                                                <td>{{ overview['Pump Type'] }}</td>
+                                                <td>{{ overview['Pump Capacity'] }}</td>
+                                                <td class="text-end">{{ overview['Indicative Cost'] }}</td>
+                                                <td>{{ overview['Water Source'] }}</td>
+                                                <td>{{ overview['Other Water Source'] }}</td>
+                                                <td>{{ overview['Registration Date'] }}</td>
+                                                <td>{{ overview['Current Status'] }}</td>
+                                                <td>{{ overview['DLIC Number'] }}</td>
+                                                <td>{{ overview['DLIC Date'] }}</td>
+                                                <td>{{ overview['Quotation No'] }}</td>
+                                                <td>{{ overview['Quotation Date'] }}</td>
+                                                <td class="text-end">{{ overview['Total Amount'] }}</td>
+                                                <td class="text-end">{{ overview['PMKSY Subsidy'] }}</td>
+                                                <td class="text-end">{{ overview['BKSY Subsidy'] }}</td>
+                                                <td class="text-end">{{ overview['GST Amount'] }}</td>
+                                                <td class="text-end">{{ overview['Farmers Share'] }}</td>
+                                                <td class="text-end">{{ overview['PMKSY Subsidy (Addl. Item)'] }}</td>
+                                                <td class="text-end">{{ overview['BKSY Subsidy (Addl. Item)'] }}</td>
+                                                <td class="text-end">{{ overview['GST Amount (Addl. Item)'] }}</td>
+                                                <td class="text-end">{{ overview['Farmers Share (Addl. Item)'] }}</td>
+                                                <td class="text-end">{{ overview['Total Subsidy'] }}</td>
+                                                <td class="text-end">{{ overview['Total Farmer Share'] }}</td>
+                                                <td class="text-end">{{ overview['Paid By Farmer'] }}</td>
+                                                <td>{{ overview['Type of Payment'] }}</td>
+                                                <td>{{ overview['Payment Reference'] }}</td>
+                                                <td>{{ overview['Payment Date'] }}</td>
+                                                <td>{{ overview['Joint Insp. Date'] }}</td>
+                                                <td>{{ overview['Quot. Approval Date'] }}</td>
+                                                <td>{{ overview['Work Order Date'] }}</td>
+                                                <td>{{ overview['Work Order Memo'] }}</td>
+                                                <td>{{ overview['Inspection Date'] }}</td>
+                                                <td>{{ overview['Installation Date'] }}</td>
+                                                <td>{{ overview['Bill No.'] }}</td>
+                                                <td>{{ overview['Tax Inv. No.'] }}</td>
+                                                <td>{{ overview['Bill Date'] }}</td>
+                                                <td>{{ overview['Approved on'] }}</td>
+                                                <td class="text-end">{{ overview['PMKSY Amount Paid'] }}</td>
+                                                <td class="text-end">{{ overview['PMKSY CGST'] }}</td>
+                                                <td class="text-end">{{ overview['PMKSY SGST'] }}</td>
+                                                <td class="text-end">{{ overview['PMKSY TDS'] }}</td>
+                                                <td>{{ overview['PMKSY Released On'] }}</td>
+                                                <td>{{ overview['PMKSY Transaction Ref.'] }}</td>
+                                                <td>{{ overview['PMKSY Transaction Date'] }}</td>
+                                                <td>{{ overview['PMKSY Paid By'] }}</td>
+                                                <td class="text-end">{{ overview['BKSY Amount Paid'] }}</td>
+                                                <td class="text-end">{{ overview['BKSY CGST'] }}</td>
+                                                <td class="text-end">{{ overview['BKSY SGST'] }}</td>
+                                                <td class="text-end">{{ overview['BKSY TDS'] }}</td>
+                                                <td>{{ overview['BKSY Released On'] }}</td>
+                                                <td>{{ overview['BKSY Transaction Ref.'] }}</td>
+                                                <td>{{ overview['BKSY Transaction Date'] }}</td>
+                                                <td>{{ overview['BKSY Paid By'] }}</td>
+                                                <td>{{ overview['Doc. Upload Status'] }}</td>
+                                                <td>{{ overview.FinancialYear }}</td>
+                                            </tr>
+
+                                            }
+                                            } @else {
+                                            <tr>
+                                                <td colspan="13" class="text-center py-4">No overview found</td>
+                                            </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Pagination Controls -->
+                                @if (totalRecords() > 0) {
+                                <div class="row mt-3 align-items-center">
+                                    <div class="col-12 col-md-5 mb-2 mb-md-0">
+                                        <div class="dataTables_info text-center text-md-start">
+                                            Showing {{ getStartRecord() }} to {{ getEndRecord() }} of {{ totalRecords()
+                                            }} entries
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-7">
+                                        <div
+                                            class="dataTables_paginate paging_simple_numbers d-flex justify-content-center justify-content-md-end">
+                                            <ul class="pagination mb-0">
+                                                <!-- Previous Button -->
+                                                <li class="paginate_button page-item"
+                                                    [class.disabled]="currentPage() === 1">
+                                                    <a class="page-link" [class.pe-none]="currentPage() === 1"
+                                                        style="cursor: pointer;"
+                                                        (click)="currentPage() === 1 ? null : onPageChange(currentPage() - 1)">
+                                                        Previous
+                                                    </a>
+                                                </li>
+
+                                                <!-- Page Numbers with Ellipsis -->
+                                                @for (page of getVisiblePages(); track $index) {
+                                                @if (page === -1 || page === -2) {
+                                                <li class="paginate_button page-item disabled">
+                                                    <span class="page-link">...</span>
+                                                </li>
+                                                } @else {
+                                                <li class="paginate_button page-item"
+                                                    [class.active]="page === currentPage()">
+                                                    <a class="page-link" style="cursor: pointer;"
+                                                        [class.pe-none]="page === currentPage()"
+                                                        (click)="page === currentPage() ? null : onPageChange(page)">
+                                                        {{ page }}
+                                                    </a>
+                                                </li>
+                                                }
+                                                }
+
+                                                <!-- Next Button -->
+                                                <li class="paginate_button page-item"
+                                                    [class.disabled]="currentPage() === totalPages()">
+                                                    <a class="page-link"
+                                                        [class.pe-none]="currentPage() === totalPages()"
+                                                        style="cursor: pointer;"
+                                                        (click)="currentPage() === totalPages() ? null : onPageChange(currentPage() + 1)">
+                                                        Next
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                }
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                </div> <!-- /card -->
+            </div>
+        </div>
+    </div>
+</div>

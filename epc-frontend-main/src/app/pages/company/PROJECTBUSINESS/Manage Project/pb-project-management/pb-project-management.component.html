@@ -1,0 +1,368 @@
+<div class="content container-fluid">
+
+  <!-- Breadcrumb -->
+  <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap w-100 justify-content-between gap-2">
+      <div class="me-0">
+        <app-breadcrumbs title="Project Management" [breadcrumbItems]="breadCrumbItems()">
+        </app-breadcrumbs>
+      </div>
+      <div>
+        <button class="btn btn-primary shadow-sm me-2" (click)="OpenModal()">
+          Add New Project
+        </button>
+        <button class="btn btn-primary shadow-sm me-2" (click)="OpenNodalModal()">
+          Add Nodal Agency
+        </button>
+        <button class="btn btn-primary shadow-sm" type="button" style="border-radius: 8px;" (click)="exportProjects()">
+          <i class="bi bi-file-earmark-arrow-down me-2"></i>
+          Export
+        </button>
+      </div>
+    </div>
+  </div> 
+
+  <!-- Project List Section -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <!-- Card header: page size + filters -->
+        <div class="card-header">
+          <div class="row g-2 align-items-center">
+
+            <!-- Page size selector -->
+            <div class="col-12 col-lg-4">
+              <div class="dataTables_length">
+                <label class="d-inline-flex align-items-center mb-0">
+                  <span class="me-1">Show</span>
+                  <select class="form-select form-select-sm mx-1" style="width: auto;" [value]="pageSize()"
+                    (change)="onPageSizeChange($event)" [disabled]="isLoading()">
+                    <option [value]="10">10</option>
+                    <option [value]="25">25</option>
+                    <option [value]="50">50</option>
+                    <option [value]="100">100</option>
+                  </select>
+                  <span>entries</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="col-12 col-lg-8">
+              <div class="row g-2">
+
+                <!-- Project Filter Dropdown -->
+                <div class="col-12 col-md-6">
+                  <div class="project-filter-dropdown position-relative">
+                    <button type="button"
+                      class="btn btn-outline-secondary w-100 d-flex justify-content-between align-items-center"
+                      (click)="toggleProjectDropdown()" style="border-radius: 8px; padding: 10px 15px;">
+                      <span class="text-truncate" style="max-width: 85%; font-size: 14px;">
+                        {{ selectedProjectName() }}
+                      </span>
+                      <i class="bi" [ngClass]="isProjectDropdownOpen() ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                    </button>
+
+                    @if (isProjectDropdownOpen()) {
+                    <div class="dropdown-menu show w-100 shadow-lg mt-1 p-0"
+                      style="border-radius: 8px; border: 1px solid #dee2e6; z-index: 1050;">
+
+                      <div (scroll)="onProjectDropdownScroll($event)" style="max-height: 200px; overflow-y: auto;">
+
+                        <!-- All Projects -->
+                        <button type="button" class="dropdown-item py-2 px-3" [class.active]="!selectedProjectId()"
+                          (click)="selectProject(null)"
+                          style="cursor: pointer; background: #f8f9fa; border-bottom: 1px solid #f0f0f0;">
+                          <span class="fw-semibold">All Projects</span>
+                        </button>
+
+                        <!-- Projects List -->
+                        @for (project of projectDropdownList(); track project.ProjectId) {
+                        <button type="button" class="dropdown-item py-2 px-3"
+                          [class.active]="selectedProjectId() === project.ProjectId" (click)="selectProject(project)"
+                          style="cursor: pointer;">
+                          <span class="text-truncate">{{ project.ProjectName }}</span>
+                        </button>
+                        }
+
+                        <!-- Loading -->
+                        @if (isProjectDropdownLoading()) {
+                        <div class="text-center py-3">
+                          <div class="spinner-border spinner-border-sm text-primary"></div>
+                          <small class="text-muted ms-2">Loading...</small>
+                        </div>
+                        }
+
+                        <!-- End of list -->
+                        @if (!hasMoreProjects() && projectDropdownList().length > 0) {
+                        <div class="text-center py-2 border-top" style="background: #f8f9fa;">
+                          <small class="text-muted">
+                            <i class="bi bi-check-circle text-success me-1"></i>
+                            All {{ projectDropdownList().length }} loaded
+                          </small>
+                        </div>
+                        }
+                      </div>
+                    </div>
+                    }
+                  </div>
+                </div>
+
+                <!-- Nodal Agency Filter Dropdown -->
+                <div class="col-12 col-md-6">
+                  <div class="nodal-filter-dropdown position-relative">
+                    <button type="button"
+                      class="btn btn-outline-secondary w-100 d-flex justify-content-between align-items-center"
+                      (click)="toggleNodalDropdown()" style="border-radius: 8px; padding: 10px 15px;">
+                      <span class="text-truncate" style="max-width: 85%; font-size: 14px;">
+                        {{ selectedNodalAgencyName() }}
+                      </span>
+                      <i class="bi" [ngClass]="isNodalDropdownOpen() ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                    </button>
+
+                    @if (isNodalDropdownOpen()) {
+                    <div class="dropdown-menu show w-100 shadow-lg mt-1 p-0"
+                      style="border-radius: 8px; border: 1px solid #dee2e6; z-index: 1050; max-height: 250px; overflow-y: auto;">
+
+                      <!-- All Nodal Agencies -->
+                      <button type="button" class="dropdown-item py-2 px-3" [class.active]="!selectedNodalAgencyId()"
+                        (click)="selectNodalAgency(null)"
+                        style="cursor: pointer; background: #f8f9fa; border-bottom: 1px solid #f0f0f0;">
+                        <span class="fw-semibold">All Nodal Agencies</span>
+                      </button>
+
+                      <!-- Nodal Agency List -->
+                      @for (agency of nodalAgencyList(); track agency.NodalAgencyId) {
+                      <button type="button" class="dropdown-item py-2 px-3"
+                        [class.active]="selectedNodalAgencyId() === agency.NodalAgencyId"
+                        (click)="selectNodalAgency(agency)" style="cursor: pointer;">
+                        <span class="text-truncate">{{ agency.NodalAgencyName }}</span>
+                      </button>
+                      }
+
+                      <!-- Loading -->
+                      @if (isNodalDropdownLoading()) {
+                      <div class="text-center py-3">
+                        <div class="spinner-border spinner-border-sm text-primary"></div>
+                        <p class="text-muted mt-2 mb-0 small">Loading...</p>
+                      </div>
+                      }
+
+                      <!-- No Data -->
+                      @if (nodalAgencyList().length === 0 && !isNodalDropdownLoading()) {
+                      <div class="text-center py-4">
+                        <i class="bi bi-inbox text-muted mb-2" style="font-size: 2rem; display: block;"></i>
+                        <p class="text-muted mb-0">No agencies available</p>
+                      </div>
+                      }
+                    </div>
+                    }
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card body -->
+        <div class="card-body p-2">
+          <div class="custom-datatable-filter">
+            <div class="dataTables_wrapper dt-bootstrap5 no-footer">
+
+              <!-- Loading Overlay -->
+              @if (isLoading()) {
+              <div class="position-relative" style="min-height: 400px;">
+                <div class="position-absolute top-50 start-50 translate-middle">
+                  <div class="text-center">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Loading projects...</p>
+                  </div>
+                </div>
+              </div>
+              } @else {
+
+              <!-- Table -->
+              <div class="table-responsive">
+                <table class="table table-striped table-bordered table-ultra-compact mb-0">
+                  <thead class="thead-light">
+                    <tr>
+                      <th>Sr No</th>
+                      <th style="position: sticky; left: 0px; z-index: 11; min-width: 160px;">Project No.</th>
+                      <th style="position: sticky; left: 100px; z-index: 11; min-width: 160px;">Nodal Agency</th>
+                      <th style="position: sticky; left: 200px; z-index: 11; min-width: 260px;">Project Name</th>
+
+                      <th>Customer Code</th>
+
+                      <th>WBS No</th>
+                      <!-- <th>CCA(Ha)</th> -->
+                      <th>Chak No</th>
+                      <th>Agreement Date</th>
+                      <th>Start Date</th>
+                      <th>End Date</th>
+                      <th>Project Incharge</th>
+
+                      <th>Project Value (Exc GST)</th>
+                      <th>Project Value (Inc GST)</th>
+
+
+                      <th>Cost Estimated</th>
+                      <th>Budget Margin</th>
+                      <th>Cost Incurred</th>
+                      <th>Actual Margin</th>
+                      <th>O&M</th>
+
+
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @if (allProjects().length > 0) {
+                    @for (project of allProjects(); track project.ProjectId) {
+                    <tr>
+                      
+                      <td>{{ getSerialNumber($index) }}</td>
+                      <td style="position: sticky; left: 0px; z-index: 11; min-width: 160px;">{{ project.ProjectNumber }}</td>
+                      <td style="position: sticky; left: 100px; z-index: 11; min-width: 160px;">{{ project.NodalAgencyName }}</td>
+                      <td  style="position: sticky; left: 200px; z-index: 11; min-width: 260px;">{{ project.ProjectName }}</td>
+
+                      <td>-</td>
+
+                      <td>{{ project.WbsNo }}</td>
+                      <!-- <td>{{ project.CCA_Ha}}</td> -->
+                      <td>{{ project.ChakNo }}</td>
+                      <td>{{ project.AgreementDate | date:'dd/MM/yyyy' }}</td>
+                      <td>{{ project.ProjectStartDate | date:'dd/MM/yyyy' }}</td>
+                      <td>{{ project.EndDate | date:'dd/MM/yyyy' }}</td>
+                      <td>{{ project.ProjectIncharge }}</td>
+                      <td  class="text-end">{{ project.TotalSaleValueExclGst | number:'1.0-0' }}</td>
+                      <td class="text-end">{{ project.TotalSaleValueInclGst | number:'1.0-0' }}</td>
+                      <td>-</td>
+                      <td>-</td>
+                      <td>-</td>
+                      <td>-</td> 
+                      <td>-</td>
+                      <td>
+
+                        <div class="action-icon d-inline-flex">
+                          @if (project.IsEstimationDone === false) {
+                          <button class="btn btn-sm btn-outline-info me-2"
+                            (click)="viewAddCostEstimation(project.ProjectId)">
+                            Add Cost Estimation
+                          </button>
+                          } @else {
+                            <button class="btn btn-sm btn-outline-success me-2"
+                            (click)="viewCostEstimation(project.ProjectId)">
+                            Cost Estimation
+                          </button>
+                          }
+                          <button class="btn btn-sm btn-outline-dark me-2"
+                            (click)="viewEditCostEstimation(project.ProjectId)">
+                            Edit
+                          </button>
+                          <button class="btn btn-sm btn-outline-danger"
+                            (click)="openDeleteDialog(project.ProjectId)">
+                            Delete
+                          </button>
+                          
+                        </div>
+                      </td>
+                    </tr>
+                    }
+                    } @else {
+                    <tr>
+                      <td colspan="13" class="text-center py-4">No projects found</td>
+                    </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Pagination Controls -->
+              @if (totalRecords() > 0) {
+              <div class="row mt-3 align-items-center">
+                <div class="col-12 col-md-5 mb-2 mb-md-0">
+                  <div class="dataTables_info text-center text-md-start">
+                    Showing {{ getStartRecord() }} to {{ getEndRecord() }} of {{ totalRecords() }} entries
+                  </div>
+                </div>
+                <div class="col-12 col-md-7">
+                  <div
+                    class="dataTables_paginate paging_simple_numbers d-flex justify-content-center justify-content-md-end">
+                    <ul class="pagination mb-0">
+                      <!-- Previous Button -->
+                      <li class="paginate_button page-item" [class.disabled]="currentPage() === 1">
+                        <a class="page-link" [class.pe-none]="currentPage() === 1" style="cursor: pointer;"
+                          (click)="currentPage() === 1 ? null : onPageChange(currentPage() - 1)">
+                          Previous
+                        </a>
+                      </li>
+
+                      <!-- Page Numbers with Ellipsis -->
+                      @for (page of getVisiblePages(); track $index) {
+                      @if (page === -1 || page === -2) {
+                      <li class="paginate_button page-item disabled">
+                        <span class="page-link">...</span>
+                      </li>
+                      } @else {
+                      <li class="paginate_button page-item" [class.active]="page === currentPage()">
+                        <a class="page-link" style="cursor: pointer;" [class.pe-none]="page === currentPage()"
+                          (click)="page === currentPage() ? null : onPageChange(page)">
+                          {{ page }}
+                        </a>
+                      </li>
+                      }
+                      }
+
+                      <!-- Next Button -->
+                      <li class="paginate_button page-item" [class.disabled]="currentPage() === totalPages()">
+                        <a class="page-link" [class.pe-none]="currentPage() === totalPages()" style="cursor: pointer;"
+                          (click)="currentPage() === totalPages() ? null : onPageChange(currentPage() + 1)">
+                          Next
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              }
+              }
+            </div>
+          </div>
+        </div>
+
+      </div> <!-- /card -->
+    </div>
+  </div>
+</div>
+
+<!-- Add New Project Modal -->
+<div class="modal fade" #AddNewProject tabindex="-1" aria-labelledby="addProjectLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered modal-fullscreen-sm-down">
+    <div class="modal-content" style="border-radius:12px;">
+      <div class="modal-header" style="position:sticky; top:0; z-index:2; background:#fff;">
+        <h5 class="modal-title fw-bold" id="addProjectLabel">Add New Project</h5>
+        <button type="button" class="btn-close" (click)="CloseModal()"></button>
+      </div>
+
+      <app-pb-add-new-project (projectAdded)="onProjectAdded()"
+        (modalClosed)="onModalClosed()"></app-pb-add-new-project>
+    </div>
+  </div>
+</div>
+
+<!-- Add Nodal Agency Modal -->
+<div class="modal fade" #AddNodalAgency tabindex="-1" aria-labelledby="addProjectLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered modal-fullscreen-sm-down">
+    <div class="modal-content" style="border-radius:12px;">
+      <div class="modal-header" style="position:sticky; top:0; z-index:2; background:#fff;">
+        <h5 class="modal-title fw-bold" id="addProjectLabel">Add New Nodal</h5>
+        <button type="button" class="btn-close" (click)="CloseNodalModal()"></button>
+      </div>
+
+      <app-pb-nodal-agency></app-pb-nodal-agency>
+    </div>
+  </div>
+</div>

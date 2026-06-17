@@ -1,0 +1,147 @@
+<div class="content mb-4">
+    <app-breadcrumbs title="Stage Master" [breadcrumbItems]="breadCrumbItems()"></app-breadcrumbs>
+    <div class="card mb-3">
+        <div class="card-header d-flex align-items-center flex-nowrap">
+            <h5 class="mb-0 text-truncate">Stage Master</h5>
+
+            <div class="ms-auto d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center">
+                    <label for="auditLogFilter" class="mb-0 me-2 small text-muted">Filter by State</label>
+                    <select class="form-select" id="auditLogFilter"
+                            [ngModel]="selectedStateName()"
+                            (ngModelChange)="onStateChange($event)">
+                      <option [ngValue]="'Andhra Pradesh'">Andhra Pradesh</option>
+                      <option [ngValue]="'Telangana'">Telangana</option>
+                      <option [ngValue]="'Gujarat'">Gujarat</option>
+                      <option [ngValue]="'Tamil Nadu'">Tamil Nadu</option>
+                      <option [ngValue]="'Telangana'">Telangana</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStageModal" (click)="openAddModal()">
+                    <span class="me-2">+</span> Add Stage
+                </button>
+            </div>
+        </div>
+    </div>  
+
+    <div class="card">
+        <div class="border-0" style="border-radius:12px;">
+            <div class="card-body p-3">
+                <div style="min-height: 500px; overflow-y: auto; overflow-x: auto;">
+                    <table class="table table-bordered table-hover align-middle mb-0 table-ultra-compact">
+                        <thead class="thead-light text-center"
+                            style="position: sticky; top: 0; background-color: #f8f9fa; z-index: 10;">
+                            <tr>
+                                <th>StateName</th>
+                                <th>StageName</th>
+                                <th>Category</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="align-middle">
+                            @if (isLoading()) {
+                              <tr>
+                                <td colspan="4" class="text-center py-4">
+                                  <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+                                  Loading...
+                                </td>
+                              </tr>
+                            } @else if (stages().length === 0) {
+                              <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">
+                                  No data found
+                                </td>
+                              </tr>
+                            } @else {
+                              @for (row of stages(); track $index) {
+                                <tr>
+                                  <td>{{ row.StateName }}</td>
+                                  <td>{{ row.StageName }}</td>
+                                  <td class="text-center">
+                                    <span>{{ row.Category }}</span>
+                                  </td>
+                                  <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                            data-bs-toggle="modal" data-bs-target="#editStageModal"
+                                            (click)="openEditModal(row)">
+                                      Edit
+                                    </button>
+
+                                    <button type="button" class="btn btn-sm btn-outline-danger ms-2"
+                                            (click)="deleteStage(row)">
+                                      Delete
+                                    </button>
+
+                                    <button type="button" class="btn btn-sm btn-outline-success ms-2"
+                                            (click)="setRecognised(row)">
+                                      Set Recognised
+                                    </button>
+                                  </td>
+                                </tr>
+                              }
+                            }
+                         </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editStageModal" tabindex="-1" aria-labelledby="editStageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editStageModalLabel">Edit Stage</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" #closeEditModal></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="editStageName" class="form-label">Stage Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="editStageName" placeholder="Enter stage name"
+                           [(ngModel)]="editStageForm().StageName">
+                </div>
+                <div class="mb-3">
+                    <label for="editCategory" class="form-label">Category <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="editCategory" placeholder="Enter category"
+                           [(ngModel)]="editStageForm().Category">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" (click)="saveEdit()" [disabled]="isSaving()">
+                    {{ isSaving() ? 'Saving...' : 'Save' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addStageModal" tabindex="-1" aria-labelledby="addStageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addStageModalLabel">Add Stage (to {{ selectedStateName() }})</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" #closeAddModal></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="addStageName" class="form-label">Stage Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="addStageName" placeholder="Enter stage name"
+                           [(ngModel)]="addStageForm().StageName">
+                </div>
+                <div class="mb-3">
+                    <label for="addCategory" class="form-label">Category <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="addCategory" placeholder="Enter category"
+                           [(ngModel)]="addStageForm().Category">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" (click)="saveAddStage()" [disabled]="isSaving()">
+                    {{ isSaving() ? 'Saving...' : 'Save' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

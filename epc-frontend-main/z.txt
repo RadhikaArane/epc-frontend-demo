@@ -1,0 +1,106 @@
+ng g c shared/pages/layout/Footer
+ng g c shared/pages/layout/home
+ng g c shared/pages/layout/SideBar
+ng g c shared/pages/layout/topNav
+
+ng g c shared/pages/user-details/RegionalManager-details
+ng g c shared/pages/user-details/TerritoryManager-details
+ng g c shared/pages/user-details/Customer-details
+ng g c shared/pages/user-details/ZonalManager-details
+ng g c shared/pages/user-details/NationalSalesHeadManager-details
+ng g c shared/pages/user-details/bussinessHeadManager-details
+ng g c shared/pages/user-details/bussinessAdmin-details
+ng g c shared/pages/user-details/SuperAdmin-details
+
+ng g c auth/Login
+ng g c auth/Register
+ng g c auth/ForgotPassword
+ng g c auth/EmailVerification
+ng g c auth/ResetPassword
+ng g c auth/ResetSuccess
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ng g c company/MASL/dashboard/MaslCustomerDashboard
+ng g c company/MASL/dashboard/MaslTerritoryManagerDashboard
+ng g c company/MASL/dashboard/MaslRegionalManagerDashboard
+ng g c company/MASL/dashboard/MaslZonalManagerDashboard
+ng g c company/MASL/dashboard/MaslNationalSalesHeadManagerDashboard
+ng g c company/MASL/dashboard/MaslBussinessHeadManagerDashboard
+ng g c company/MASL/dashboard/MaslBussinessAdminDashboard
+ng g c company/MASL/dashboard/MaslSuperAdminDashboard
+
+ng g c company/MASL/order/MaslAllOrdersList
+ng g c company/MASL/order/MaslApprovedOrdersList
+ng g c company/MASL/order/MaslCompletedOrdersList
+ng g c company/MASL/order/MaslCreateOrders
+ng g c company/MASL/order/MaslPendingOrdersList
+
+ng g c company/MASL/users/MaslRegionalManagerList
+ng g c company/MASL/users/MaslTerritoryManagerList
+ng g c company/MASL/users/MaslCustomerList
+ng g c company/MASL/users/MaslZonalManagerList
+ng g c company/MASL/users/MaslNationalSalesHeadManagerList
+ng g c company/MASL/users/MaslBussinessHeadManagerList
+ng g c company/MASL/users/MaslBussinessAdminList
+ng g c company/MASL/users/MaslSuperAdminList
+
+ng g c company/MASL/accounts/MaslInvoice
+ng g c company/MASL/accounts/MaslCNCD
+ng g c company/MASL/accounts/MaslLedger
+ng g c company/MASL/accounts/MaslOutstanding
+
+ng g c company/MASL/Products/MaslProductsList
+
+ng g c Company/MASL/MaslBalanceConfirmation
+ng g c Company/MASL/MaslPayments
+ng g c Company/MASL/MaslBanner
+ng g c Company/MASL/MaslOrganization
+ng g c Company/MASL/MaslNotification
+ng g c Company/MASL/MaslSettings
+
+ng g c Company/MASL/reports/MaslInvoiceReport
+ng g c Company/MASL/reports/MaslLedgerReport
+------------------------------------------------------------------
+ng g c company/MHZPC/dashboard/MhzpcCustomerDashboard
+ng g c company/MHZPC/dashboard/MhzpcTerritoryManagerDashboard
+ng g c company/MHZPC/dashboard/MhzpcRegionalManagerDashboard
+ng g c company/MHZPC/dashboard/MhzpcZonalManagerDashboard
+ng g c company/MHZPC/dashboard/MhzpcNationalSalesHeadManagerDashboard
+ng g c company/MHZPC/dashboard/MhzpcBussinessHeadManagerDashboard
+ng g c company/MHZPC/dashboard/MhzpcBussinessAdminDashboard
+ng g c company/MHZPC/dashboard/MhzpcSuperAdminDashboard
+
+ng g c company/MHZPC/bookings/Details/MhzpcBookingDetails
+ng g c company/MHZPC/bookings/MhzpcBookings
+ng g c company/MHZPC/bookings/MhzpcBookingPendingApproval
+ng g c company/MHZPC/bookings/MhzpcAppoverdBooking
+ng g c company/MHZPC/bookings/MhzpcOrdersDispatch
+
+ng g c company/MHZPC/users/MhzpcRegionalManagerList
+ng g c company/MHZPC/users/MhzpcTerritoryManagerList
+ng g c company/MHZPC/users/MhzpcCustomerList
+ng g c company/MHZPC/users/MhzpcZonalManagerList
+ng g c company/MHZPC/users/MhzpcNationalSalesHeadManagerList
+ng g c company/MHZPC/users/MhzpcBussinessHeadManagerList
+ng g c company/MHZPC/users/MhzpcBussinessAdminList
+ng g c company/MHZPC/users/MhzpcSuperAdminList
+
+ng g c company/MHZPC/accounts/MhzpcInvoice
+ng g c company/MHZPC/accounts/MhzpcCNCD
+ng g c company/MHZPC/accounts/MhzpcLedger
+ng g c company/MHZPC/accounts/MhzpcOutstanding
+
+ng g c company/MHZPC/MhzpcOverllStockPosition
+
+ng g c Company/MHZPC/PriceCard/MhzpcCardList
+ng g c Company/MHZPC/PriceCard/MhzpcOrderBooking
+ng g c Company/MHZPC/PriceCard/MhzpcAdd-to-cart
+
+ng g c Company/MHZPC/MhzpcBalanceConfirmation
+ ng g c Company/MHZPC/MhzpcPayments
+ ng g c Company/MHZPC/MhzpcBanner
+ ng g c Company/MHZPC/MhzpcOrganization
+ ng g c Company/MHZPC/MhzpcNotification
+ ng g c Company/MHZPC/MhzpcSettings
+
+ ng g c Company/MHZPC/reports/MhzpcInvoiceReport
+ng g c Company/MHZPC/reports/MhzpcLedgerReport

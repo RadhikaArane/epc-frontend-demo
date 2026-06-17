@@ -1,0 +1,248 @@
+<div class="content mb-4">
+  <!-- Breadcrumb + Add Button -->
+  <div class="d-flex align-items-center justify-content-between page-breadcrumb mb-3 flex-wrap gap-2">
+    <app-breadcrumbs title="Remarks Master" [breadcrumbItems]="breadCrumbItems()"></app-breadcrumbs>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      <i class="bi bi-plus-lg me-1"></i> Add Remark
+    </button>
+  </div>
+
+  <!-- Table Card -->
+  <div class="card">
+    <div class="card-header">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div class="text-muted small">
+          Showing {{ getStartRecord() }} to {{ getEndRecord() }} of {{ totalCount() }} entries
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <label class="small text-muted mb-0">Show</label>
+          <select class="form-select form-select-sm" style="width: 80px;" [value]="pageSize()"
+            (change)="onPageSizeChange($event)">
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body p-3">
+      <!-- Loading -->
+      @if (isLoading()) {
+      <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 300px;">
+        <div class="spinner-border text-primary" role="status" style="width: 2.5rem; height: 2.5rem;"></div>
+        <p class="mt-2 text-muted">Loading...</p>
+      </div>
+      } @else {
+
+      <!-- Table -->
+      <div class="table-responsive" style="max-height: 60vh; overflow: auto;">
+        <table class="table table-bordered table-hover table-ultra-compact align-middle mb-0">
+          <thead class="thead-light" style="position: sticky; top: 0; z-index: 2;">
+            <tr>
+              <th style="min-width: 60px;">#</th>
+              <th style="min-width: 90px;">Remark No</th>
+              <th style="min-width: 350px;">Billing/RR Pending Reason</th>
+              <th style="min-width: 350px;">Action To Be Taken</th>
+              <th style="min-width: 80px;">Active</th>
+              <th style="min-width: 160px;">Created At</th>
+              <th style="min-width: 140px;">Created By</th>
+              <th style="min-width: 140px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (rows().length === 0) {
+            <tr>
+              <td colspan="8" class="text-center py-4 text-muted">No data found</td>
+            </tr>
+            } @else {
+              @for (r of rows(); track r.PredefinedRemarkNo) {
+              <tr>
+                <td class="text-center">{{ getSerialNumber($index) }}</td>
+                <td class="text-center">{{ r.PredefinedRemarkNo }}</td>
+                <td style="white-space: normal;">{{ r.BillingRRPendingReason || '-' }}</td>
+                <td style="white-space: normal;">{{ r.ActionToBeTakenForCompletionRR || '-' }}</td>
+                <td class="text-center">
+                  <span class="badge" [class.bg-success]="r.IsActive" [class.bg-secondary]="!r.IsActive">
+                    {{ r.IsActive ? 'Yes' : 'No' }}
+                  </span>
+                </td>
+                <td class="text-center">{{ formatDt(r.CreatedAt) }}</td>
+                <td class="text-center">{{ r.CreatedBy || '-' }}</td>
+                <td class="text-center">
+                  <button class="btn btn-sm btn-warning me-1" (click)="openUpdateModal(r)" title="Edit">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-danger" (click)="openDeleteDialog(r.PredefinedRemarkNo)" title="Delete">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </td>
+              </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <!-- Pagination Controls -->
+              @if (totalCount() > 0) {
+              <div class="row mt-3 align-items-center">
+                <div class="col-12 col-md-5 mb-2 mb-md-0">
+                  <div class="dataTables_info text-center text-md-start">
+                    Showing {{ getStartRecord() }} to {{ getEndRecord() }} of {{ totalCount() }} entries
+                  </div>
+                </div>
+                <div class="col-12 col-md-7">
+                  <div
+                    class="dataTables_paginate paging_simple_numbers d-flex justify-content-center justify-content-md-end">
+                    <ul class="pagination mb-0">
+                      <!-- Previous Button -->
+                      <li class="paginate_button page-item" [class.disabled]="currentPage() === 1">
+                        <a class="page-link" [class.pe-none]="currentPage() === 1" style="cursor: pointer;"
+                          (click)="currentPage() === 1 ? null : onPageChange(currentPage() - 1)">
+                          Previous
+                        </a>
+                      </li>
+
+                      <!-- Page Numbers with Ellipsis -->
+                      @for (page of getVisiblePages(); track $index) {
+                      @if (page === -1 || page === -2) {
+                      <li class="paginate_button page-item disabled">
+                        <span class="page-link">...</span>
+                      </li>
+                      } @else {
+                      <li class="paginate_button page-item" [class.active]="page === currentPage()">
+                        <a class="page-link" style="cursor: pointer;" [class.pe-none]="page === currentPage()"
+                          (click)="page === currentPage() ? null : onPageChange(page)">
+                          {{ page }}
+                        </a>
+                      </li>
+                      }
+                      }
+
+                      <!-- Next Button -->
+                      <li class="paginate_button page-item" [class.disabled]="currentPage() === totalPages()">
+                        <a class="page-link" [class.pe-none]="currentPage() === totalPages()" style="cursor: pointer;"
+                          (click)="currentPage() === totalPages() ? null : onPageChange(currentPage() + 1)">
+                          Next
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              }
+              }
+            </div>
+          </div>
+        </div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- CREATE MODAL                                           -->
+<!-- ═══════════════════════════════════════════════════════ -->
+@if (showCreateModal()) {
+<div class="modal fade show" tabindex="-1" style="display: block; background: rgba(0,0,0,.5);">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Create Predefined Remark</h5>
+        <button type="button" class="btn-close" (click)="closeCreateModal()" [disabled]="isSaving()"></button>
+      </div>
+
+      <div class="modal-body">
+        <form [formGroup]="createForm">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">
+              Billing/RR Pending Reason <span class="text-danger">*</span>
+            </label>
+            <textarea rows="3" class="form-control" formControlName="billingRRPendingReason"
+              placeholder="Enter billing/RR pending reason..."
+              [class.is-invalid]="isInvalid(createForm, 'billingRRPendingReason')"></textarea>
+            @if (isInvalid(createForm, 'billingRRPendingReason')) {
+            <div class="invalid-feedback">Required</div>
+            }
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">
+              Action To Be Taken <span class="text-danger">*</span>
+            </label>
+            <textarea rows="3" class="form-control" formControlName="actionToBeTakenForCompletionRR"
+              placeholder="Enter action to be taken..."
+              [class.is-invalid]="isInvalid(createForm, 'actionToBeTakenForCompletionRR')"></textarea>
+            @if (isInvalid(createForm, 'actionToBeTakenForCompletionRR')) {
+            <div class="invalid-feedback">Required</div>
+            }
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeCreateModal()" [disabled]="isSaving()">Close</button>
+        <button class="btn btn-primary" (click)="saveCreate()" [disabled]="isSaving() || createForm.invalid">
+          @if (isSaving()) {
+          <span class="spinner-border spinner-border-sm me-1"></span> Saving...
+          } @else {
+          <i class="bi bi-save me-1"></i> Save
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- UPDATE MODAL                                           -->
+<!-- ═══════════════════════════════════════════════════════ -->
+@if (showUpdateModal()) {
+<div class="modal fade show" tabindex="-1" style="display: block; background: rgba(0,0,0,.5);">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Update Predefined Remark</h5>
+        <button type="button" class="btn-close" (click)="closeUpdateModal()" [disabled]="isUpdating()"></button>
+      </div>
+
+      <div class="modal-body">
+        <form [formGroup]="updateForm">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">
+              Billing/RR Pending Reason <span class="text-danger">*</span>
+            </label>
+            <textarea rows="3" class="form-control" formControlName="billingRRPendingReason"
+              [class.is-invalid]="isInvalid(updateForm, 'billingRRPendingReason')"></textarea>
+            @if (isInvalid(updateForm, 'billingRRPendingReason')) {
+            <div class="invalid-feedback">Required</div>
+            }
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">
+              Action To Be Taken <span class="text-danger">*</span>
+            </label>
+            <textarea rows="3" class="form-control" formControlName="actionToBeTakenForCompletionRR"
+              [class.is-invalid]="isInvalid(updateForm, 'actionToBeTakenForCompletionRR')"></textarea>
+            @if (isInvalid(updateForm, 'actionToBeTakenForCompletionRR')) {
+            <div class="invalid-feedback">Required</div>
+            }
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeUpdateModal()" [disabled]="isUpdating()">Close</button>
+        <button class="btn btn-primary" (click)="saveUpdate()" [disabled]="isUpdating() || updateForm.invalid">
+          @if (isUpdating()) {
+          <span class="spinner-border spinner-border-sm me-1"></span> Updating...
+          } @else {
+          <i class="bi bi-save me-1"></i> Update
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+}

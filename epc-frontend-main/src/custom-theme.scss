@@ -1,0 +1,21 @@
+@import'../src/assets/scss/main.scss';
+.layout-mode-rtl {
+  .me-auto {
+    margin-right: unset !important;
+    margin-left: auto !important;
+  }
+  .me-2 {
+    margin-right: 0 !important;
+    margin-left: .5rem !important;
+}
+  .ms-2 {
+    margin-left: 0 !important;
+    margin-right: .5rem !important;
+}
+.sidebar .sidebar-menu > ul > li ul {
+  direction: rtl;
+}
+.sidebar .sidebar-menu > ul li.menu-title {
+  justify-content: end;
+}
+}

@@ -1,0 +1,122 @@
+<div class="content container-fluid">
+  <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap w-100 justify-content-between gap-2">
+      <div class="me-0">
+        <app-breadcrumbs title="Upload Files" [breadcrumbItems]="breadCrumbItems()"></app-breadcrumbs>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label fw-semibold d-flex align-items-center mb-2">
+              Select Consignment Files (COGS)
+              @if (uploading()) {
+                <span class="badge bg-primary ms-2">
+                  <span class="spinner-border spinner-border-sm me-1" role="status" style="width: 12px; height: 12px;"></span>
+                  Uploading...
+                </span>
+              }
+            </label>
+            <input type="file" class="form-control" #fileInput accept=".xls,.xlsx,.xlsb,.csv" (change)="onFileSelect($event)" [disabled]="isUploading()" />
+            <div class="form-text">Select Excel file (Max: 25MB, Format: .xls, .xlsx, .xlsb, .csv)</div>
+
+            @if (errorMessage()) {
+              <div class="alert alert-danger mt-2 mb-0 py-2 small" role="alert">
+                <i class="bi bi-exclamation-circle-fill me-2"></i> {{ errorMessage() }}
+              </div>
+            }
+
+            @if (selectedFile() && !errorMessage()) {
+              <div class="alert alert-success mt-2 mb-0 py-2 small" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                Selected: {{ selectedFile()!.name }} ({{ getFileSizeDisplay(selectedFile()) }})
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="card-footer bg-white">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+              @if (!selectedFile()) {
+                <small class="text-muted"><i class="bi bi-info-circle me-1"></i> Please select a file to upload</small>
+              }
+            </div>
+            <button type="button" class="btn btn-primary" (click)="uploadFile()" [disabled]="!selectedFile() || isUploading()">
+              @if (uploading()) {
+                <span class="spinner-border spinner-border-sm me-2"></span> Uploading...
+              } @else {
+                <i class="bi bi-cloud-upload me-2"></i> Upload File
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label fw-semibold d-flex align-items-center mb-2">
+            Select SalesFTM Files
+            @if (uploadingSales()) {
+              <span class="badge bg-primary ms-2">
+                <span class="spinner-border spinner-border-sm me-1" role="status" style="width: 12px; height: 12px;"></span>
+                Uploading...
+              </span>
+            }
+          </label>
+
+          <div class="registration-info-note d-flex align-items-center p-2 mb-3">
+            <div class="info-icon-container me-2">
+              <i class="bi bi-info-circle-fill"></i>
+            </div>
+            <span class="info-text">Multiple SalesFTM Files Allowed.</span>
+          </div>
+
+          <input type="file" class="form-control" #salesFileInput multiple accept=".xls,.xlsx,.xlsb,.csv" (change)="onSalesFileSelect($event)" [disabled]="isUploading()" />
+          <div class="form-text">Select Excel files (Max: 25MB per file). You can select multiple files.</div>
+
+          @if (salesErrorMessage()) {
+            <div class="alert alert-danger mt-2 mb-0 py-2 small" role="alert">
+              <i class="bi bi-exclamation-circle-fill me-2"></i> {{ salesErrorMessage() }}
+            </div>
+          }
+
+          @if (selectedSalesFiles().length > 0 && !salesErrorMessage()) {
+            <div class="alert alert-success mt-2 mb-0 py-2 small" role="alert">
+              <i class="bi bi-check-circle-fill me-2"></i>
+              <strong>{{ selectedSalesFiles().length }} file(s) selected</strong>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="card-footer bg-white">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div>
+            @if (selectedSalesFiles().length === 0) {
+              <small class="text-muted"><i class="bi bi-info-circle me-1"></i> Please select at least one file</small>
+            }
+          </div>
+          <button type="button" class="btn btn-primary" (click)="uploadSalesFiles()" [disabled]="selectedSalesFiles().length === 0 || isUploading()">
+            @if (uploadingSales()) {
+              <span class="spinner-border spinner-border-sm me-2"></span> Uploading...
+            } @else {
+              <i class="bi bi-cloud-upload me-2"></i> Upload {{ selectedSalesFiles().length }} File(s)
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+

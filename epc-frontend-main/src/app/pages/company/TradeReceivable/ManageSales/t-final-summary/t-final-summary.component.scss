@@ -1,0 +1,19 @@
+.tables-wrap{
+  display: flex;
+  flex-wrap: nowrap;     /* ✅ wrap off - right table kindaki raadhu */
+  gap: 16px;
+  overflow-x: auto;      /* ✅ horizontal scroll for both tables */
+  width: 100%;
+}
+
+.table-panel{
+  flex: 0 0 auto;        /* ✅ fixed width panels */
+}
+
+.left-panel{
+  width: 1200px;         /* ✅ left table width penchuko */
+}
+
+.right-panel{
+  width: 900px;          /* ✅ right table width */
+}

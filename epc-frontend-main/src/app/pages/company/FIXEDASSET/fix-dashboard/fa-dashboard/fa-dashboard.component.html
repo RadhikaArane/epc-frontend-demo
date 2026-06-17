@@ -1,0 +1,457 @@
+<div class="content" style="padding-bottom: 0 !important; margin-bottom: 0 !important;">
+
+  <!-- Page Breadcrumb -->
+  <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-1">
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+      <div class="me-0 mb-1">
+        <app-breadcrumbs title="Asset Dashboard" [breadcrumbItems]="breadCrumbItems()"></app-breadcrumbs>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Welcome Card -->
+  <div class="card mb-1 border-0 shadow-sm" 
+     style="
+       border-radius: 14px;
+       /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+       color: #ffffff;
+     ">
+
+  <div class="card-body d-flex align-items-center justify-content-between"
+       style="padding: 10px 14px;">
+
+    <!-- LEFT -->
+    <div class="d-flex align-items-center gap-3">
+
+      <img
+        src="assets/img/Mahindra_Project/User-img/user-img.jpg"
+        alt="Profile"
+        class="rounded-circle flex-shrink-0"
+        style="width:40px; height:40px; object-fit: cover;"
+      >
+
+      <div>
+        <div style="font-size: 13px; font-weight: 700; line-height: 1.2; color: black;">
+          Welcome, {{ userName() }}
+        </div>
+        <div style="font-size: 11px; opacity: 0.9;">
+          
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT -->
+    <span class="badge"
+          style="
+            background: rgba(255,255,255,0.25);
+            font-size: 10px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 10px;
+          ">
+      Live Data
+    </span>
+
+  </div>
+</div>
+
+
+  <!-- Error Message -->
+  @if (errorMsg()) {
+    <div class="alert alert-danger mb-2" style="border-radius:12px; border-left: 4px solid #dc3545;">
+      <i class="bi bi-exclamation-triangle me-2"></i>{{ errorMsg() }}
+    </div>
+  }
+
+  <!-- ✅ KPI Cards Row -->
+  <div class="row g-2 mt-3 mb-1">
+
+
+
+<!--      <div class="card"
+        style="border: none; border-radius: 14px;               -->
+
+    <!-- Total Assets -->
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card"  (click)="_goToAssetMaster()"
+        style="border: none; border-radius: 14px;             overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.2s ease, box-shadow 0.2s ease;"
+        onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 18px rgba(0,0,0,0.12)'"
+        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'" >
+
+        <div class="card-body" style="padding: 14px 16px;">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-start flex-grow-1">
+              <div
+                style="width: 42px; height: 42px; border-radius: 12px; margin-right: 12px;
+                display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                box-shadow: 0 4px 10px rgba(102, 126, 234, 0.25);">
+                <i class="bi bi-box-seam" style="font-size: 20px; color: #ffffff;"></i>
+              </div>
+
+              <div class="flex-grow-1">
+                <div style="font-size: 11px; color: #6c757d; font-weight: 600; margin-bottom: 4px; text-transform: uppercase;">
+                  Total Assets
+                </div>
+
+                <div style="font-size: 16px; font-weight: 700; color: #2c3e50; line-height: 1;">
+                  @if (isLoadingSummary()) {
+                    <span class="placeholder-glow">
+                      <span class="placeholder" style="width: 60px;"></span>
+                    </span>
+                  } @else {
+                    {{ dashboardCount()?.TotalAssets || 0 | number:'1.0-0' }}
+                  }
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div style="height: 3px; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);"></div>
+      </div>
+    </div>
+
+    <!-- Verified -->
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card"  (click)="_goToVerified('verified')"
+        style="border: none; border-radius: 14px; overflow: hidden;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: transform 0.2s ease, box-shadow 0.2s ease;"
+        onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 18px rgba(0,0,0,0.12)'"
+        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(0,0,0,0.08)'">
+
+        <div class="card-body" style="padding: 14px 16px;">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-start flex-grow-1">
+
+              <div
+                style="width: 42px; height: 42px; border-radius: 12px; margin-right: 12px;
+                display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+                background: linear-gradient(135deg, #0ea81d 0%, #4ceb17 100%);
+                box-shadow: 0 4px 10px rgba(14, 168, 29, 0.25);">
+                <i class="bi bi-check2-circle" style="font-size: 20px; color: #ffffff;"></i>
+              </div>
+
+              <div class="flex-grow-1">
+                <div style="font-size: 11px; color: #6c757d; font-weight: 600; margin-bottom: 4px; text-transform: uppercase;">
+                  Verified
+                </div>
+
+                <div style="font-size: 16px; font-weight: 700; color: #2c3e50; line-height: 1;">
+                  @if (isLoadingSummary()) {
+                    <span class="placeholder-glow">
+                      <span class="placeholder" style="width: 60px;"></span>
+                    </span>
+                  } @else {
+                    <!-- {{ ((dashboardCount()?.VerifiedManual || 0) + (dashboardCount()?.VerifiedScanned || 0)) | number:'1.0-0' }}  old  -->
+                      {{ dashboardCount()?.VerifiedAssets || 0 | number:'1.0-0' }}
+
+                  }
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div style="height: 3px; background: linear-gradient(90deg, #0ea81d 0%, #4ceb17 100%);"></div>
+      </div>
+    </div>
+
+    <!-- Not Available -->
+    <div class="col-12 col-sm-6 col-lg-3">
+  <div class="card cursor-pointer"
+    (click)="viewNotAvailableAssets()"
+
+    style="border: none; border-radius: 14px; overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;"
+    onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 18px rgba(0,0,0,0.12)'"
+    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(0,0,0,0.08)'">
+
+        <div class="card-body" style="padding: 14px 16px;">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-start flex-grow-1">
+
+              <div
+                style="width: 42px; height: 42px; border-radius: 12px; margin-right: 12px;
+                display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                box-shadow: 0 4px 10px rgba(245, 87, 108, 0.25);">
+                <i class="bi bi-exclamation-triangle" style="font-size: 20px; color: #ffffff;"></i>
+              </div>
+
+              <div class="flex-grow-1">
+                <div style="font-size: 11px; color: #6c757d; font-weight: 600; margin-bottom: 4px; text-transform: uppercase;">
+                  Not Available
+                </div>
+
+                <div style="font-size: 16px; font-weight: 700; color: #2c3e50; line-height: 1;">
+                  @if (isLoadingSummary()) {
+                    <span class="placeholder-glow">
+                      <span class="placeholder" style="width: 60px;"></span>
+                    </span>
+                  } @else {
+                    <!-- {{ dashboardCount()?.NotAvailable || 0 | number:'1.0-0' }}  old -->
+                      {{ dashboardCount()?.NotAvailableAssets || 0 | number:'1.0-0' }}
+
+                  }
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div style="height: 3px; background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);"></div>
+      </div>
+    </div>
+
+    <!-- Ghost Found -->
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card"    (click)="_goToGhost('ghost')"
+        style="border: none; border-radius: 14px; overflow: hidden;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: transform 0.2s ease, box-shadow 0.2s ease;"
+        onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 18px rgba(0,0,0,0.12)'"
+        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(0,0,0,0.08)'">
+
+        <div class="card-body" style="padding: 14px 16px;">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-start flex-grow-1">
+
+              <div
+                style="width: 42px; height: 42px; border-radius: 12px; margin-right: 12px;
+                display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+                background: linear-gradient(135deg, #f60000 0%, #fe9540 100%);
+                box-shadow: 0 4px 10px rgba(250, 112, 154, 0.25);">
+                <i class="bi bi-eye-slash" style="font-size: 20px; color: #ffffff;"></i>
+              </div>
+
+              <div class="flex-grow-1">
+                <div style="font-size: 11px; color: #6c757d; font-weight: 600; margin-bottom: 4px; text-transform: uppercase;">
+                  Ghost Found
+                </div>
+
+                <div style="font-size: 16px; font-weight: 700; color: #2c3e50; line-height: 1;">
+                  @if (isLoadingSummary()) {
+                    <span class="placeholder-glow">
+                      <span class="placeholder" style="width: 60px;"></span>
+                    </span>
+                  } @else {
+                    <!-- {{ dashboardCount()?.TotalGhostAssets || 0 | number:'1.0-0' }}  old  -->
+                      {{ dashboardCount()?.GhostAssetsFound || 0 | number:'1.0-0' }}
+
+                  }
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div style="height: 3px; background: linear-gradient(90deg, #f60000 0%, #fe9540 100%);"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ✅ Table Card -->
+  <div class="card border-0 shadow-sm mb-0 mt-n4" style="border-radius: 16px;">
+
+    <div class="card-header bg-white"
+      style="border: 0; border-bottom: 3px solid #667eea; border-radius: 16px 16px 0 0; padding: 6px 10px;">
+
+      <!-- ✅ Proper alignment: title left, dropdown+records right -->
+      <div class="d-flex align-items-center justify-content-between flex-wrap" style="gap: 8px;">
+
+        <h6 class="m-0" style="font-weight: 700; color: #2c3e50; font-size: 13px;">
+          <i class="bi bi-table" style="color: #667eea; margin-right: 6px;"></i>
+          Location & Asset Class Summary
+        </h6>
+
+        <!-- ✅ Dropdown + Records together -->
+        <div class="d-flex align-items-center" style="gap: 10px;">
+          <select class="form-select form-select-sm"
+            style="width: 170px; border-radius: 10px; border-color: #667eea;"
+            [value]="selectedCampaignId()"  
+            (change)="onCampaignChange($event)">
+
+            @for (c of campaigns(); track c.Id) {
+              <option [value]="c.Id" >{{ c.Name }}</option>
+            }
+          </select>
+
+          <!-- <span class="badge"
+            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 5px 10px; font-weight: 600; font-size: 10px;">
+            {{ totalRecords() }} Records
+          </span> -->
+          <button class="btn btn-sm btn-primary" (click)="downloadExcelByCampaign()">Export</button>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card-body" style="padding: 4px;">
+
+      @if (isLoadingSummary()) {
+        <div class="text-center py-4">
+          <div class="spinner-border text-primary" role="status" style="width: 2.2rem; height: 2.2rem;">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-2 text-muted" style="font-size: 13px;">Loading summary data...</p>
+        </div>
+      } @else {
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0 table-ultra-compact"
+            style="border-radius: 12px; overflow: hidden;">
+
+            <thead style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;" class="thead-light ">
+              <tr>
+                <th style="padding: 4px 6px; font-weight: 600; border: none; white-space: nowrap; font-size: 12px;">Sr No</th>
+                <th style="padding: 4px 6px; font-weight: 600; border: none; white-space: nowrap; font-size: 12px;">Location</th>
+                <th style="padding: 4px 6px; font-weight: 600; border: none; white-space: nowrap; font-size: 12px;">Asset Class</th>
+                <th style="padding: 4px 6px; font-weight: 600; border: none; text-align: right; white-space: nowrap; font-size: 12px;">Total</th>
+                <th style="padding: 4px 6px; font-weight: 600; border: none; text-align: right; white-space: nowrap; font-size: 12px;">Manual</th>
+                <th style="padding: 4px 6px; font-weight: 600; border: none; text-align: right; white-space: nowrap; font-size: 12px;">Scanned</th>
+                <th style="padding: 4px 6px; font-weight: 600; border: none; text-align: right; white-space: nowrap; font-size: 12px;">Non-Taggable</th>
+                <th style="padding: 4px 6px; font-weight: 600; border: none; text-align: right; white-space: nowrap; font-size: 12px;">Pending</th>
+                <th style="padding: 4px 6px; font-weight: 600; border: none; text-align: center; white-space: nowrap; font-size: 12px;">Completion</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (row of dashboardData(); track $index) {
+                <tr style="border-bottom: 1px solid #e9ecef;"
+                  onmouseover="this.style.backgroundColor='#f8f9fa'"
+                  onmouseout="this.style.backgroundColor='transparent'">
+
+                  <td style="padding: 3px 6px; font-weight: 600; color: #2c3e50; white-space: nowrap; font-size: 12px;">
+                    {{ getSerialNumber($index) }}
+                  </td>
+
+                  <td style="padding: 3px 6px; font-weight: 500; color: #2c3e50; font-size: 12px;">
+                    <i class="bi bi-geo-alt-fill text-primary me-1" style="font-size: 12px;"></i>
+                    {{ row.Location }}
+                  </td>
+
+                  <td style="padding: 3px 6px; color: #495057; font-size: 12px;">
+                    {{ row.AssetClass }}
+                  </td>
+
+                  <td style="padding: 3px 6px; text-align: right; font-weight: 600; color: #2c3e50; font-size: 12px;">
+                    {{ row.TotalAssets | number:'1.0-0' }}
+                  </td>
+
+                  <td style="padding: 3px 6px; text-align: right; color: #495057; font-size: 12px;">
+                    {{ row.VerifiedManual | number:'1.0-0' }}
+                  </td>
+
+                  <td style="padding: 3px 6px; text-align: right; color: #495057; font-size: 12px;">
+                    {{ row.VerifiedScanned | number:'1.0-0' }}
+                  </td>
+
+                  <td style="padding: 3px 6px; text-align: right; color: #495057; font-size: 12px;">
+                    {{ row.VerifiedNonTaggable | number:'1.0-0' }}
+                  </td>
+
+                  <td style="padding: 3px 6px; text-align: right; color: #dc3545; font-weight: 600; font-size: 12px;">
+                    {{ row.Pending | number:'1.0-0' }}
+                  </td>
+
+                  <td style="padding: 3px 6px; text-align: center; font-size: 12px;">
+                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                      <div style="width: 70px; height: 5px; background: #e9ecef; border-radius: 10px; overflow: hidden;">
+                        <div [style.width.%]="row.CompletionPercentage"
+                          [style.background]="getProgressBarColor(row.CompletionPercentage)"
+                          style="height: 100%; border-radius: 10px;">
+                        </div>
+                      </div>
+                      <span class="badge" [style.background]="getBadgeColor(row.CompletionPercentage)"
+                        style="padding: 3px 8px; font-weight: 600; font-size: 10px; color: white; border-radius: 8px;">
+                        {{ row.CompletionPercentage | number:'1.0-0' }}%
+                      </span>
+                    </div>
+                  </td>
+
+                </tr>
+              }
+
+              @if (!dashboardData().length) {
+                <tr>
+                  <td colspan="9" class="text-center py-4" style="color: #6c757d;">
+                    <i class="bi bi-inbox" style="font-size: 36px; color: #dee2e6;"></i>
+                    <p class="mt-2 mb-0" style="font-size: 13px;">No summary data available</p>
+                  </td>
+                </tr>
+              }
+            </tbody>
+
+          </table>
+        </div>
+      }
+
+      <!-- ✅ Compact Pagination -->
+      @if (totalRecords() > 0) {
+        <div class="row mt-1 align-items-center">
+
+          <div class="col-12 col-md-5 mb-1 mb-md-0">
+            <div class="dataTables_info text-center text-md-start" style="font-size: 12px;">
+              Showing {{ getStartRecord() }} to {{ getEndRecord() }} of {{ totalRecords() }} entries
+            </div>
+          </div>
+
+          <div class="col-12 col-md-7">
+            <div class="dataTables_paginate paging_simple_numbers d-flex justify-content-center justify-content-md-end">
+              <ul class="pagination mb-0">
+
+                <li class="paginate_button page-item" [class.disabled]="currentPage() === 1">
+                  <a class="page-link" [class.pe-none]="currentPage() === 1"
+                    style="cursor: pointer; padding: 2px 8px; font-size: 12px;"
+                    (click)="currentPage() === 1 ? null : onPageChange(currentPage() - 1)">
+                    Previous
+                  </a>
+                </li>
+
+                @for (page of getVisiblePages(); track $index) {
+                  @if (page === -1 || page === -2) {
+                    <li class="paginate_button page-item disabled">
+                      <span class="page-link" style="padding: 2px 8px; font-size: 12px;">...</span>
+                    </li>
+                  } @else {
+                    <li class="paginate_button page-item" [class.active]="page === currentPage()">
+                      <a class="page-link"
+                        style="cursor: pointer; padding: 2px 8px; font-size: 12px;"
+                        [class.pe-none]="page === currentPage()"
+                        (click)="page === currentPage() ? null : onPageChange(page)">
+                        {{ page }}
+                      </a>
+                    </li>
+                  }
+                }
+
+                <li class="paginate_button page-item"
+                  [class.disabled]="currentPage() === totalPages() || totalPages() === 0">
+                  <a class="page-link"
+                    [class.pe-none]="currentPage() === totalPages() || totalPages() === 0"
+                    style="cursor: pointer; padding: 2px 8px; font-size: 12px;"
+                    (click)="(currentPage() === totalPages() || totalPages() === 0) ? null : onPageChange(currentPage() + 1)">
+                    Next
+                  </a>
+                </li>
+
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      }
+
+    </div>
+  </div>
+
+</div>

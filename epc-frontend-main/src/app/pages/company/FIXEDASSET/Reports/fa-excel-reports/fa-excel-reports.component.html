@@ -1,0 +1,85 @@
+<div class="content container-fluid">
+
+  <!-- PAGE HEADER -->
+  <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+      <div class="me-0 mb-2">
+        <app-breadcrumbs title="Download Excel Reports" [breadcrumbItems]="breadCrumbItems()">
+        </app-breadcrumbs>
+      </div>
+    </div>
+  </div>
+
+  <!-- CAMPAIGN DROPDOWN -->
+  <div class="row mb-3">
+    <div class="col-md-4">
+      <select style="border-color: crimson;" class="form-select form-select-sm py-1" [value]="selectedCampaignId() ?? ''"
+        (change)="onCampaignChange($event)">
+
+        <!-- <option value=""[disabled]="">Select Campaign</option> -->
+
+        @for (c of campaigns(); track c.Id) {
+
+
+        <option [value]="c.Id">
+          {{ c.Name }}
+        </option>
+
+        }
+      </select>
+    </div>
+  </div>
+
+  <!-- REPORT CARDS -->
+  <div class="row g-4">
+
+    <!-- MASTER STATUS REPORT -->
+    <div class="col-12 col-md-4">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body d-flex flex-column">
+          <h5 class="fw-bold mb-2">Master Status Report</h5>
+          <p class="text-muted mb-4">
+            Complete list of assets with verification status.
+          </p>
+          <button class="btn btn-danger mt-auto" [disabled]="!selectedCampaignId()" (click)="downloadMasterStatus()">
+            <i class="bi bi-file-earmark-excel me-1"></i>
+            Download Excel (.xlsx)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GHOST ASSET REPORT -->
+    <div class="col-12 col-md-4">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body d-flex flex-column">
+          <h5 class="fw-bold mb-2">Ghost Asset Report</h5>
+          <p class="text-muted mb-4">
+            Assets found newly during verification.
+          </p>
+          <button class="btn btn-danger mt-auto" [disabled]="!selectedCampaignId()" (click)="downloadGhostReport()">
+            <i class="bi bi-file-earmark-excel me-1"></i>
+            Download Excel (.xlsx)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- USER PRODUCTIVITY -->
+    <div class="col-12 col-md-4">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body d-flex flex-column">
+          <h5 class="fw-bold mb-2">User Productivity</h5>
+          <p class="text-muted mb-4">
+            Scan & manual verification count per user.
+          </p>
+          <button class="btn btn-secondary mt-auto" disabled>
+            Coming Soon
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

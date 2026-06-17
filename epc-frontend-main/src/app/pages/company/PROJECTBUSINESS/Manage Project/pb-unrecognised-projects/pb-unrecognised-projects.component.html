@@ -1,0 +1,318 @@
+<div class="content container-fluid">
+
+    <!-- Breadcrumb -->
+    <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+        <div class="d-flex my-xl-auto right-content align-items-center flex-wrap w-100 gap-2">
+            <app-breadcrumbs title="Unrecognised Projects" [breadcrumbItems]="breadCrumbItems()"></app-breadcrumbs>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-body p-2">
+
+                <!-- Loading -->
+                @if (isLoading()) {
+                <div class="position-relative" style="min-height: 400px;">
+                    <div class="position-absolute top-50 start-50 translate-middle text-center">
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+                        <p class="mt-2 text-muted">Loading project data...</p>
+                    </div>
+                </div>
+
+                } @else if (!hasProjects()) {
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                    <p class="text-muted mt-2">No unrecognised projects found</p>
+                </div>
+
+                } @else {
+
+                <div class="table-responsive" style="overflow-x: auto; max-height: 80vh; overflow-y: auto;">
+                    <table class="table table-bordered mb-0 table-ultra-compact"
+                        style="min-width: 100%; font-size: 12.5px; border-collapse: collapse;">
+
+                        <!-- ============================================================
+                   THEAD
+              ============================================================== -->
+                        <thead style="position: sticky; top: 0; z-index: 20;">
+
+                            <!-- Row 1: Project name headers -->
+                            <tr>
+                                <th rowspan="2" style="width: 220px; min-width: 220px;
+                           position: sticky; left: 0; z-index: 30;
+                           background: #dc3545; color: #fff;
+                           text-align: center; vertical-align: middle;
+                           border-right: 2px solid #b02a37; padding: 8px;">
+                                    <strong>Cost Head</strong>
+                                </th>
+
+                                @for (project of projects(); track project.ProjectId) {
+                                @if (isProjectExpanded(project.ProjectId)) {
+                                <th [attr.colspan]="getMonths(project).length + 2" style="background: #dc3545; color: #fff; text-align: center;
+                               cursor: pointer; padding: 8px 12px;
+                               border-bottom: 1px solid #b02a37;" (click)="toggleProject(project.ProjectId, $event)">
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <i class="bi bi-dash-circle-fill" style="font-size: 14px; flex-shrink: 0;"></i>
+                                        <span style="font-weight: 600; font-size: 13px;">{{ project.ProjectName
+                                            }}</span>
+                                    </div>
+                                </th>
+                                } @else {
+                                <th colspan="2" style="background: #dc3545; color: #fff; text-align: center;
+                               cursor: pointer; padding: 8px 12px;
+                               border-bottom: 1px solid #b02a37;" (click)="toggleProject(project.ProjectId, $event)">
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <i class="bi bi-plus-circle-fill" style="font-size: 14px; flex-shrink: 0;"></i>
+                                        <span style="font-weight: 600; font-size: 13px;">{{ project.ProjectName
+                                            }}</span>
+                                    </div>
+                                </th>
+                                }
+                                }
+                            </tr>
+
+                            <!-- Row 2: Month labels + Total Actual + Budget -->
+                            <tr>
+                                @for (project of projects(); track project.ProjectId) {
+                                @if (isProjectExpanded(project.ProjectId)) {
+                                @for (month of getMonths(project); track month) {
+                                <th style="background: #dc3545; color: #fff; text-align: center;
+                                   font-weight: 600; padding: 5px 8px; min-width: 110px;
+                                   white-space: nowrap;">
+                                    {{ month }}
+                                </th>
+                                }
+                                }
+                                <th style="background: #dc3545; color: #fff; text-align: center;
+                               font-weight: 600; padding: 5px 8px; min-width: 120px;">
+                                    Total Actual
+                                </th>
+                                <th style="background: #dc3545; color: #fff; text-align: center;
+                               font-weight: 600; padding: 5px 8px; min-width: 120px;">
+                                    Budget
+                                </th>
+                                }
+                            </tr>
+                        </thead>
+
+
+                        <!-- ============================================================
+                   TBODY
+              ============================================================== -->
+                        <tbody>
+
+                            <!-- Sale Value Recognized -->
+                            <tr style="background: #fff;">
+                                <td style="position: sticky; left: 0; background: #fff; z-index: 5;
+                             font-weight: 600; border-right: 2px solid #dee2e6;
+                             color: #000; padding: 6px 10px;">
+                                    Sale Value Recognized
+                                </td>
+                                @for (project of projects(); track project.ProjectId) {
+                                @if (isProjectExpanded(project.ProjectId)) {
+                                @for (month of getMonths(project); track month) {
+                                <td style="text-align: right; padding: 5px 10px; color: #aaa;">-</td>
+                                }
+                                }
+                                <td style="text-align: right; padding: 5px 10px; color: #000; font-weight: 600;">
+                                    {{ fmt(project.TotalSaleValueRecognized) }}
+                                </td>
+                                <td style="text-align: right; padding: 5px 10px; color: #000; font-weight: 600;">
+                                    {{ fmt(project.ProjectTotalSaleValueExclGst) }}
+                                </td>
+                                }
+                            </tr>
+
+                            <!-- Recognized Sale Value Excl. GST -->
+                            <tr style="background: #f8f9fa;">
+                                <td style="position: sticky; left: 0; background: #f8f9fa; z-index: 5;
+                             border-right: 2px solid #dee2e6; color: #000; padding: 6px 10px;">
+                                    Recognized Sale Value (Excl. GST)
+                                </td>
+                                @for (project of projects(); track project.ProjectId) {
+                                @if (isProjectExpanded(project.ProjectId)) {
+                                @for (month of getMonths(project); track month) {
+                                <td style="text-align: right; padding: 5px 10px; color: #aaa;">-</td>
+                                }
+                                }
+                                <td style="text-align: right; padding: 5px 10px; color: #000;">
+                                    {{ fmt(project.RecognizedSaleValueExclGst) }}
+                                </td>
+                                <td style="text-align: right; padding: 5px 10px; color: #aaa;">-</td>
+                                }
+                            </tr>
+
+                            <!-- Exps Incurred % -->
+                            <tr style="background: #fff;">
+                                <td style="position: sticky; left: 0; background: #fff; z-index: 5;
+                             border-right: 2px solid #dee2e6; color: #000; padding: 6px 10px;">
+                                    Exps Incurred %
+                                </td>
+                                @for (project of projects(); track project.ProjectId) {
+                                @if (isProjectExpanded(project.ProjectId)) {
+                                @for (month of getMonths(project); track month) {
+                                <td style="text-align: right; padding: 5px 10px; color: #aaa;">-</td>
+                                }
+                                }
+                                <td style="text-align: right; padding: 5px 10px; color: #000;">
+                                    {{ fmtPct(project.ExpsIncurredPercent) }}
+                                </td>
+                                <td style="text-align: right; padding: 5px 10px; color: #aaa;">-</td>
+                                }
+                            </tr>
+
+                            <!-- Project Incharge -->
+                            <!-- <tr style="background: #fff8f0;">
+                                <td style="position: sticky; left: 0; background: #fff8f0; z-index: 5;
+                             font-weight: 600; border-right: 2px solid #dee2e6;
+                             color: #000; padding: 6px 10px;">
+                                    Project Incharge
+                                </td>
+                                @for (project of projects(); track project.ProjectId) {
+                                @if (isProjectExpanded(project.ProjectId)) {
+                                @for (month of getMonths(project); track month) {
+                                <td style="text-align: center; padding: 5px 10px; color: #aaa;">-</td>
+                                }
+                                }
+                                <td colspan="2" style="text-align: center; padding: 5px 10px; color: #000;">
+                                    {{ project.ProjectIncharge || '-' }}
+                                </td>
+                                }
+                            </tr> -->
+
+                            <!-- Project Area -->
+                            <!-- <tr style="background: #fff8f0;">
+                                <td style="position: sticky; left: 0; background: #fff8f0; z-index: 5;
+                             font-weight: 600; border-right: 2px solid #dee2e6;
+                             color: #000; padding: 6px 10px;">
+                                    Project Area
+                                </td>
+                                @for (project of projects(); track project.ProjectId) {
+                                @if (isProjectExpanded(project.ProjectId)) {
+                                @for (month of getMonths(project); track month) {
+                                <td style="text-align: center; padding: 5px 10px; color: #aaa;">-</td>
+                                }
+                                }
+                                <td colspan="2" style="text-align: center; padding: 5px 10px; color: #000;">
+                                    {{ project.ProjectArea || '-' }}
+                                </td>
+                                }
+                            </tr> -->
+
+                            <!-- WBS No -->
+                            <tr style="background: #fff8f0;">
+                                <td style="position: sticky; left: 0; background: #fff8f0; z-index: 5;
+                             font-weight: 600; border-right: 2px solid #dee2e6;
+                             color: #000; padding: 6px 10px;">
+                                    WBS No
+                                </td>
+                                @for (project of projects(); track project.ProjectId) {
+                                @if (isProjectExpanded(project.ProjectId)) {
+                                @for (month of getMonths(project); track month) {
+                                <td style="text-align: center; padding: 5px 10px; color: #aaa;">-</td>
+                                }
+                                }
+                                <td colspan="2" style="text-align: center; padding: 5px 10px; color: #000;">
+                                    {{ project.WbsNo || '-' }}
+                                </td>
+                                }
+                            </tr>
+
+                            <!-- Status -->
+                            <tr style="background: #fff8f0;">
+                                <td style="position: sticky; left: 0; background: #fff8f0; z-index: 5;
+                             font-weight: 600; border-right: 2px solid #dee2e6;
+                             color: #000; padding: 6px 10px;">
+                                    Status
+                                </td>
+                                @for (project of projects(); track project.ProjectId) {
+                                @if (isProjectExpanded(project.ProjectId)) {
+                                @for (month of getMonths(project); track month) {
+                                <td style="text-align: center; padding: 5px 10px; color: #aaa;">-</td>
+                                }
+                                }
+                                <td colspan="2" style="text-align: center; padding: 5px 10px;">
+                                    <span class="badge"
+                                        [style.background]="project.Status === 'Active' ? '#198754' : '#6c757d'"
+                                        style="color: #fff; padding: 4px 10px; border-radius: 12px;">
+                                        {{ project.Status }}
+                                    </span>
+                                </td>
+                                }
+                            </tr>
+
+                            <!-- ==================== COST HEAD DIVIDER ==================== -->
+                            <!-- Sky blue divider — no text in data cells -->
+                            <tr>
+                                <td style="position: sticky; left: 0; z-index: 5;
+                             background: #bde8f7; font-weight: 700; color: #1a6080;
+                             padding: 6px 10px; border-right: 2px solid #7ecbeb;">
+                                    Cost Head Breakdown
+                                </td>
+                                @for (project of projects(); track project.ProjectId) {
+                                @if (isProjectExpanded(project.ProjectId)) {
+                                @for (month of getMonths(project); track month) {
+                                <td style="background: #bde8f7; padding: 5px 10px; border-color: #7ecbeb;"></td>
+                                }
+                                }
+                                <td style="background: #bde8f7; padding: 5px 10px; border-color: #7ecbeb;"></td>
+                                <td style="background: #bde8f7; padding: 5px 10px; border-color: #7ecbeb;"></td>
+                                }
+                            </tr>
+
+                            <!-- ==================== COST HEAD ROWS ==================== -->
+                            @for (ch of unionCostHeads(); track ch.CostHeadId; let i = $index) {
+                            <tr [style.background]="i % 2 === 0 ? '#fff' : '#fafafa'">
+                                <td [style.background]="i % 2 === 0 ? '#fff' : '#fafafa'" style="position: sticky; left: 0; z-index: 5;
+                             border-right: 2px solid #dee2e6;
+                             border-left: 4px solid #dc3545;
+                             font-weight: 500; color: #2d3748;
+                             padding: 5px 10px 5px 14px;">
+                                    {{ ch.CostHeadName }}
+                                </td>
+
+                                @for (project of projects(); track project.ProjectId) {
+
+                                @if (isProjectExpanded(project.ProjectId)) {
+                                <!-- Monthly actual cells -->
+                                @for (month of getMonths(project); track month) {
+                                <td style="text-align: right; padding: 5px 10px; color: #000;">
+                                    @if (getMonthlyValue(project, ch.CostHeadId, month) > 0) {
+                                    {{ fmt(getMonthlyValue(project, ch.CostHeadId, month)) }}
+                                    } @else {
+                                    <span style="color: #ccc;">-</span>
+                                    }
+                                </td>
+                                }
+                                }
+
+                                @if (projectHasCostHead(project, ch.CostHeadId)) {
+                                <!-- Total Actual: always dash (no actual total in API) -->
+                                <td style="text-align: right; padding: 5px 10px; color: #aaa;">-</td>
+                                <!-- Budget -->
+                                <td style="text-align: right; padding: 5px 10px; color: #000; font-weight: 600;">
+                                    @if (getBudget(project, ch.CostHeadId) !== null) {
+                                    {{ fmt(getBudget(project, ch.CostHeadId)) }}
+                                    } @else {
+                                    <span style="color: #ccc;">-</span>
+                                    }
+                                </td>
+                                } @else {
+                                <td style="text-align: center; padding: 5px 10px; color: #ccc;">-</td>
+                                <td style="text-align: center; padding: 5px 10px; color: #ccc;">-</td>
+                                }
+
+                                }
+                            </tr>
+                            }
+
+                        </tbody>
+                    </table>
+                </div>
+
+                }
+            </div>
+        </div>
+    </div>
+</div>

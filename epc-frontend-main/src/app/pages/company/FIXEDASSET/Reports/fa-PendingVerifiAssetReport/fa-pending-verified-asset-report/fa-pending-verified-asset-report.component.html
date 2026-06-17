@@ -1,0 +1,192 @@
+<div class="content container-fluid">
+
+  <app-breadcrumbs
+    title="Non Verified Assets"
+    [breadcrumbItems]="breadCrumbItems()">
+  </app-breadcrumbs>
+
+  <div class="card mt-2">
+
+    <!-- HEADER -->
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h6 class="m-0">Non Verified Asset List</h6>
+
+      <div class="d-flex gap-2 align-items-center">
+        <select class="form-select form-select-sm"
+                style="width:200px; border-color: crimson;"
+                [value]="selectedCampaignId()"
+                (change)="onCampaignChange($event)">
+          @for (c of campaigns(); track c.Id) {
+            <option [value]="c.Id">{{ c.Name }}</option>
+          }
+        </select>
+
+        <!-- <button class="btn btn-sm btn-success"
+                (click)="exportToExcel()">
+          <i class="bi bi-file-earmark-excel me-1"></i>
+          Export
+        </button> -->
+
+
+
+
+
+<div class="d-flex gap-2">
+  @if (!isExporting()) {
+    <button
+      class="btn btn-primary shadow-sm"
+      type="button"
+      style="border-radius: 8px;"
+      (click)="exportToExcel()"
+    >
+      <i class="bi bi-file-earmark-excel me-2"></i>
+      Export
+    </button>
+  } @else {
+    <button
+      class="btn btn-primary shadow-sm"
+      type="button"
+      style="border-radius: 8px;"
+      disabled
+    >
+      <i class="bi bi-download me-2"></i>
+      Downloading...
+    </button>
+  }
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="card-body">
+
+      @if (isLoading()) {
+
+        <div class="text-center py-4">
+          <div class="spinner-border text-primary"></div>
+        </div>
+
+      } @else {
+
+        <!-- TABLE -->
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm    table-ultra-compact">
+            <thead class="thead-light text-center">
+              <tr>
+                <th>Sr No</th>
+                <th>Location</th>
+                <th>Asset Class</th>
+                <th>Asset Number</th>
+                <th>Description</th>
+                <th>Department</th>
+                <th>Capitalisation Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+
+            <tbody class="text-end">
+              @for (row of tableData(); track $index) {
+                <tr>
+                  <td>{{ getStartRecord() + $index }}</td>
+                  <td>{{ row.LocationName }}</td>
+                  <td>{{ row.AssetClassName }}</td>
+                  <td>{{ row.AssetNumber }}</td>
+                  <td>{{ row.Description }}</td>
+                  <td>{{ row.Department }}</td>
+                  <td>{{ row.CapitalisationDate | date:'dd-MMM-yyyy' }}</td>
+                  <td>
+                    <span class="badge bg-danger">Not Verified</span>
+                  </td>
+                </tr>
+              }
+
+              @if (!tableData().length) {
+                <tr>
+                  <td colspan="8" class="text-center text-muted">
+                    No records found
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- PAGINATION -->
+        @if (totalRecords() > 0) {
+        <div class="row mt-1 align-items-center">
+
+          <div class="col-12 col-md-5 mb-1 mb-md-0">
+            <div class="dataTables_info text-center text-md-start" style="font-size: 12px;">
+              Showing {{ getStartRecord() }} to {{ getEndRecord() }} of {{ totalRecords() }} entries
+            </div>
+          </div>
+
+          <div class="col-12 col-md-7">
+            <div class="dataTables_paginate paging_simple_numbers d-flex justify-content-center justify-content-md-end">
+              <ul class="pagination mb-0">
+
+                <li class="paginate_button page-item" [class.disabled]="currentPage() === 1">
+                  <a class="page-link" [class.pe-none]="currentPage() === 1"
+                    style="cursor: pointer; padding: 2px 8px; font-size: 12px;"
+                    (click)="currentPage() === 1 ? null : onPageChange(currentPage() - 1)">
+                    Previous
+                  </a>
+                </li>
+
+                @for (page of getVisiblePages(); track $index) {
+                  @if (page === -1 || page === -2) {
+                    <li class="paginate_button page-item disabled">
+                      <span class="page-link" style="padding: 2px 8px; font-size: 12px;">...</span>
+                    </li>
+                  } @else {
+                    <li class="paginate_button page-item" [class.active]="page === currentPage()">
+                      <a class="page-link"
+                        style="cursor: pointer; padding: 2px 8px; font-size: 12px;"
+                        [class.pe-none]="page === currentPage()"
+                        (click)="page === currentPage() ? null : onPageChange(page)">
+                        {{ page }}
+                      </a>
+                    </li>
+                  }
+                }
+
+                <li class="paginate_button page-item"
+                  [class.disabled]="currentPage() === totalPages() || totalPages() === 0">
+                  <a class="page-link"
+                    [class.pe-none]="currentPage() === totalPages() || totalPages() === 0"
+                    style="cursor: pointer; padding: 2px 8px; font-size: 12px;"
+                    (click)="(currentPage() === totalPages() || totalPages() === 0) ? null : onPageChange(currentPage() + 1)">
+                    Next
+                  </a>
+                </li>
+
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      }
+    }
+    </div>
+  </div>
+</div>

@@ -1,0 +1,121 @@
+<!-- Sidebar -->
+<div class="sidebar" (mouseover)="miniSideBarMouseHover('over')" (mouseout)="miniSideBarMouseHover('out')"
+  (focus)="miniSideBarFocus('over')" (blur)="miniSideBarBlur('out')" id="sidebar">
+  <!-- Logo -->
+  <div class="sidebar-logo">
+    <a routerLink="{{homeLink}}" class="logo logo-normal">
+      <img src="assets/img/Mahindra_Project/mahindra_epc_white.png" alt="Logo" />
+    </a>
+    <a routerLink="{{homeLink}}" class="logo-small">
+      <img src="assets/img/Mahindra_Project/mahindra_epc_white.png" alt="Logo" />
+    </a>
+    <a routerLink="{{homeLink}}" class="dark-logo">
+      <img src="assets/img/Mahindra_Project/mahindra_epc_white.png" alt="Logo" />
+    </a>
+  </div>  
+
+  <div class="sidebar-inner slimscroll">
+    <div id="sidebar-menu" class="sidebar-menu">
+      <ul>
+        <!-- ✅ FIX: Use trackBy function instead of track expression -->
+        @for (mainTittle of side_bar_data; track trackByTittle($index, mainTittle)) {
+        <li class="menu-title">
+          <span>{{ mainTittle.tittle }} </span>
+        </li>
+
+        <li>
+          <ul>
+            <!-- ✅ FIX: Use trackBy function for menu items -->
+            @for (menu of mainTittle?.menu; track trackByMenu($index, menu)) {
+            @if (menu?.hasSubRoute === false && !menu?.hasSubRouteTwo) {
+            <!-- single menu -->
+            <li routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+              <a [routerLink]="menu?.route" (click)="expandSubMenus(menu)">
+                <i [class]="'ti ti-' + menu.icon"></i>
+                <span>{{ menu?.menuValue }}</span>
+              </a>
+            </li>
+            <!-- single menu end -->
+            }
+
+            @if (menu.hasSubRoute === true) {
+            <li class="submenu">
+              <a href="javascript:void(0)" (click)="expandSubMenus(menu)" (keydown.enter)="expandSubMenus(menu)"
+                tabindex="0" routerLinkActive="active" [ngClass]="{
+                  subdrop: menu.showSubRoute === true,
+                  'noti-dot': menu.dot === true,
+                  routes: homeLink
+                }">
+                <i [class]="'ti ti-' + menu.icon"></i>
+                <span>{{ menu.menuValue }} </span>
+                <span class="menu-arrow"></span>
+              </a>
+              <ul [ngClass]="
+                  menu.showSubRoute === true ? 'show-sub-menu' : 'hide-sub-menu'
+                ">
+                <!-- ✅ FIX: Use trackBy function for submenus -->
+                @for (subMenus of menu.subMenus; track trackBySubMenu($index, subMenus)) {
+                <li routerLinkActive="active">
+                  <a [routerLink]="subMenus.route">
+                    @if (subMenus.currentActive === true) {
+                    <span class="badge rounded-pill bg-primary float-end">1</span>
+                    }
+                    {{ subMenus.menuValue }}
+                  </a>
+                </li>
+                }
+              </ul>
+            </li>
+            }
+
+            @if (menu.hasSubRouteTwo === true) {
+            <li class="submenu">
+              <a href="javascript:void(0);" (click)="expandSubMenus(menu)" routerLinkActive="active"
+                [ngClass]="{ subdrop: menu.showSubRoute === true }">
+                <i [class]="'ti ti-' + menu.icon"></i>
+                <span>{{ menu.menuValue }} </span>
+                <span class="menu-arrow"></span>
+              </a>
+              <ul [ngClass]="
+                  menu.showSubRoute === true ? 'show-sub-menu' : 'hide-sub-menu'
+                ">
+                @for (subMenus of menu.subMenus; track trackBySubMenu($index, subMenus)) {
+                @if (subMenus.customSubmenuTwo === false) {
+                <li routerLinkActive="active">
+                  <a [routerLink]="subMenus.route">{{ subMenus.menuValue }}</a>
+                </li>
+                }
+
+                @if (subMenus.customSubmenuTwo === true) {
+                <li class="submenu submenu-two">
+                  <a href="javascript:void(0);" (click)="openSubmenuOne(subMenus)" routerLinkActive="active"
+                    [ngClass]="{ subdrop: openSubmenuOneItem === subMenus }">
+                    {{ subMenus.menuValue }}
+                    <span class="menu-arrow inside-submenu"></span>
+                  </a>
+                  <ul [ngClass]="
+                      openSubmenuOneItem === subMenus
+                        ? 'show-sub-menu'
+                        : 'hide-sub-menu'
+                    ">
+                    @for (subMenuTwo of subMenus.subMenusTwo; track trackBySubMenu($index, subMenuTwo)) {
+                    <li routerLinkActive="active">
+                      <a [routerLink]="subMenuTwo.route">
+                        {{ subMenuTwo.menuValue }}
+                      </a>
+                    </li>
+                    }
+                  </ul>
+                </li>
+                } }
+              </ul>
+            </li>
+            } }
+          </ul>
+        </li>
+        }
+      </ul>
+    </div>
+  </div>
+</div>
+<!-- /Sidebar -->

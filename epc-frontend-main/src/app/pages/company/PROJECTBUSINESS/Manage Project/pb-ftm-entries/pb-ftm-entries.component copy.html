@@ -1,0 +1,681 @@
+<div class="content container-fluid">
+
+  <!-- Breadcrumb -->
+  <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap w-100 justify-content-between gap-2">
+      <div class="me-0">
+        <app-breadcrumbs title="Project Summary" [breadcrumbItems]="breadCrumbItems()">
+        </app-breadcrumbs>
+      </div>
+      <div>
+        @if (isDownloading()) {
+        <button class="btn btn-primary shadow-sm">
+          <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+          Exporting...
+        </button>
+        } @else {
+        <button class="btn btn-primary shadow-sm" (click)="exportProjectRevenue()">
+          Export FTM
+        </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Card -->
+  <div class="row">
+    <div class="col-12">
+      <div class=" ">
+
+        <!-- Pagination Controls Header -->
+        <div class="card-header bg-white border-bottom">
+          <div class="row g-2 align-items-center">
+            <div class="col-12 col-md-6">
+              <div class="dataTables_length">
+                <label class="d-inline-flex align-items-center mb-0">
+                  <span class="me-1">Show</span>
+                  <select class="form-select form-select-sm mx-1" style="width: auto;" [value]="pageSize()"
+                    (change)="onPageSizeChange($event)" [disabled]="isLoading()">
+                    <option [value]="10">10</option>
+                    <option [value]="25">25</option>
+                    <option [value]="50">50</option>
+                    <option [value]="100">100</option>
+                  </select>
+                  <span>entries</span>
+                </label>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              @if (totalRecords() > 0) {
+              <div class="text-md-end text-center">
+                <span class="text-muted small">
+                  Showing {{ getStartRecord() }} to {{ getEndRecord() }} of {{ totalRecords() }} entries
+                </span>
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="card card-body p-2">
+
+          <!-- Loading Overlay -->
+          @if (isLoading()) {
+          <div class="position-relative" style="min-height: 400px;">
+            <div class="position-absolute top-50 start-50 translate-middle">
+              <div class="text-center">
+                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-muted">Loading project data...</p>
+              </div>
+            </div>
+          </div>
+          } @else if (!hasProjects()) {
+          <div class="text-center py-5">
+            <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+            <p class="text-muted mt-2">No projects found</p>
+          </div>
+          } @else {
+
+          <!-- Project Summary Table -->
+          <div class="table-responsive" style="overflow-x: auto; max-height: 800px; overflow-y: auto;">
+            <table class="table table-bordered table-ultra-compact mb-0" style="min-width: 100%;">
+              <thead class="thead-light" style="position: sticky; top: 0; z-index: 20;">
+                <!-- First Header Row: Projects -->
+                <tr>
+                  <th rowspan="2"
+                    style="width: 200px; position: sticky; left: 0; background-color: #dc3545; z-index: 30; text-align: center; border-right: 2px solid #dee2e6; color: #000; padding: 8px; vertical-align: middle;">
+                    <strong>Projects<br />Particulars</strong>
+                  </th>
+
+                  @for (project of projects(); track project.ProjectId) {
+                  @if (isProjectExpanded(project.ProjectId)) {
+                  <th [attr.colspan]="getMonthsForProject(project.ProjectId).length + 2"
+                    style="background-color: #dc3545; color: #000; text-align: center; cursor: pointer; padding: 12px;"
+                    (click)="toggleProject(project.ProjectId, $event)">
+                    <div class="d-flex align-items-center justify-content-center gap-2">
+                      @if (isLoadingDetail(project.ProjectId)) {
+                      <span class="spinner-border spinner-border-sm" role="status"></span>
+                      } @else {
+                      <i class="bi bi-dash-circle-fill" style="font-size: 16px;"></i>
+                      }
+                      <span style="font-weight: 600;">{{ project.ProjectName }}</span>
+                    </div>
+                  </th>
+                  } @else {
+                  <th colspan="2"
+                    style="background-color: #dc3545; color: #000; text-align: center; cursor: pointer; padding: 12px;"
+                    (click)="toggleProject(project.ProjectId, $event)">
+                    <div class="d-flex align-items-center justify-content-center gap-2">
+                      @if (isLoadingDetail(project.ProjectId)) {
+                      <span class="spinner-border spinner-border-sm" role="status"></span>
+                      } @else {
+                      <i class="bi bi-plus-circle-fill" style="font-size: 16px;"></i>
+                      }
+                      <span style="font-weight: 600;">{{ project.ProjectName }}</span>
+                    </div>
+                  </th>
+                  }
+                  }
+                </tr>
+
+                <!-- Second Header Row: Months OR Total Actual/Budget -->
+                <tr>
+                  @for (project of projects(); track project.ProjectId) {
+                  @if (isProjectExpanded(project.ProjectId)) {
+                  @for (month of getMonthsForProject(project.ProjectId); track month) {
+                  <th
+                    style="background-color: #dc3545; text-align: center; font-weight: 600; padding: 8px; min-width: 120px; color: #000;">
+                    {{ month }}
+                  </th>
+                  }
+                  <th
+                    style="background-color: #dc3545; text-align: center; font-weight: 600; padding: 8px; min-width: 120px; color: #000;">
+                    Total Actual
+                  </th>
+                  <th
+                    style="background-color: #dc3545; text-align: center; font-weight: 600; padding: 8px; min-width: 120px; color: #000;">
+                    Budget
+                  </th>
+                  } @else {
+                  <th
+                    style="background-color: #dc3545; text-align: center; font-weight: 600; padding: 8px; min-width: 120px; color: #000;">
+                    Total Actual
+                  </th>
+                  <th
+                    style="background-color: #dc3545; text-align: center; font-weight: 600; padding: 8px; min-width: 120px; color: #000;">
+                    Budget
+                  </th>
+                  }
+                  }
+                </tr>
+              </thead>
+
+              <tbody>
+                <!-- Sale Row -->
+                <tr>
+                  <td
+                    style="width: 200px; position: sticky; left: 0; background-color: #fff; z-index: 5; font-weight: 600; border-right: 2px solid #dee2e6; color: #000;">
+                    Sale
+                  </td>
+                  @for (project of projects(); track project.ProjectId) {
+                  @if (isProjectExpanded(project.ProjectId)) {
+                  @for (month of getMonthsForProject(project.ProjectId); track month) {
+                  <td style="text-align: right; padding-right: 8px; color: #000;">
+                    {{ formatNumber(getMonthlyMetric(project.ProjectId, month, 'SaleValue')) }}
+                  </td>
+                  }
+                  <td style="text-align: right; padding-right: 8px; color: #000;">
+                    {{ formatNumber(project.TotalSaleValueRecognized) }}
+                  </td>
+                  <td style="text-align: right; padding-right: 8px; color: #000;">
+                    {{ formatNumber(project.TotalBudgetedCost) }}
+                  </td>
+                  } @else {
+                  <td style="text-align: right; padding-right: 8px; color: #000;">
+                    {{ formatNumber(project.TotalSaleValueRecognized) }}
+                  </td>
+                  <td style="text-align: right; padding-right: 8px; color: #000;">
+                    {{ formatNumber(project.TotalBudgetedCost) }}
+                  </td>
+                  }
+                  }
+                </tr>
+
+                <!-- GROUPED COST HEAD ROWS WITH DRILL-DOWN -->
+                @for (costType of costTypes(); track costType) {
+
+                <!-- GROUP HEADER ROW -->
+                <tr style="cursor: pointer; background-color: #c8102e;" (click)="toggleCostType(costType)">
+                  <td style="width: 200px; position: sticky; left: 0; background-color: #c8102e; z-index: 5;
+               font-weight: 700; border-right: 2px solid #dee2e6; color: #fff; padding: 8px 12px;">
+                    <span style="display: inline-flex; align-items: center; justify-content: center;
+                   width: 18px; height: 18px; border: 2px solid #fff; border-radius: 3px;
+                   margin-right: 8px; font-size: 14px; line-height: 1; font-weight: 900;">
+                      {{ isCostTypeExpanded(costType) ? '−' : '+' }}
+                    </span>
+                    {{ costType }} Cost
+                  </td>
+
+                  @for (project of projects(); track project.ProjectId) {
+                  @if (isProjectExpanded(project.ProjectId)) {
+                  @for (month of getMonthsForProject(project.ProjectId); track month) {
+                  <td style="text-align: right; padding-right: 8px; color: #fff; font-weight: 700;">-</td>
+                  }
+                  <td style="text-align: right; padding-right: 8px; color: #fff; font-weight: 700;">
+                    {{ formatNumber(getCostTypeActualTotal(project, costType)) }}
+                  </td>
+                  <td style="text-align: right; padding-right: 8px; color: #fff; font-weight: 700;">
+                    {{ formatNumber(getCostTypeBudgetTotal(project, costType)) }}
+                  </td>
+                  } @else {
+                  <td style="text-align: right; padding-right: 8px; color: #fff; font-weight: 700;">
+                    {{ formatNumber(getCostTypeActualTotal(project, costType)) }}
+                  </td>
+                  <td style="text-align: right; padding-right: 8px; color: #fff; font-weight: 700;">
+                    {{ formatNumber(getCostTypeBudgetTotal(project, costType)) }}
+                  </td>
+                  }
+                  }
+                </tr>
+
+                <!-- CHILD COST HEAD ROWS -->
+                @if (isCostTypeExpanded(costType)) {
+                @for (costHead of costHeadsByType().get(costType)!; track costHead.CostHeadId) {
+                <tr style="background-color: #fff8f8;">
+                  <td style="width: 200px; position: sticky; left: 0; background-color: #fff8f8; z-index: 5;
+                   font-weight: 500; border-right: 2px solid #dee2e6; color: #333;
+                   padding-left: 36px; border-left: 4px solid #c8102e;">
+                    {{ costHead.CostHeadName }}
+                  </td>
+
+                  @for (project of projects(); track project.ProjectId) {
+                  @if (isProjectExpanded(project.ProjectId)) {
+                  @if (projectHasCostHead(project, costHead.CostHeadId)) {
+                  @for (month of getMonthsForProject(project.ProjectId); track month) {
+                  <td style="text-align: right; padding-right: 8px; color: #000;">
+                    {{ formatNumber(getMonthlyValue(project.ProjectId, costHead.CostHeadId, month)) }}
+                  </td>
+                  }
+                  <td style="text-align: right; padding-right: 8px; color: #000; font-weight: 600;">
+                    {{ formatNumber(getCostHeadActualAmount(project, costHead.CostHeadId)) }}
+                  </td>
+                  <td style="text-align: right; padding-right: 8px; color: #000; font-weight: 600;">
+                    {{ formatNumber(getCostHeadBudgetedAmount(project, costHead.CostHeadId)) }}
+                  </td>
+                  } @else {
+                  @for (month of getMonthsForProject(project.ProjectId); track month) {
+                  <td style="text-align: center; color: #999;">-</td>
+                  }
+                  <td colspan="2" style="text-align: center; color: #999;">-</td>
+                  }
+                  } @else {
+                  @if (projectHasCostHead(project, costHead.CostHeadId)) {
+                  <td style="text-align: right; padding-right: 8px; color: #000;">
+                    {{ formatNumber(getCostHeadActualAmount(project, costHead.CostHeadId)) }}
+                  </td>
+                  <td style="text-align: right; padding-right: 8px; color: #000;">
+                    {{ formatNumber(getCostHeadBudgetedAmount(project, costHead.CostHeadId)) }}
+                  </td>
+                  } @else {
+                  <td colspan="2" style="text-align: center; color: #999;">-</td>
+                  }
+                  }
+                  }
+                </tr>
+                }
+
+                @if (costType === 'Expense') {
+                <tr [style.background-color]="getRowBgColor('expenseCost')">
+                  <td [style.background-color]="getRowBgColor('expenseCost')" style="width:200px; position:sticky; left:0; z-index:5; border-right:2px solid #4a7ba7;
+               color:#000; font-weight:600; padding-left:36px; border-left:4px solid #5b9bd5;">
+                    Expense Cost
+                  </td>
+                  @for (project of projects(); track project.ProjectId) {
+                  @if (isProjectExpanded(project.ProjectId)) {
+                  @for (month of getMonthsForProject(project.ProjectId); track month) {
+                  <td style="text-align:right; padding-right:8px; color:#000;">
+                    {{ formatNumber(getMonthlyMetric(project.ProjectId, month, 'ExpenseCost')) }}
+                  </td>
+                  }
+                  <td style="text-align:right; padding-right:8px; color:#000;">{{ getProjectMetric(project,
+                    'totalExpenseCost') }}</td>
+                  <td style="text-align:right; padding-right:8px; color:#000;">{{ getProjectMetric(project,
+                    'budgetedTotalExpenseCost') }}</td>
+                  } @else {
+                  <td style="text-align:right; padding-right:8px; color:#000;">{{ getProjectMetric(project,
+                    'totalExpenseCost') }}</td>
+                  <td style="text-align:right; padding-right:8px; color:#000;">{{ getProjectMetric(project,
+                    'budgetedTotalExpenseCost') }}</td>
+                  }
+                  }
+                </tr>
+
+                <tr [style.background-color]="getRowBgColor('expenseCostPercent')">
+                  <td [style.background-color]="getRowBgColor('expenseCostPercent')" style="width:200px; position:sticky; left:0; z-index:5; border-right:2px solid #d0e8f0;
+               color:#000; padding-left:36px; border-left:4px solid #5b9bd5;">
+                    Expense Cost%
+                  </td>
+                  @for (project of projects(); track project.ProjectId) {
+                  @if (isProjectExpanded(project.ProjectId)) {
+                  @for (month of getMonthsForProject(project.ProjectId); track month) {
+                  <td style="text-align:right; padding-right:8px; color:#000;">
+                    {{ formatPercent(getMonthlyMetric(project.ProjectId, month, 'ExpenseCostPercent')) }}
+                  </td>
+                  }
+                  <td style="text-align:right; padding-right:8px; color:#000;">{{ getProjectMetric(project,
+                    'totalExpenseCostPercent') }}</td>
+                  <td style="text-align:right; padding-right:8px; color:#000;">{{ getProjectMetric(project,
+                    'budgetedTotalExpenseCostPercent') }}</td>
+                  } @else {
+                  <td style="text-align:right; padding-right:8px; color:#000;">{{ getProjectMetric(project,
+                    'totalExpenseCostPercent') }}</td>
+                  <td style="text-align:right; padding-right:8px; color:#000;">{{ getProjectMetric(project,
+                    'budgetedTotalExpenseCostPercent') }}</td>
+                  }
+                  }
+                </tr>
+                }
+
+                @if (costType === 'Material') {
+                <tr [style.background-color]="getRowBgColor('materialCost')">
+                  <td [style.background-color]="getRowBgColor('materialCost')" style="width:200px; position:sticky; left:0; z-index:5; border-right:2px solid #4a7ba7;
+               color:#000; font-weight:600; padding-left:36px; border-left:4px solid #5b9bd5;">
+                    Material Cost
+                  </td>
+                  @for (project of projects(); track project.ProjectId) {
+                  @if (isProjectExpanded(project.ProjectId)) {
+                  @for (month of getMonthsForProject(project.ProjectId); track month) {
+                  <td style="text-align:right; padding-right:8px; color:#000;">
+                    {{ formatNumber(getMonthlyMetric(project.ProjectId, month, 'MaterialCost')) }}
+                  </td>
+                  }
+                  <td style="text-align:right; padding-right:8px; color:#000;">{{ getProjectMetric(project,
+                    'totalMaterialCost') }}</td>
+                  <td style="text-align:right; padding-right:8px; color:#000;">{{ getProjectMetric(project,
+                    'budgetedTotalMaterialCost') }}</td>
+                  } @else {
+                  <td style="text-align:right; padding-right:8px; color:#000;">{{ getProjectMetric(project,
+                    'totalMaterialCost') }}</td>
+                  <td style="text-align:right; padding-right:8px; color:#000;">{{ getProjectMetric(project,
+                    'budgetedTotalMaterialCost') }}</td>
+                  }
+                  }
+                </tr>
+
+                <tr [style.background-color]="getRowBgColor('materialCostPercent')">
+                  <td [style.background-color]="getRowBgColor('materialCostPercent')" style="width:200px; position:sticky; left:0; z-index:5; border-right:2px solid #d0e8f0;
+               color:#000; padding-left:36px; border-left:4px solid #5b9bd5;">
+                    Material Cost%
+                  </td>
+                  @for (project of projects(); track project.ProjectId) {
+                  @if (isProjectExpanded(project.ProjectId)) {
+                  @for (month of getMonthsForProject(project.ProjectId); track month) {
+                  <td style="text-align:right; padding-right:8px; color:#000;">
+                    {{ formatPercent(getMonthlyMetric(project.ProjectId, month, 'MaterialCostPercent')) }}
+                  </td>
+                  }
+                  <td style="text-align:right; padding-right:8px; color:#000;">{{ getProjectMetric(project,
+                    'totalMaterialCostPercent') }}</td>
+                  <td style="text-align:right; padding-right:8px; color:#000;">{{ getProjectMetric(project,
+                    'budgetedTotalMaterialCostPercent') }}</td>
+                  } @else {
+                  <td style="text-align:right; padding-right:8px; color:#000;">{{ getProjectMetric(project,
+                    'totalMaterialCostPercent') }}</td>
+                  <td style="text-align:right; padding-right:8px; color:#000;">{{ getProjectMetric(project,
+                    'budgetedTotalMaterialCostPercent') }}</td>
+                  }
+                  }
+                </tr>
+                }
+
+                }
+
+                }
+                <!-- Total Project Cost Row -->
+                <tr [style.background-color]="getRowBgColor('totalProjectCost')">
+                  <td [style.background-color]="getRowBgColor('totalProjectCost')"
+                    style="width: 200px; position: sticky; left: 0; z-index: 5; border-right: 2px solid #b8b8b8; color: #000; font-weight: 700;">
+                    Total Project Cost
+                  </td>
+                  @for (project of projects(); track project.ProjectId) {
+                  @if (isProjectExpanded(project.ProjectId)) {
+                  @for (month of getMonthsForProject(project.ProjectId); track month) {
+                  <td style="text-align: right; padding-right: 8px; color: #000; font-weight: 600;">
+                    {{ formatNumber(getMonthlyMetric(project.ProjectId, month, 'TotalProjectCost')) }}
+                  </td>
+                  }
+                  <td style="text-align: right; padding-right: 8px; color: #000; font-weight: 600;">{{
+                    getProjectMetric(project, 'totalProjectCost') }}</td>
+                  <td style="text-align: right; padding-right: 8px; color: #000; font-weight: 600;">{{
+                    getProjectMetric(project, 'budgetedTotalProjectCost') }}</td>
+                  } @else {
+                  <td style="text-align: right; padding-right: 8px; color: #000; font-weight: 600;">{{
+                    getProjectMetric(project, 'totalProjectCost') }}</td>
+                  <td style="text-align: right; padding-right: 8px; color: #000; font-weight: 600;">{{
+                    getProjectMetric(project, 'budgetedTotalProjectCost') }}</td>
+                  }
+                  }
+                </tr>
+
+                <!-- Total Project Cost% Row -->
+                <tr [style.background-color]="getRowBgColor('totalProjectCostPercent')">
+                  <td [style.background-color]="getRowBgColor('totalProjectCostPercent')"
+                    style="width: 200px; position: sticky; left: 0; z-index: 5; border-right: 2px solid #b8b8b8; color: #000;">
+                    Total Project Cost%
+                  </td>
+                  @for (project of projects(); track project.ProjectId) {
+                  @if (isProjectExpanded(project.ProjectId)) {
+                  @for (month of getMonthsForProject(project.ProjectId); track month) {
+                  <td style="text-align: right; padding-right: 8px; color: #000;">
+                    {{ formatPercent(getMonthlyMetric(project.ProjectId, month, 'TotalProjectCostPercent')) }}
+                  </td>
+                  }
+                  <td style="text-align: right; padding-right: 8px; color: #000;">{{ getProjectMetric(project,
+                    'totalProjectCostPercent') }}</td>
+                  <td style="text-align: right; padding-right: 8px; color: #000;">{{ getProjectMetric(project,
+                    'budgetedTotalProjectCostPercent') }}</td>
+                  } @else {
+                  <td style="text-align: right; padding-right: 8px; color: #000;">{{ getProjectMetric(project,
+                    'totalProjectCostPercent') }}</td>
+                  <td style="text-align: right; padding-right: 8px; color: #000;">{{ getProjectMetric(project,
+                    'budgetedTotalProjectCostPercent') }}</td>
+                  }
+                  }
+                </tr>
+
+                <!-- % of Exps incurred Row -->
+                <tr [style.background-color]="getRowBgColor('expsIncurred')">
+                  <td [style.background-color]="getRowBgColor('expsIncurred')"
+                    style="width: 200px; position: sticky; left: 0; z-index: 5; font-weight: 600; border-right: 2px solid #b8b8b8; color: #000;">
+                    % of Exps incured vis a vis total Budgeted Exps (inclu Material)
+                  </td>
+                  @for (project of projects(); track project.ProjectId) {
+                  @if (isProjectExpanded(project.ProjectId)) {
+                  @for (month of getMonthsForProject(project.ProjectId); track month) {
+                  <td style="text-align: right; padding-right: 8px; color: #000;">
+                    {{ formatPercent(getMonthlyMetric(project.ProjectId, month, 'RevenueRecognitionPercent')) }}
+                  </td>
+                  }
+                  <td style="text-align: right; padding-right: 8px; color: #000;">{{ getProjectMetric(project,
+                    'expsIncurred') }}</td>
+                  <td style="text-align: right; padding-right: 8px; color: #000;">-</td>
+                  } @else {
+                  <td style="text-align: right; padding-right: 8px; color: #000;">{{ getProjectMetric(project,
+                    'expsIncurred') }}</td>
+                  <td style="text-align: right; padding-right: 8px; color: #000;">-</td>
+                  }
+                  }
+                </tr>
+
+                <!-- YTD Sale Row -->
+                <tr [style.background-color]="getRowBgColor('ytdSale')">
+                  <td [style.background-color]="getRowBgColor('ytdSale')"
+                    style="width: 200px; position: sticky; left: 0; z-index: 5; font-weight: 600; border-right: 2px solid #b8b8b8; color: #000;">
+                    YTD Sale
+                  </td>
+                  @for (project of projects(); track project.ProjectId) {
+                  @if (isProjectExpanded(project.ProjectId)) {
+                  @for (month of getMonthsForProject(project.ProjectId); track month) {
+                  <td style="text-align: right; padding-right: 8px; color: #000;">
+                    {{ formatPercent(getMonthlyMetric(project.ProjectId, month, 'YTDSaleValue')) }}
+                  </td>
+                  }
+                  <td style="text-align: right; padding-right: 8px; color: #000;">{{ getProjectMetric(project,
+                    'ytdSale') }}</td>
+                  <td style="text-align: right; padding-right: 8px; color: #000;">-</td>
+                  } @else {
+                  <td style="text-align: right; padding-right: 8px; color: #000;">{{ getProjectMetric(project,
+                    'ytdSale') }}</td>
+                  <td style="text-align: right; padding-right: 8px; color: #000;">-</td>
+                  }
+                  }
+                </tr>
+
+                <!-- Margin Row -->
+                <tr [style.background-color]="getRowBgColor('margin')">
+                  <td [style.background-color]="getRowBgColor('margin')"
+                    style="width: 200px; position: sticky; left: 0; z-index: 5; font-weight: 600; border-right: 2px solid #b8b8b8; color: #000;">
+                    Margin
+                  </td>
+                  @for (project of projects(); track project.ProjectId) {
+                  @if (isProjectExpanded(project.ProjectId)) {
+                  @for (month of getMonthsForProject(project.ProjectId); track month) {
+                  <td style="text-align: right; padding-right: 8px; color: #000;">
+                    {{ formatPercent(getMonthlyMetric(project.ProjectId, month, 'Margin')) }}
+                  </td>
+                  }
+                  <td style="text-align: right; padding-right: 8px; color: #000;">{{ getProjectMetric(project, 'margin')
+                    }}</td>
+                  <td style="text-align: right; padding-right: 8px; color: #000;">{{ getProjectMetric(project,
+                    'budgetedMargin') }}</td>
+                  } @else {
+                  <td style="text-align: right; padding-right: 8px; color: #000;">{{ getProjectMetric(project, 'margin')
+                    }}</td>
+                  <td style="text-align: right; padding-right: 8px; color: #000;">{{ getProjectMetric(project,
+                    'budgetedMargin') }}</td>
+                  }
+                  }
+                </tr>
+
+                <!-- Pending Revenue Row -->
+                <tr [style.background-color]="getRowBgColor('pendingRevenue')">
+                  <td [style.background-color]="getRowBgColor('pendingRevenue')"
+                    style="width: 200px; position: sticky; left: 0; z-index: 5; font-weight: 600; border-right: 2px solid #b8b8b8; color: #000;">
+                    Pending Revenue vs Budget
+                  </td>
+                  @for (project of projects(); track project.ProjectId) {
+                  @if (isProjectExpanded(project.ProjectId)) {
+                  @for (month of getMonthsForProject(project.ProjectId); track month) {
+                  <td style="text-align: right; padding-right: 8px; color: #000;">-</td>
+                  }
+                  <td style="text-align: right; padding-right: 8px; color: #000;">-</td>
+                  <td style="text-align: right; padding-right: 8px; color: #000;">{{ getProjectMetric(project,
+                    'pendingRevenue') }}</td>
+                  } @else {
+                  <td style="text-align: right; padding-right: 8px; color: #000;">-</td>
+                  <td style="text-align: right; padding-right: 8px; color: #000;">{{ getProjectMetric(project,
+                    'pendingRevenue') }}</td>
+                  }
+                  }
+                </tr>
+
+                <!-- Pending Expense Row -->
+                <tr [style.background-color]="getRowBgColor('pendingExpense')">
+                  <td [style.background-color]="getRowBgColor('pendingExpense')"
+                    style="width: 200px; position: sticky; left: 0; z-index: 5; font-weight: 600; border-right: 2px solid #f0e6b8; color: #000;">
+                    Pending Expense vs Budget
+                  </td>
+                  @for (project of projects(); track project.ProjectId) {
+                  @if (isProjectExpanded(project.ProjectId)) {
+                  @for (month of getMonthsForProject(project.ProjectId); track month) {
+                  <td style="text-align: right; padding-right: 8px; color: #000;">-</td>
+                  }
+                  <td style="text-align: right; padding-right: 8px; color: #000;">-</td>
+                  <td style="text-align: right; padding-right: 8px; color: #000;">{{ getProjectMetric(project,
+                    'pendingExpense') }}</td>
+                  } @else {
+                  <td style="text-align: right; padding-right: 8px; color: #000;">-</td>
+                  <td style="text-align: right; padding-right: 8px; color: #000;">{{ getProjectMetric(project,
+                    'pendingExpense') }}</td>
+                  }
+                  }
+                </tr>
+
+                <!-- Pending Material Row -->
+                <tr [style.background-color]="getRowBgColor('pendingMaterial')">
+                  <td [style.background-color]="getRowBgColor('pendingMaterial')"
+                    style="width: 200px; position: sticky; left: 0; z-index: 5; font-weight: 600; border-right: 2px solid #f0e6b8; color: #000;">
+                    Pending Material vs Budget
+                  </td>
+                  @for (project of projects(); track project.ProjectId) {
+                  @if (isProjectExpanded(project.ProjectId)) {
+                  @for (month of getMonthsForProject(project.ProjectId); track month) {
+                  <td style="text-align: right; padding-right: 8px; color: #000;">-</td>
+                  }
+                  <td style="text-align: right; padding-right: 8px; color: #000;">-</td>
+                  <td style="text-align: right; padding-right: 8px; color: #000;">{{ getProjectMetric(project,
+                    'pendingMaterial') }}</td>
+                  } @else {
+                  <td style="text-align: right; padding-right: 8px; color: #000;">-</td>
+                  <td style="text-align: right; padding-right: 8px; color: #000;">{{ getProjectMetric(project,
+                    'pendingMaterial') }}</td>
+                  }
+                  }
+                </tr>
+
+                <!-- Total Pending Cost Row -->
+                <tr [style.background-color]="getRowBgColor('totalPendingCost')">
+                  <td [style.background-color]="getRowBgColor('totalPendingCost')"
+                    style="width: 200px; position: sticky; left: 0; z-index: 5; border-right: 2px solid #f0e6b8; color: #000; font-weight: 700;">
+                    Total Pending Project Cost
+                  </td>
+                  @for (project of projects(); track project.ProjectId) {
+                  @if (isProjectExpanded(project.ProjectId)) {
+                  @for (month of getMonthsForProject(project.ProjectId); track month) {
+                  <td style="text-align: right; padding-right: 8px; color: #000;">-</td>
+                  }
+                  <td style="text-align: right; padding-right: 8px; color: #000; font-weight: 600;">-</td>
+                  <td style="text-align: right; padding-right: 8px; color: #000; font-weight: 600;">{{
+                    getProjectMetric(project, 'totalPendingCost') }}</td>
+                  } @else {
+                  <td style="text-align: right; padding-right: 8px; color: #000; font-weight: 600;">-</td>
+                  <td style="text-align: right; padding-right: 8px; color: #000; font-weight: 600;">{{
+                    getProjectMetric(project, 'totalPendingCost') }}</td>
+                  }
+                  }
+                </tr>
+
+                <!-- Projected Profit Row -->
+                <tr [style.background-color]="getRowBgColor('projectedProfit')">
+                  <td [style.background-color]="getRowBgColor('projectedProfit')"
+                    style="width: 200px; position: sticky; left: 0; z-index: 5; border-right: 2px solid #4a7ba7; color: #000; font-weight: 700;">
+                    Projected Profit/(Loss)
+                  </td>
+                  @for (project of projects(); track project.ProjectId) {
+                  @if (isProjectExpanded(project.ProjectId)) {
+                  @for (month of getMonthsForProject(project.ProjectId); track month) {
+                  <td style="text-align: right; padding-right: 8px; color: #000;">-</td>
+                  }
+                  <td style="text-align: right; padding-right: 8px; color: #000; font-weight: 600;">-</td>
+                  <td style="text-align: right; padding-right: 8px; color: #000; font-weight: 600;">{{
+                    getProjectMetric(project, 'projectedProfit') }}</td>
+                  } @else {
+                  <td style="text-align: right; padding-right: 8px; color: #000; font-weight: 600;">-</td>
+                  <td style="text-align: right; padding-right: 8px; color: #000; font-weight: 600;">{{
+                    getProjectMetric(project, 'projectedProfit') }}</td>
+                  }
+                  }
+                </tr>
+
+                <!-- Profit% Row -->
+                <tr [style.background-color]="getRowBgColor('profitPercent')">
+                  <td [style.background-color]="getRowBgColor('profitPercent')"
+                    style="width: 200px; position: sticky; left: 0; z-index: 5; border-right: 2px solid #d0e8f0; color: #000; font-weight: 600;">
+                    Projected Profit/(Loss)%
+                  </td>
+                  @for (project of projects(); track project.ProjectId) {
+                  @if (isProjectExpanded(project.ProjectId)) {
+                  @for (month of getMonthsForProject(project.ProjectId); track month) {
+                  <td style="text-align: right; padding-right: 8px; color: #000;">-</td>
+                  }
+                  <td style="text-align: right; padding-right: 8px; color: #000;">-</td>
+                  <td style="text-align: right; padding-right: 8px; color: #000;">{{ getProjectMetric(project,
+                    'profitPercent') }}</td>
+                  } @else {
+                  <td style="text-align: right; padding-right: 8px; color: #000;">-</td>
+                  <td style="text-align: right; padding-right: 8px; color: #000;">{{ getProjectMetric(project,
+                    'profitPercent') }}</td>
+                  }
+                  }
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination Controls Footer -->
+          @if (totalRecords() > 0) {
+          <div class="row mt-3 align-items-center">
+            <div class="col-12 col-md-5 mb-2 mb-md-0">
+              <div class="dataTables_info text-center text-md-start">
+                Showing {{ getStartRecord() }} to {{ getEndRecord() }} of {{ totalRecords() }} entries
+              </div>
+            </div>
+            <div class="col-12 col-md-7">
+              <div
+                class="dataTables_paginate paging_simple_numbers d-flex justify-content-center justify-content-md-end">
+                <ul class="pagination mb-0">
+                  <li class="paginate_button page-item" [class.disabled]="currentPage() === 1">
+                    <a class="page-link" [class.pe-none]="currentPage() === 1" style="cursor: pointer;"
+                      (click)="currentPage() === 1 ? null : onPageChange(currentPage() - 1)">Previous</a>
+                  </li>
+
+                  @for (page of getVisiblePages(); track $index) {
+                  @if (page === -1 || page === -2) {
+                  <li class="paginate_button page-item disabled">
+                    <span class="page-link">...</span>
+                  </li>
+                  } @else {
+                  <li class="paginate_button page-item" [class.active]="page === currentPage()">
+                    <a class="page-link" style="cursor: pointer;" [class.pe-none]="page === currentPage()"
+                      (click)="page === currentPage() ? null : onPageChange(page)">{{ page }}</a>
+                  </li>
+                  }
+                  }
+
+                  <li class="paginate_button page-item" [class.disabled]="currentPage() === totalPages()">
+                    <a class="page-link" [class.pe-none]="currentPage() === totalPages()" style="cursor: pointer;"
+                      (click)="currentPage() === totalPages() ? null : onPageChange(currentPage() + 1)">Next</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          }
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

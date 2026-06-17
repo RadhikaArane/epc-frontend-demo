@@ -1,0 +1,980 @@
+<div class="content container-fluid">
+
+  <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap w-100 justify-content-between gap-2">
+      <div class="me-0 mb-2">
+        <app-breadcrumbs title="Project Cost Estimation" [breadcrumbItems]="breadCrumbItems()"></app-breadcrumbs>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-primary ms-auto shadow-sm" (click)="openCostHeadModal()">
+          <i class="bi bi-gear-fill"></i> Manage Cost Heads
+        </button>
+        <button class="btn btn-primary shadow-sm" (click)="openSubCostHeadModal()">
+          <i class="bi bi-diagram-3"></i> Manage Sub Cost Heads
+        </button>
+      </div>
+    </div>
+  </div>
+ 
+  <div class="card shadow-lg border-0" style="border-radius:12px;">
+    <div class="card-body p-3 p-md-4">
+
+      <!-- Header --> 
+      <div
+        class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center mb-4 pb-3 gap-3"
+        style="border-bottom: 2px solid #e9ecef;">
+        <div>
+          <h5 class="fw-bold mb-1">Cost Estimation Details</h5>
+          <p class="text-muted small mb-0">Add cost items with vendor-specific documentation</p>
+        </div>
+        <div class="d-flex flex-column flex-sm-row gap-2 align-items-stretch align-items-sm-center w-100 w-lg-auto">
+          <select class="form-select shadow-sm" style="min-width: 200px; border-radius: 8px; border: 2px solid #e9ecef;"
+            [value]="selectedCostHeadForAdd()" (change)="selectedCostHeadForAdd.set($any($event.target).value)">
+            <option value="">Select Cost Head</option>
+            @for (costHead of getAvailableCostHeads(); track costHead.CostHeadId) {
+            <option [value]="costHead.CostHeadId">{{ costHead.Name }}</option>
+            }
+          </select>
+          <button type="button" class="btn btn-primary shadow-sm" style="border-radius: 8px; white-space: nowrap;"
+            (click)="addCostEstimationRow()" [disabled]="!selectedCostHeadForAdd()">
+            <i class="bi bi-plus-circle-fill"></i> Add Item
+          </button>
+          <button type="button" class="btn btn-primary shadow-sm" style="border-radius: 8px; white-space: nowrap;"
+            (click)="openBulkCostBasisUpload()">
+            <i class="bi bi-cloud-arrow-up me-2"></i>Cost Basis Upload
+          </button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-responsive"
+        style="border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <table class="table table-hover align-middle mb-0">
+          <thead style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <tr>
+              <th style="padding: 0.75rem; border: none; min-width: 180px;">Cost Item</th>
+              <th style="padding: 0.75rem; border: none; min-width: 200px;">Cost Basis</th>
+              <th class="text-end" style="padding: 0.75rem; border: none; min-width: 150px;">Amount (₹)</th>
+              <th style="padding: 0.75rem; border: none; min-width: 350px;">Vendors & Attachments</th>
+              <th class="text-center" style="padding: 0.75rem; border: none; width: 80px;">Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @if (costEstimationRows().length > 0) {
+            @for (row of costEstimationRows(); track row.id; let i = $index) {
+
+            <!-- ==================== COST HEAD ROW ==================== -->
+            <tr style="background: white; border-bottom: 1px solid #e9ecef;">
+
+              <!-- Cost Item -->
+              <td style="padding: 0.75rem; vertical-align: top;">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge bg-primary"
+                    style="font-size: 0.85rem; padding: 0.4rem 0.6rem; border-radius: 6px;">
+                    {{ i + 1 }}
+                  </span>
+                  <strong style="color: #2d3748; font-size: 0.95rem;">{{ row.costHeadName }}</strong>
+                </div>
+              </td>
+
+              <!-- Cost Basis / Excel -->
+              <td style="padding: 0.75rem; vertical-align: top;">
+                @if (row.subHeads.length === 0) {
+                <div class="d-flex flex-column gap-2">
+                  <div>
+                    <label class="form-label small fw-semibold mb-1">
+                      Cost Basis
+                      @if (!row.excelFile) { <span class="text-danger">*</span> }
+                    </label>
+                    <input type="text" class="form-control form-control-sm shadow-sm"
+                      style="border-radius: 6px; border: 2px solid #e9ecef; font-size: 0.9rem;"
+                      placeholder="e.g., Per sq.ft" [value]="row.costBasis"
+                      (input)="updateRowField(row.id, 'costBasis', $any($event.target).value)">
+                  </div>
+                  <div>
+                    <label class="form-label small fw-semibold mb-1">
+                      Excel Upload
+                      @if (!row.costBasis || row.costBasis.trim().length === 0) {
+                      <span class="text-danger">*</span>
+                      }
+                    </label>
+                    @if (!row.excelFile) {
+                    <input type="file" class="form-control form-control-sm"
+                      style="border-radius: 6px; font-size: 0.8rem;" accept=".xlsx,.xls"
+                      (change)="onExcelFileSelect(row.id, $event)">
+                    <small class="text-muted d-block mt-1">
+                      <i class="bi bi-file-excel"></i> Upload for auto-calculation (max 10MB)
+                    </small>
+                    } @else {
+                    <div class="d-flex align-items-center gap-2 bg-light p-2 rounded border">
+                      <i class="bi bi-file-excel text-success fs-5"></i>
+                      <div class="flex-grow-1" style="min-width: 0;">
+                        <div class="text-truncate fw-semibold" style="font-size: 0.85rem;" [title]="row.excelFile.name">
+                          {{ row.excelFile.name }}
+                        </div>
+                        <small class="text-muted">{{ formatFileSize(row.excelFile.size) }}</small>
+                      </div>
+                      <button type="button" class="btn btn-sm btn-outline-danger p-1"
+                        style="width: 24px; height: 24px; border-radius: 4px;" (click)="removeExcelFile(row.id)">
+                        <i class="bi bi-x"></i>
+                      </button>
+                    </div>
+                    }
+                  </div>
+                  @if (row.touched && !row.costBasis && !row.excelFile) {
+                  <small class="text-danger">
+                    <i class="bi bi-exclamation-circle"></i> Provide Cost Basis or Excel file
+                  </small>
+                  }
+                </div>
+                } @else {
+                <!-- Sub heads handle cost basis — show summary info only -->
+                <div class="d-flex align-items-center gap-2 p-2 rounded"
+                  style="background: #fff5f5; border: 1px dashed #ffcccc;">
+                  <i class="bi bi-diagram-3 text-danger"></i>
+                  <small style="color: #dc3545; font-size: 0.82rem;">
+                    Cost basis defined per sub head below
+                    <span class="badge ms-1" style="background: #fff0f0; color: #dc3545; border: 1px solid #ffcccc;">
+                      {{ row.subHeads.length }} sub head(s)
+                    </span>
+                  </small>
+                </div>
+                }
+              </td>
+
+              <!-- Amount -->
+              <td style="padding: 0.75rem; vertical-align: top;">
+                @if (row.subHeads.length === 0) {
+                <div class="input-group shadow-sm" style="max-width: 180px; margin-left: auto;">
+                  <span class="input-group-text"
+                    style="background: #f7fafc; border: 2px solid #e9ecef; border-right: none; border-radius: 6px 0 0 6px; font-weight: 600;">₹</span>
+                  <input type="text" class="form-control text-end" [class.bg-light]="row.isAmountFromExcel"
+                    style="border: 2px solid #e9ecef; border-left: none; border-radius: 0 6px 6px 0; font-weight: 600; font-size: 0.95rem;"
+                    placeholder="0.00" [value]="row.amount" [readonly]="row.isAmountFromExcel"
+                    (input)="updateRowField(row.id, 'amount', $any($event.target).value); validateAmount($event)">
+                </div>
+                @if (row.amount === 'Loading...') {
+                <small class="text-info d-block mt-1 text-end">
+                  <span class="spinner-border spinner-border-sm me-1"></span>Calculating...
+                </small>
+                } @else if (row.isAmountFromExcel && row.amount && row.amount !== 'Loading...') {
+                <small class="text-success d-block mt-1 text-end">
+                  <i class="bi bi-file-excel-fill"></i> From Excel
+                </small>
+                } @else if (!row.isAmountFromExcel && row.amount && parseFloat(row.amount) > 0) {
+                <small class="text-success d-block mt-1 text-end">
+                  <i class="bi bi-check-circle-fill"></i> {{ formatAmount(row.amount) }}
+                </small>
+                }
+                @if (row.touched && !row.excelFile && (!row.amount || row.amount === '' || parseFloat(row.amount) <= 0))
+                  { <small class="text-danger d-block mt-1 text-end">
+                  <i class="bi bi-exclamation-circle"></i> Required
+                  </small>
+                  }
+                  } @else {
+                  <!-- Show computed sub head total -->
+                  <div class="text-end">
+                    <div class="fw-bold" style="color: #dc3545; font-size: 1rem;">
+                      ₹ {{ getSubHeadTotal(row.id) }}
+                    </div>
+                    <small class="text-muted" style="font-size: 0.75rem;">Sub heads total</small>
+                  </div>
+                  }
+              </td>
+
+              <!-- Vendors & Attachments -->
+              <td style="padding: 0.75rem; vertical-align: top;">
+                <div class="border rounded-3 p-2" style="background: #f8f9fa;">
+                  <div class="mb-2">
+                    <small class="text-muted fw-semibold d-block mb-2">Select Vendors:</small>
+                    <div class="vendor-dropdown-container dropdown w-100">
+                      <button
+                        class="btn btn-outline-primary btn-sm w-100 d-flex justify-content-between align-items-center shadow-sm"
+                        type="button" style="border-radius: 6px;" (click)="toggleVendorDropdown(row.id)">
+                        <span>
+                          @if (row.selectedVendors.length > 0) {
+                          <i class="bi bi-check-circle-fill text-success"></i>
+                          {{ row.selectedVendors.length }} Selected
+                          } @else {
+                          <i class="bi bi-plus-circle"></i> Add Vendors
+                          }
+                        </span>
+                        <i class="bi bi-chevron-down"></i>
+                      </button>
+
+                      @if (row.showVendorDropdown) {
+                      <div class="dropdown-menu show w-100 shadow-lg p-0"
+                        style="border-radius: 8px; margin-top: 0.25rem; z-index: 1050;">
+                        <div style="max-height: 250px; overflow-y: auto;" (scroll)="onVendorDropdownScroll($event)">
+                          @if (isLoadingVendors()) {
+                          <div class="text-center py-3">
+                            <span class="spinner-border spinner-border-sm text-primary"></span>
+                            <small class="text-muted d-block mt-2">Loading...</small>
+                          </div>
+                          } @else if (allVendors().length === 0) {
+                          <div class="px-3 py-3 text-center text-muted">
+                            <i class="bi bi-inbox"></i>
+                            <small class="d-block">No vendors found</small>
+                          </div>
+                          } @else {
+                          @for (vendor of allVendors(); track vendor.VendorId) {
+                          <button type="button" class="dropdown-item d-flex align-items-center gap-2 py-2"
+                            [class.active]="isVendorSelected(row.id, vendor.VendorId)" style="cursor: pointer;"
+                            (click)="toggleVendorSelection(row.id, vendor)">
+                            <i
+                              class="bi bi-{{ isVendorSelected(row.id, vendor.VendorId) ? 'check-square-fill text-primary' : 'square' }}"></i>
+                            <span>{{ vendor.Name }}</span>
+                          </button>
+                          }
+                          @if (vendorPagination().page < vendorPagination().totalPages) { <div
+                            class="text-center py-2 border-top">
+                            <small class="text-muted"><i class="bi bi-arrow-down"></i> Scroll for more</small>
+                        </div>
+                        }
+                        }
+                      </div>
+                    </div>
+                    }
+                  </div>
+                </div>
+
+                <!-- Selected Vendors Display -->
+                @if (row.selectedVendors.length > 0) {
+                <div class="d-flex flex-wrap gap-1 mb-2">
+                  @for (vendor of row.selectedVendors; track vendor.VendorId) {
+                  <span class="badge bg-primary"
+                    style="padding: 0.4rem 0.6rem; border-radius: 15px; font-size: 0.75rem;">
+                    {{ vendor.Name }}
+                    <i class="bi bi-x-circle ms-1" style="cursor: pointer;"
+                      (click)="toggleVendorSelection(row.id, vendor)"></i>
+                  </span>
+                  <div>
+                    <label class="form-label small fw-semibold mb-1">
+                      Assigned Amount <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text" style="background: #f7fafc;">₹</span>
+                      <input type="text" class="form-control text-end" placeholder="0.00"
+                        [value]="getVendorAmount(row.id, vendor.VendorId)"
+                        (input)="updateVendorAmount(row.id, vendor.VendorId, $any($event.target).value); validateAmount($event)">
+                    </div>
+                    @if (row.touched && (!getVendorAmount(row.id, vendor.VendorId) || parseFloat(getVendorAmount(row.id,
+                    vendor.VendorId)) <= 0)) { <small class="text-danger d-block mt-1">
+                      <i class="bi bi-exclamation-circle"></i> Amount required
+                      </small>
+                      }
+                  </div>
+                  }
+                </div>
+                }
+
+                <!-- Vendor Attachments -->
+                @if (row.vendorAttachments.length > 0) {
+                <div class="mt-2">
+                  <small class="text-muted fw-semibold d-block mb-2">
+                    <i class="bi bi-paperclip"></i> Documents (per vendor):
+                  </small>
+                  <div class="d-flex flex-column gap-2">
+                    @for (vendorAttachment of row.vendorAttachments; track vendorAttachment.vendorId) {
+                    <div class="card border-0 shadow-sm" style="background: white; border-radius: 8px;">
+                      <div class="card-body p-2">
+                        <div class="d-flex align-items-start gap-2">
+                          <div class="flex-shrink-0">
+                            <div
+                              class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                              style="width: 32px; height: 32px; font-size: 0.9rem;">
+                              <i class="bi bi-person-fill"></i>
+                            </div>
+                          </div>
+                          <div class="flex-grow-1" style="min-width: 0;">
+                            <div class="fw-semibold text-dark mb-1" style="font-size: 0.85rem;">
+                              {{ vendorAttachment.vendorName }}
+                            </div>
+                            <div class="mb-2">
+                              <input type="file" class="form-control form-control-sm"
+                                style="border-radius: 4px; font-size: 0.75rem;" accept=".doc,.docx,.pdf" multiple
+                                (change)="onVendorFileSelect(row.id, vendorAttachment.vendorId, $event)">
+                              <small class="text-muted">Max 5MB per file (.doc, .docx, .pdf)</small>
+                            </div>
+                            @if (vendorAttachment.files.length > 0) {
+                            <div class="d-flex flex-column gap-1">
+                              @for (file of vendorAttachment.files; track $index) {
+                              <div class="d-flex align-items-center gap-2 bg-light p-1 rounded"
+                                style="font-size: 0.75rem;">
+                                <i class="bi bi-file-earmark-text text-primary"></i>
+                                <span class="flex-grow-1 text-truncate" [title]="file.name">{{ file.name }}</span>
+                                <span class="badge bg-secondary">{{ formatFileSize(file.size) }}</span>
+                                <button type="button" class="btn btn-sm btn-outline-danger p-0"
+                                  style="width: 20px; height: 20px; border-radius: 4px; font-size: 0.7rem;"
+                                  (click)="removeVendorFile(row.id, vendorAttachment.vendorId, $index)">
+                                  <i class="bi bi-x"></i>
+                                </button>
+                              </div>
+                              }
+                            </div>
+                            }
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    }
+                  </div>
+                </div>
+                }
+      </div>
+      </td>
+
+      <!-- Actions -->
+      <td class="text-center" style="padding: 0.75rem; vertical-align: top;">
+        <button type="button" class="btn btn-outline-danger btn-sm shadow-sm" style="border-radius: 6px;"
+          (click)="removeCostEstimationRow(row.id)" title="Remove">
+          <i class="bi bi-trash-fill"></i>
+        </button>
+      </td>
+      </tr>
+
+      <!-- ==================== SUB HEAD ROWS ==================== -->
+      @for (subHead of row.subHeads; track subHead.id; let si = $index) {
+      <tr class="sub-head-row" [class.sub-head-newly-added]="subHead.isNewlyAdded" style="background: #fafbff;">
+        <!-- Connector Cell -->
+        <td style="padding: 0; vertical-align: top; width: 180px;">
+          <div style="display: flex; align-items: flex-start; height: 100%; padding-left: 28px;">
+            <!-- Curve connector -->
+            <div style="width: 28px; height: 52px; border-left: 2px solid #dc3545;
+                                    border-bottom: 2px solid #dc3545; border-bottom-left-radius: 10px;
+                                    margin-top: 6px; flex-shrink: 0;">
+            </div>
+            <!-- Sub head label -->
+            <div style="padding: 10px 0 0 8px;">
+              <div class="d-flex align-items-center gap-1 mb-1">
+                <span class="badge"
+                  style="background: #dc3545; font-size: 0.75rem; padding: 0.3rem 0.5rem; border-radius: 5px;">
+                  ↳ {{ si + 1 }}
+                </span>
+              </div>
+              <strong style="color: #dc3545; font-size: 0.85rem;">{{ subHead.subHeadName }}</strong>
+              <div>
+                <small class="text-muted" style="font-size: 0.72rem;">Sub Head</small>
+              </div>
+            </div>
+          </div>
+        </td>
+
+        <!-- Sub Head Cost Basis / Excel -->
+        <td style="padding: 0.65rem; vertical-align: top;">
+          <div class="d-flex flex-column gap-2">
+
+            <!-- Cost Basis -->
+            <div>
+              <label class="form-label small fw-semibold mb-1" style="font-size: 0.8rem;">
+                Cost Basis
+                @if (!subHead.excelFile) { <span class="text-danger">*</span> }
+              </label>
+              <input type="text" class="form-control form-control-sm"
+                style="border-radius: 6px; border: 1.5px solid #e9ecef; font-size: 0.85rem;"
+                placeholder="e.g., Per unit" [value]="subHead.costBasis"
+                (input)="updateSubHeadField(row.id, subHead.id, 'costBasis', $any($event.target).value)">
+            </div>
+
+            <!-- Excel Upload -->
+            <div>
+              <label class="form-label small fw-semibold mb-1" style="font-size: 0.8rem;">
+                Excel Upload
+                @if (!subHead.costBasis || subHead.costBasis.trim().length === 0) {
+                <span class="text-danger">*</span>
+                }
+              </label>
+              @if (!subHead.excelFile) {
+              <input type="file" class="form-control form-control-sm" style="border-radius: 6px; font-size: 0.75rem;"
+                accept=".xlsx,.xls" (change)="onSubHeadExcelSelect(row.id, subHead.id, $event)">
+              <small class="text-muted d-block mt-1" style="font-size: 0.72rem;">
+                <i class="bi bi-file-excel"></i> Max 10MB
+              </small>
+              } @else {
+              <div class="d-flex align-items-center gap-2 bg-light p-1 rounded border">
+                <i class="bi bi-file-excel text-success"></i>
+                <div class="flex-grow-1" style="min-width: 0;">
+                  <div class="text-truncate" style="font-size: 0.78rem; font-weight: 600;"
+                    [title]="subHead.excelFile.name">
+                    {{ subHead.excelFile.name }}
+                  </div>
+                  <small class="text-muted" style="font-size: 0.7rem;">{{ formatFileSize(subHead.excelFile.size)
+                    }}</small>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-danger p-0"
+                  style="width: 20px; height: 20px; border-radius: 4px; font-size: 0.65rem;"
+                  (click)="removeSubHeadExcelFile(row.id, subHead.id)">
+                  <i class="bi bi-x"></i>
+                </button>
+              </div>
+              }
+            </div>
+
+            <!-- Validation -->
+            @if (subHead.touched && !subHead.costBasis && !subHead.excelFile) {
+            <small class="text-danger" style="font-size: 0.75rem;">
+              <i class="bi bi-exclamation-circle"></i> Provide Cost Basis or Excel
+            </small>
+            }
+          </div>
+        </td>
+
+        <!-- Sub Head Amount -->
+        <td style="padding: 0.65rem; vertical-align: top;">
+          <div class="input-group input-group-sm shadow-sm" style="max-width: 160px; margin-left: auto;">
+            <span class="input-group-text"
+              style="background: #fff5f5; border: 1.5px solid #e9ecef; border-right: none; border-radius: 6px 0 0 6px; font-weight: 600; color: #dc3545;">₹</span>
+            <input type="text" class="form-control text-end" [class.bg-light]="subHead.isAmountFromExcel"
+              style="border: 1.5px solid #e9ecef; border-left: none; border-radius: 0 6px 6px 0; font-weight: 600; font-size: 0.85rem;"
+              placeholder="0.00" [value]="subHead.amount" [readonly]="subHead.isAmountFromExcel"
+              (input)="updateSubHeadField(row.id, subHead.id, 'amount', $any($event.target).value); validateAmount($event)">
+          </div>
+
+          @if (subHead.amount === 'Loading...') {
+          <small class="text-info d-block mt-1 text-end" style="font-size: 0.75rem;">
+            <span class="spinner-border spinner-border-sm me-1"></span>Calculating...
+          </small>
+          } @else if (subHead.isAmountFromExcel && subHead.amount && subHead.amount !== 'Loading...') {
+          <small class="text-success d-block mt-1 text-end" style="font-size: 0.75rem;">
+            <i class="bi bi-file-excel-fill"></i> From Excel
+          </small>
+          } @else if (!subHead.isAmountFromExcel && subHead.amount && parseFloat(subHead.amount) > 0) {
+          <small class="text-success d-block mt-1 text-end" style="font-size: 0.75rem;">
+            <i class="bi bi-check-circle-fill"></i> {{ formatAmount(subHead.amount) }}
+          </small>
+          }
+
+          @if (subHead.touched && !subHead.excelFile && (!subHead.amount || subHead.amount === '' ||
+          parseFloat(subHead.amount) <= 0)) { <small class="text-danger d-block mt-1 text-end"
+            style="font-size: 0.75rem;">
+            <i class="bi bi-exclamation-circle"></i> Required
+            </small>
+            }
+        </td>
+
+        <!-- Empty vendor cell (sub heads don't have vendors) -->
+        <td style="padding: 0.65rem; vertical-align: middle;">
+          <span class="text-muted small">—</span>
+        </td>
+
+        <!-- Remove Sub Head -->
+        <td class="text-center" style="padding: 0.65rem; vertical-align: top;">
+          <button type="button" class="btn btn-outline-danger btn-sm"
+            style="border-radius: 6px; font-size: 0.75rem; padding: 0.25rem 0.5rem;"
+            (click)="removeSubHeadFromRow(row.id, subHead.id, subHead.subHeadName)" title="Remove Sub Head">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </td>
+      </tr>
+      }
+
+      <!-- ==================== ADD SUB HEAD ROW ==================== -->
+      <tr style="background: #f8f9ff; border-bottom: 2px solid #e9ecef;">
+        <td colspan="5" style="padding: 0.5rem 0.75rem;">
+          <div class="sub-head-dropdown-container d-flex align-items-center gap-2 position-relative">
+
+            <!-- Add Sub Head Button -->
+            <button type="button" class="btn btn-sm d-flex align-items-center gap-1" style="border-radius: 20px; font-size: 0.8rem; padding: 0.3rem 0.8rem;
+                               border: 1.5px dashed #dc3545; color: #dc3545; background: transparent;
+                               transition: all 0.2s ease;" (click)="toggleSubHeadDropdown(row.id)">
+              @if (row.isLoadingSubHeads) {
+              <span class="spinner-border spinner-border-sm" style="width: 12px; height: 12px;"></span>
+              } @else {
+              <i class="bi bi-plus-circle-fill"></i>
+              }
+              Add Sub Head
+              <i class="bi bi-chevron-{{ row.showSubHeadDropdown ? 'up' : 'down' }}" style="font-size: 0.7rem;"></i>
+            </button>
+
+            <!-- Sub head count badge -->
+            @if (row.subHeads.length > 0) {
+            <span class="badge"
+              style="background: #fff0f0; color: #dc3545; border: 1px solid #ffcccc; font-size: 0.75rem;">
+              {{ row.subHeads.length }} sub head(s)
+            </span>
+            }
+
+            <!-- Sub Head Dropdown -->
+            @if (row.showSubHeadDropdown) {
+            <div class="dropdown-menu show shadow-lg p-0" style="border-radius: 10px; border: 1px solid #dee2e6; z-index: 1050;
+                                 min-width: 260px; max-width: 320px;
+                                 top: calc(100% + 4px); left: 0; position: absolute;">
+
+              <!-- Dropdown Header -->
+              <div class="px-3 py-2 border-bottom"
+                style="background: linear-gradient(135deg, #fff5f5, #ffebeb); border-radius: 10px 10px 0 0;">
+                <small class="fw-semibold" style="color: #dc3545; font-size: 0.82rem;">
+                  <i class="bi bi-diagram-3 me-1"></i>
+                  Sub Heads for <strong>{{ row.costHeadName }}</strong>
+                </small>
+              </div>
+
+              <!-- Dropdown Body -->
+              <div style="max-height: 200px; overflow-y: auto;">
+                @if (row.isLoadingSubHeads) {
+                <div class="text-center py-3">
+                  <span class="spinner-border spinner-border-sm text-danger"></span>
+                  <small class="text-muted d-block mt-2" style="font-size: 0.8rem;">Loading sub heads...</small>
+                </div>
+                } @else if (getAvailableSubHeadsForRow(row.id).length === 0) {
+                <div class="text-center py-4">
+                  <i class="bi bi-inbox text-muted" style="font-size: 1.5rem; display: block;"></i>
+                  <small class="text-muted mt-1 d-block" style="font-size: 0.8rem;">
+                    @if (row.subHeadDropdownList.length === 0) {
+                    No sub heads found for this cost head
+                    } @else {
+                    All sub heads already added
+                    }
+                  </small>
+                </div>
+                } @else {
+                @for (subHead of getAvailableSubHeadsForRow(row.id); track subHead.SubHeadId) {
+                <button type="button" class="dropdown-item d-flex align-items-center gap-2 py-2 px-3"
+                  style="cursor: pointer; font-size: 0.85rem; border-bottom: 1px solid #f8f9fa;"
+                  (click)="addSubHeadToRow(row.id, subHead)">
+                  <i class="bi bi-plus-circle text-danger" style="font-size: 0.9rem;"></i>
+                  <span>{{ subHead.Name }}</span>
+                </button>
+                }
+                }
+              </div>
+            </div>
+            }
+          </div>
+        </td>
+      </tr>
+
+      }
+      } @else {
+      <tr>
+        <td colspan="5" class="text-center py-5" style="background: white;">
+          <div class="d-flex flex-column align-items-center gap-3">
+            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
+              style="width: 80px; height: 80px;">
+              <i class="bi bi-inbox text-muted" style="font-size: 2.5rem;"></i>
+            </div>
+            <div>
+              <h6 class="text-muted fw-semibold">No Cost Items Added</h6>
+              <p class="text-muted small mb-0">Select a cost head and click "Add Item"</p>
+            </div>
+          </div>
+        </td>
+      </tr>
+      }
+      </tbody>
+
+      <tfoot style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+        <tr>
+          <th colspan="2" class="text-end" style="padding: 1rem; border: none; font-size: 1.1rem;">Total Cost</th>
+          <th class="text-end" style="padding: 1rem; border: none; font-size: 1.3rem;">
+            ₹ {{ calculateGrandTotal().toFixed(2) }}
+          </th>
+          <th colspan="2" style="border: none;"></th>
+        </tr>
+      </tfoot>
+      </table>
+    </div>
+
+    @if (costEstimationRows().length > 0) {
+    <div class="alert alert-info mt-3 border-0 shadow-sm"
+      style="border-radius: 10px; background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);">
+      <div class="d-flex align-items-start gap-2">
+        <i class="bi bi-info-circle-fill text-primary" style="font-size: 1.3rem;"></i>
+        <div>
+          <h6 class="fw-bold mb-2">Important:</h6>
+          <ul class="mb-0 small">
+            <li>Enter cost basis (e.g., "Per sq.ft") for each item and sub head</li>
+            <li>Amount format: 1222.25 (max 2 decimals)</li>
+            <li>Click <strong>Add Sub Head</strong> on any row to attach sub heads</li>
+            <li>Select vendors and upload documents (multiple files supported per vendor)</li>
+            <li>Accepted file types: .doc, .docx, .pdf (max 5MB each)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+
+  <!-- Footer Actions -->
+  <div class="card-footer bg-light d-flex flex-column flex-sm-row justify-content-between align-items-center py-3 gap-2"
+    style="border-top: 2px solid #e9ecef;">
+    <div>
+      @if (costEstimationRows().length > 0) {
+      <span class="badge bg-primary" style="font-size: 0.85rem; padding: 0.5rem 0.8rem; border-radius: 15px;">
+        <i class="bi bi-list-check"></i> {{ costEstimationRows().length }} Item(s)
+      </span>
+      }
+    </div>
+    <div class="d-flex gap-2">
+      <button type="button" class="btn btn-outline-secondary shadow-sm" style="border-radius: 8px;"
+        (click)="onCancel()">
+        <i class="bi bi-x-circle"></i> Cancel
+      </button>
+      <button type="button" class="btn btn-primary shadow-sm" style="border-radius: 8px;" (click)="onProjectSubmit()"
+        [disabled]="isSubmittingProject() || costEstimationRows().length === 0">
+        @if (isSubmittingProject()) {
+        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+        Saving...
+        } @else {
+        <i class="bi bi-check-circle-fill"></i> Save Project
+        }
+      </button>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<!-- ===================== Manage Cost Heads Modal ===================== -->
+<div class="modal fade" #CostHeadModal tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 12px; border: none;">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">
+          <i class="bi bi-list-check"></i> Manage Cost Heads
+        </h5>
+        <button type="button" class="btn-close" (click)="closeCostHeadModal()">X</button>
+      </div>
+      <app-pb-manage-cost-heads (costHeadsUpdated)="onCostHeadsUpdated()"></app-pb-manage-cost-heads>
+      <div class="modal-footer" style="background: #f8f9fa; border-radius: 0 0 12px 12px;">
+        <button type="button" class="btn btn-secondary shadow-sm" style="border-radius: 8px;"
+          (click)="closeCostHeadModal()">
+          <i class="bi bi-x-circle"></i> Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===================== Manage Sub Cost Heads Modal ===================== -->
+<div class="modal fade" #SubCostHeadModal tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 12px; border: none;">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">
+          <i class="bi bi-diagram-3"></i> Manage Sub Cost Heads
+        </h5>
+        <button type="button" class="btn-close" (click)="closeSubCostHeadModal()">X</button>
+      </div>
+      <app-pb-manage-sub-cost-heads (subHeadsUpdated)="onSubHeadsUpdated()"></app-pb-manage-sub-cost-heads>
+      <div class="modal-footer" style="background: #f8f9fa; border-radius: 0 0 12px 12px;">
+        <button type="button" class="btn btn-secondary shadow-sm" style="border-radius: 8px;"
+          (click)="closeSubCostHeadModal()">
+          <i class="bi bi-x-circle"></i> Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===================== Bulk Cost Basis Upload Modal ===================== -->
+<div class="modal fade" #bulkCostBasisUploadModal tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 12px; border: none;">
+      <div class="modal-header" style="border-radius: 12px 12px 0 0;">
+        <h5 class="modal-title fw-bold">
+          <i class="bi bi-cloud-arrow-up me-2"></i>Cost Basis Bulk Upload
+        </h5>
+        <button type="button" style="background:transparent; border:none; font-size:18px; line-height:1;"
+          (click)="closeBulkCostBasisUpload()">&#x2715;</button>
+      </div>
+
+      <div class="modal-body p-4">
+
+        <!-- Step Indicator -->
+        <div class="d-flex align-items-center mb-4">
+          <div class="d-flex align-items-center gap-2">
+            <div style="width:30px; height:30px; border-radius:50%; display:flex; align-items:center;
+                        justify-content:center; font-size:13px; font-weight:700;"
+              [style.background]="bulkUploadStep() === 'preview' ? '#198754' : '#0d6efd'" [style.color]="'white'">
+              @if (bulkUploadStep() === 'preview') { <i class="bi bi-check-lg"></i> } @else { 1 }
+            </div>
+            <span class="fw-semibold small" [class.text-success]="bulkUploadStep() === 'preview'"
+              [class.text-primary]="bulkUploadStep() === 'upload'">Upload Excel</span>
+          </div>
+          <div style="flex:1; height:2px; margin: 0 12px;"
+            [style.background]="bulkUploadStep() === 'preview' ? '#198754' : '#dee2e6'"></div>
+          <div class="d-flex align-items-center gap-2">
+            <div style="width:30px; height:30px; border-radius:50%; display:flex; align-items:center;
+                        justify-content:center; font-size:13px; font-weight:700;"
+              [style.background]="bulkUploadStep() === 'preview' ? '#0d6efd' : '#e9ecef'"
+              [style.color]="bulkUploadStep() === 'preview' ? 'white' : '#adb5bd'">2</div>
+            <span class="fw-semibold small" [class.text-primary]="bulkUploadStep() === 'preview'"
+              [class.text-muted]="bulkUploadStep() !== 'preview'">Confirm & Submit</span>
+          </div>
+        </div>
+
+        <!-- Step 1 -->
+        @if (bulkUploadStep() === 'upload') {
+        <div class="card mb-3 border-0 shadow-sm" style="border-radius: 10px;">
+          <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-3 p-3">
+            <div>
+              <h6 class="fw-bold mb-1">
+                <i class="bi bi-file-earmark-arrow-down me-2 text-success"></i>Step 1: Download Template
+              </h6>
+              <small class="text-muted">Download the Excel template, fill in cost basis data, then upload below.</small>
+            </div>
+            <button type="button" class="btn btn-success shadow-sm" style="border-radius: 8px; min-width: 185px;"
+              (click)="downloadBulkCostBasisExcel()" [disabled]="isDownloadingBulkUpload()">
+              @if (isDownloadingBulkUpload()) {
+              <span class="spinner-border spinner-border-sm me-1"></span> Downloading...
+              } @else {
+              <i class="bi bi-download me-1"></i> Download Template
+              }
+            </button>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm" style="border-radius: 10px;">
+          <div class="card-body p-3">
+            <h6 class="fw-bold mb-3">
+              <i class="bi bi-file-earmark-arrow-up me-2 text-primary"></i>Step 2: Upload Filled Excel
+            </h6>
+            <div class="text-center p-4 mb-3"
+              style="border: 2px dashed #ced4da; border-radius: 10px; background: #f8f9fa; cursor: pointer;"
+              (click)="fileInput.click()" (dragover)="$event.preventDefault()" (drop)="onFileDrop($event)">
+              <i class="bi bi-cloud-upload fs-1 text-muted"></i>
+              <p class="mb-1 mt-2 fw-semibold text-muted">Drag & drop your Excel file here</p>
+              <small class="text-muted">or click to browse &nbsp;|&nbsp; Supported: .xlsx, .xls</small>
+            </div>
+            <input #fileInput type="file" accept=".xlsx,.xls" class="d-none"
+              (change)="onFileSelectedBulkUpload($event)" />
+            @if (selectedFileBulkUpload()) {
+            <div class="d-flex align-items-center justify-content-between p-2 rounded mb-3"
+              style="background: #e8f4fd; border: 1px solid #b8daff; border-radius: 8px;">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-file-earmark-excel text-success fs-4"></i>
+                <div>
+                  <div class="fw-semibold small">{{ selectedFileBulkUpload()!.name }}</div>
+                  <div class="text-muted" style="font-size: 11px;">
+                    {{ (selectedFileBulkUpload()!.size / 1024).toFixed(1) }} KB
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline-danger" style="border-radius: 6px;"
+                (click)="clearSelectedFileBulkUpload()">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+            }
+            <div class="d-flex justify-content-end">
+              <button type="button" class="btn btn-primary shadow-sm" style="border-radius: 8px; min-width: 185px;"
+                (click)="previewBulkCostBasisExcel()"
+                [disabled]="!selectedFileBulkUpload() || isPreviewingBulkUpload()">
+                @if (isPreviewingBulkUpload()) {
+                <span class="spinner-border spinner-border-sm me-1"></span> Loading Preview...
+                } @else {
+                <i class="bi bi-eye me-1"></i> Preview Data
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+        }
+
+        <!-- Step 2 -->
+        @if (bulkUploadStep() === 'preview') {
+        <div class="card border-0 shadow-sm" style="border-radius: 10px;">
+          <div class="card-body p-3">
+
+            <!-- Preview Header -->
+            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+              <div>
+                <h6 class="fw-bold mb-1">
+                  <i class="bi bi-table me-2 text-primary"></i>Preview Upload Data
+                </h6>
+                <small class="text-muted">
+                  <i class="bi bi-file-earmark-excel me-1 text-success"></i>
+                  <strong>{{ selectedFileBulkUpload()?.name }}</strong>
+                  &nbsp;|&nbsp;
+                  @if (previewCostHeads().length > 0) {
+                  <span class="badge bg-primary me-1" style="font-size:11px;">
+                    {{ previewCostHeads().length }} cost head(s)
+                  </span>
+                  }
+                  @if (previewSubHeads().length > 0) {
+                  <span class="badge bg-danger" style="font-size:11px;">
+                    {{ previewSubHeads().length }} sub head(s)
+                  </span>
+                  }
+                </small>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline-secondary" style="border-radius: 6px;"
+                (click)="clearSelectedFileBulkUpload()">
+                <i class="bi bi-arrow-left me-1"></i> Back
+              </button>
+            </div>
+
+            <!-- ==================== COST HEADS TABLE ==================== -->
+            @if (previewCostHeads().length > 0) {
+            <div class="mb-4">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge bg-primary px-3 py-2" style="font-size: 0.82rem; border-radius: 8px;">
+                  <i class="bi bi-list-check me-1"></i> Cost Heads
+                </span>
+                <small class="text-muted">{{ previewCostHeads().length }} record(s)</small>
+              </div>
+
+              <div style="max-height: 300px; overflow-y: auto; border-radius: 8px; border: 1px solid #dee2e6;">
+                <table class="table table-bordered table-hover mb-0" style="font-size: 13px; min-width: 600px;">
+                  <thead style="position: sticky; top: 0; z-index: 1;
+                          background: linear-gradient(135deg, #1e3a5f, #2d6a9f); color: white;">
+                    <tr>
+                      <th style="width: 60px; padding: 10px 12px;">Sr No</th>
+                      <th style="padding: 10px 12px;">Cost Head Name</th>
+                      <th style="padding: 10px 12px;">Cost Basis</th>
+                      <th style="width: 140px; padding: 10px 12px; text-align: right;">Amount (₹)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of previewCostHeads(); track row.SrNo) {
+                    <tr>
+                      <td style="padding: 8px 12px; text-align: center; color: #6c757d;">{{ row.SrNo }}</td>
+                      <td style="padding: 8px 12px; font-weight: 500;">{{ row.CostHeadName }}</td>
+                      <td style="padding: 8px 12px;">
+                        @if (row.CostBasis) {
+                        {{ row.CostBasis }}
+                        } @else {
+                        <span class="text-muted fst-italic" style="font-size: 0.8rem;">—</span>
+                        }
+                      </td>
+                      <td style="padding: 8px 12px; text-align: right; font-weight: 600; color: #0d6efd;">
+                        {{ row.Amount | number:'1.2-2' }}
+                      </td>
+                    </tr>
+                    }
+                  </tbody>
+                  <tfoot style="background: #eef2ff; border-top: 2px solid #c7d2fe;">
+                    <tr>
+                      <td colspan="3" style="padding: 9px 12px; font-weight: 700; text-align: right; color: #1e3a5f;">
+                        Cost Heads Total
+                      </td>
+                      <td
+                        style="padding: 9px 12px; text-align: right; font-weight: 700; color: #0d6efd; font-size: 13px;">
+                        ₹ {{ previewCostHeadTotal() | number:'1.2-2' }}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+            }
+
+            <!-- ==================== SUB HEADS TABLE ==================== -->
+            @if (previewSubHeads().length > 0) {
+            <div class="mb-3">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge bg-danger px-3 py-2" style="font-size: 0.82rem; border-radius: 8px;">
+                  <i class="bi bi-diagram-3 me-1"></i> Sub Heads
+                </span>
+                <small class="text-muted">{{ previewSubHeads().length }} record(s)</small>
+              </div>
+
+              <div style="max-height: 300px; overflow-y: auto; border-radius: 8px; border: 1px solid #dee2e6;">
+                <table class="table table-bordered table-hover mb-0" style="font-size: 13px; min-width: 680px;">
+                  <thead style="position: sticky; top: 0; z-index: 1;
+                          background: linear-gradient(135deg, #6b1a1a, #c0392b); color: white;">
+                    <tr>
+                      <th style="width: 60px; padding: 10px 12px;">Sr No</th>
+                      <th style="padding: 10px 12px;">Cost Head</th>
+                      <th style="padding: 10px 12px;">Sub Head Name</th>
+                      <th style="padding: 10px 12px;">Cost Basis</th>
+                      <th style="width: 140px; padding: 10px 12px; text-align: right;">Amount (₹)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of previewSubHeads(); track row.SrNo) {
+                    <tr>
+                      <td style="padding: 8px 12px; text-align: center; color: #6c757d;">{{ row.SrNo }}</td>
+                      <td style="padding: 8px 12px;">
+                        <span class="badge bg-light text-dark border" style="font-size: 0.78rem; font-weight: 500;">
+                          {{ row.CostHeadName }}
+                        </span>
+                      </td>
+                      <td style="padding: 8px 12px;">
+                        <div class="d-flex align-items-center gap-1">
+                          <span style="color: #dc3545; font-size: 0.85rem;">↳</span>
+                          <strong style="color: #2d3748;">{{ row.SubHeadName }}</strong>
+                        </div>
+                      </td>
+                      <td style="padding: 8px 12px;">
+                        @if (row.CostBasis) {
+                        {{ row.CostBasis }}
+                        } @else {
+                        <span class="text-muted fst-italic" style="font-size: 0.8rem;">—</span>
+                        }
+                      </td>
+                      <td style="padding: 8px 12px; text-align: right; font-weight: 600; color: #dc3545;">
+                        {{ row.Amount | number:'1.2-2' }}
+                      </td>
+                    </tr>
+                    }
+                  </tbody>
+                  <tfoot style="background: #fff5f5; border-top: 2px solid #ffcccc;">
+                    <tr>
+                      <td colspan="4" style="padding: 9px 12px; font-weight: 700; text-align: right; color: #6b1a1a;">
+                        Sub Heads Total
+                      </td>
+                      <td
+                        style="padding: 9px 12px; text-align: right; font-weight: 700; color: #dc3545; font-size: 13px;">
+                        ₹ {{ previewSubHeadTotal() | number:'1.2-2' }}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+            }
+
+            <!-- ==================== GRAND TOTAL (only when both exist) ==================== -->
+            @if (previewCostHeads().length > 0 && previewSubHeads().length > 0) {
+            <div class="d-flex justify-content-end mb-3">
+              <div class="px-4 py-2 rounded shadow-sm"
+                style="background: linear-gradient(135deg, #1e3a5f, #2d6a9f); color: white; border-radius: 10px;">
+                <span class="fw-semibold me-3" style="font-size: 0.9rem;">Grand Total</span>
+                <span class="fw-bold" style="font-size: 1.1rem;">₹ {{ previewGrandTotal() | number:'1.2-2' }}</span>
+              </div>
+            </div>
+            }
+
+            <!-- Warning -->
+            <div class="alert alert-warning d-flex align-items-start gap-2 mb-0 p-2"
+              style="border-radius: 8px; font-size: 13px;">
+              <i class="bi bi-exclamation-triangle-fill text-warning flex-shrink-0 mt-1"></i>
+              <span>
+                Please review the data carefully. Clicking <strong>Add Cost Estimation</strong> will permanently save
+                <strong>{{ previewCostHeads().length }} cost head(s)</strong>
+                @if (previewSubHeads().length > 0) {
+                and <strong>{{ previewSubHeads().length }} sub head(s)</strong>
+                }
+                to the project.
+              </span>
+            </div>
+
+          </div>
+        </div>
+        }
+      </div>
+
+      <div class="modal-footer gap-2" style="background: #f8f9fa; border-radius: 0 0 12px 12px;">
+        @if (bulkUploadStep() === 'preview') {
+        <button type="button" class="btn btn-success shadow-sm" style="border-radius: 8px; min-width: 200px;"
+          (click)="uploadBulkCostBasisExcel()" [disabled]="isUploadingBulkUpload()">
+          @if (isUploadingBulkUpload()) {
+          <span class="spinner-border spinner-border-sm me-1"></span> Saving...
+          } @else {
+          <i class="bi bi-check-circle me-1"></i> Add Cost Estimation
+          }
+        </button>
+        }
+        <button type="button" class="btn btn-secondary shadow-sm" style="border-radius: 8px;"
+          (click)="closeBulkCostBasisUpload()">
+          <i class="bi bi-x-circle me-1"></i> Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

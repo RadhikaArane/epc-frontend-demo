@@ -1,0 +1,187 @@
+<div class="content container-fluid">
+
+  <!-- Breadcrumb -->
+  <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+  <div class="d-flex my-xl-auto right-content align-items-center flex-wrap w-100 justify-content-between gap-2">
+    <div class="me-0">
+      <app-breadcrumbs title="Manage Areas" [breadcrumbItems]="breadCrumbItems()">
+      </app-breadcrumbs>
+    </div>
+    <div>
+      <button class="btn btn-primary shadow-sm" type="button" style="border-radius: 8px;">
+        <i class="bi bi-file-earmark-arrow-down me-2"></i>
+        Export
+      </button>
+    </div>
+  </div>
+</div>
+
+  <!-- Top bar -->
+  <div class="card border mb-3">
+    <div class="card-body">
+      <div class="row align-items-center g-2">
+        <div class="col-12 col-md-6">
+          <h3 class="mb-0 text-center text-md-start">Area List</h3>
+        </div>
+        <!-- <div class="col-12 col-md-6">
+          <div class="d-flex flex-column flex-sm-row justify-content-center justify-content-md-end gap-2">
+            <button class="btn btn-primary" (click)="OpenModal()">
+              Add New Project
+            </button>
+            <button class="btn btn-primary" (click)="OpenNodalModal()">
+              Add Nodal Agency
+            </button>
+          </div>
+        </div> -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Project List Section -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+
+        <!-- Card header: page size + project filter -->
+        <div class="card-header">
+          <div class="row g-2 align-items-center">
+            <!-- Page size selector -->
+            <div class="col-12 col-md-6">
+              <div class="dataTables_length">
+                <label class="d-inline-flex align-items-center mb-0">
+                  <span class="me-1">Show</span>
+                  <select class="form-select form-select-sm mx-1" style="width: auto;" [value]="pageSize()"
+                    (change)="onPageSizeChange($event)" [disabled]="isLoading()">
+                    <option [value]="10">10</option>
+                    <option [value]="25">25</option>
+                    <option [value]="50">50</option>
+                    <option [value]="100">100</option>
+                  </select>
+                  <span>entries</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Project filter dropdown -->
+
+
+
+          </div>
+        </div>
+
+        <!-- Card body -->
+        <div class="card-body p-2">
+          <div class="custom-datatable-filter">
+            <div class="dataTables_wrapper dt-bootstrap5 no-footer">
+
+              <!-- Loading Overlay -->
+              @if (isLoading()) {
+              <div class="position-relative" style="min-height: 400px;">
+                <div class="position-absolute top-50 start-50 translate-middle">
+                  <div class="text-center">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Loading areas...</p>
+                  </div>
+                </div>
+              </div>
+              } @else {
+
+              <!-- Table -->
+              <div class="table-responsive">
+                <table class="table table-striped table-bordered mb-0">
+                  <thead class="thead-light">
+                    <tr> 
+                      <th>Sr No</th>
+                      <th>Area Name</th>
+                      <th>Active Status</th>
+                      <th>Region Id</th> 
+                      <th>User Id</th> 
+                      <th>Created On</th>
+                      <th>Created By</th>
+                      <th>Modified On</th>
+                      <th>Modified By</th> 
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @if (allAreas().length > 0) {
+                    @for (access of allAreas(); track access.AreaPK) {
+                    <tr> 
+                      <td>{{ getSerialNumber($index) }}</td>
+                      <td>{{ access.AreaName }}</td>
+                      <td>{{ access.ActiveStatus }}</td>
+                      <td>{{ access.RegionId }}</td>
+                      <td>{{ access.UserId }}</td>
+                      <td>{{ access.CreatedOn ? (access.CreatedOn | date:'dd/MM/yyyy') : '-' }}</td>
+                      <td>{{ access.CreatedBy }}</td>
+                      <td>{{ access?.ModifiedOn ? (access.ModifiedOn | date:'dd/MM/yyyy') : '-' }}</td> 
+                      <td>{{ access.ModifiedBy }}</td>
+                    </tr>
+                    }
+                    } @else {
+                    <tr>
+                      <td colspan="13" class="text-center py-4">No areas found</td>
+                    </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Pagination Controls -->
+              @if (totalRecords() > 0) {
+              <div class="row mt-3 align-items-center">
+                <div class="col-12 col-md-5 mb-2 mb-md-0">
+                  <div class="dataTables_info text-center text-md-start">
+                    Showing {{ getStartRecord() }} to {{ getEndRecord() }} of {{ totalRecords() }} entries
+                  </div>
+                </div>
+                <div class="col-12 col-md-7">
+                  <div
+                    class="dataTables_paginate paging_simple_numbers d-flex justify-content-center justify-content-md-end">
+                    <ul class="pagination mb-0">
+                      <!-- Previous Button -->
+                      <li class="paginate_button page-item" [class.disabled]="currentPage() === 1">
+                        <a class="page-link" [class.pe-none]="currentPage() === 1" style="cursor: pointer;"
+                          (click)="currentPage() === 1 ? null : onPageChange(currentPage() - 1)">
+                          Previous
+                        </a>
+                      </li>
+
+                      <!-- Page Numbers with Ellipsis -->
+                      @for (page of getVisiblePages(); track $index) {
+                      @if (page === -1 || page === -2) {
+                      <li class="paginate_button page-item disabled">
+                        <span class="page-link">...</span>
+                      </li>
+                      } @else {
+                      <li class="paginate_button page-item" [class.active]="page === currentPage()">
+                        <a class="page-link" style="cursor: pointer;" [class.pe-none]="page === currentPage()"
+                          (click)="page === currentPage() ? null : onPageChange(page)">
+                          {{ page }}
+                        </a>
+                      </li>
+                      }
+                      }
+
+                      <!-- Next Button -->
+                      <li class="paginate_button page-item" [class.disabled]="currentPage() === totalPages()">
+                        <a class="page-link" [class.pe-none]="currentPage() === totalPages()" style="cursor: pointer;"
+                          (click)="currentPage() === totalPages() ? null : onPageChange(currentPage() + 1)">
+                          Next
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              }
+              }
+            </div>
+          </div>
+        </div>
+
+      </div> <!-- /card -->
+    </div>
+  </div>
+</div>

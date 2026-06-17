@@ -1,0 +1,531 @@
+<div class="content">
+  <div class="d-md-flex d-block align-items-center justify-content-between mb-3">
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+      <div class="me-0 mb-0">
+        <app-breadcrumbs
+          title="User Logs"
+          [breadcrumbItems]="breadCrumbItems()"
+        ></app-breadcrumbs>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <button
+        class="btn btn-primary shadow-sm px-3"
+        style="border-radius: 8px"
+        (click)="openAddRemarkModal()"
+      >
+        <i class="bi bi-person-plus-fill me-2"></i>Create User
+      </button>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px">
+    <div class="card-body p-3">
+      
+      <div class="row mb-3">
+        <div class="col-12 col-md-2">
+          <label class="form-label small mb-1 text-muted fw-semibold">Show</label>
+          <select
+            class="form-select form-select-sm"
+            [value]="pageSize()"
+            (change)="onPageSizeChange($event)"
+            [disabled]="isLoading()"
+          >
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-responsive" style="max-height: 60vh; overflow: auto">
+        <table class="table table-bordered table-hover align-middle mb-0 table-ultra-compact">
+          <thead class="thead-light" style="position: sticky; top: 0; z-index: 2">
+            <tr>
+              <th>Sr No</th>
+              <th>Employee Name</th>
+              <th>Email</th>
+              <th>Mobile No.</th>
+              <th>Designation</th>
+              <th>Reporting Manager</th>
+              <th>Zone</th>
+              <th>Status</th>
+              <th>Access</th>
+              <th class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (isLoading()) {
+              <tr>
+                <td colspan="10" class="text-center py-4">
+                  <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+                  Loading users...
+                </td>
+              </tr>
+            } @else if (users().length > 0) {
+              @for (u of users(); track u.UserPK) {
+                <tr>
+                  <td>{{ (currentPage() - 1) * pageSize() + ($index + 1) }}</td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div>
+                        <h6 class="mb-0 small">{{ getEmployeeName(u) }}</h6>
+                        <small class="text-muted">ID: {{ u.EmployeeId }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ u.Email }}</td>
+                  <td>{{ u.Mobile }}</td>
+                  <td>
+                    <span class="badge bg-info-subtle text-info border border-info-subtle">
+                      {{ u.RoleId }}
+                    </span>
+                  </td>
+                  <td>{{ u.ReportingManagerId }}</td>
+                  <td>{{ u.ZoneName }}</td>
+                  <td>
+                    <span class="badge rounded-pill" [ngClass]="getActiveBadge(u).cls">
+                      <i class="bi me-1" [ngClass]="getActiveBadge(u).icon"></i>
+                      {{ getActiveBadge(u).text }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge rounded-pill" [ngClass]="getAccessBadge(u).cls">
+                      <i class="bi me-1" [ngClass]="getAccessBadge(u).icon"></i>
+                      {{ getAccessBadge(u).text }}
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-light border" (click)="openEditModal(u)">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-light border ms-1" (click)="onDeleteUser(u)">
+                      <i class="bi bi-trash text-danger"></i>
+                    </button>
+                  </td>
+                </tr>
+              }
+            } @else {
+              <tr>
+                <td colspan="10" class="text-center py-4 text-muted">No users found</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Controls -->
+              @if (totalRecords() > 0) {
+              <div class="row mt-3 align-items-center">
+                <div class="col-12 col-md-5 mb-2 mb-md-0">
+                  <div class="dataTables_info text-center text-md-start">
+                    Showing {{ getStartRecord() }} to {{ getEndRecord() }} of {{ totalRecords() }} entries
+                  </div>
+                </div>
+                <div class="col-12 col-md-7">
+                  <div
+                    class="dataTables_paginate paging_simple_numbers d-flex justify-content-center justify-content-md-end">
+                    <ul class="pagination mb-0">
+                      <!-- Previous Button -->
+                      <li class="paginate_button page-item" [class.disabled]="currentPage() === 1">
+                        <a class="page-link" [class.pe-none]="currentPage() === 1" style="cursor: pointer;"
+                          (click)="currentPage() === 1 ? null : onPageChange(currentPage() - 1)">
+                          Previous
+                        </a>
+                      </li>
+
+                      <!-- Page Numbers with Ellipsis -->
+                      @for (page of getVisiblePages(); track $index) {
+                      @if (page === -1 || page === -2) {
+                      <li class="paginate_button page-item disabled">
+                        <span class="page-link">...</span>
+                      </li>
+                      } @else {
+                      <li class="paginate_button page-item" [class.active]="page === currentPage()">
+                        <a class="page-link" style="cursor: pointer;" [class.pe-none]="page === currentPage()"
+                          (click)="page === currentPage() ? null : onPageChange(page)">
+                          {{ page }}
+                        </a>
+                      </li>
+                      }
+                      }
+
+                      <!-- Next Button -->
+                      <li class="paginate_button page-item" [class.disabled]="currentPage() === totalPages()">
+                        <a class="page-link" [class.pe-none]="currentPage() === totalPages()" style="cursor: pointer;"
+                          (click)="currentPage() === totalPages() ? null : onPageChange(currentPage() + 1)">
+                          Next
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+
+  @if (showDeleteConfirm()) {
+    <div
+      class="modal fade show"
+      tabindex="-1"
+      style="display: block; background-color: rgba(0, 0, 0, 0.5)"
+      role="dialog"
+    >
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div
+          class="modal-content border-0 shadow-lg text-center"
+          style="border-radius: 24px"
+        >
+          <div class="modal-header border-0 justify-content-end pb-0">
+            <button
+              type="button"
+              class="btn-close"
+              (click)="closeDeleteConfirm()"
+            ></button>
+          </div>
+
+          <div class="modal-body pt-0 pb-4 px-4">
+            <div
+              class="mx-auto mb-3 d-flex align-items-center justify-content-center"
+              style="
+                width: 110px;
+                height: 110px;
+                border-radius: 50%;
+                background: #f8d7da;
+              "
+            >
+              <div
+                class="d-flex align-items-center justify-content-center"
+                style="
+                  width: 60px;
+                  height: 60px;
+                  border-radius: 50%;
+                  background: #f5b7b1;
+                  color: #c0392b;
+                  font-size: 2rem;
+                  font-weight: 700;
+                "
+              >
+                ?
+              </div>
+            </div>
+
+            <h2 class="fw-bold mb-3" style="color: #4a4a4a">Confirm Delete</h2>
+
+            <p
+              class="mb-4"
+              style="color: #6c7a89; font-size: 1.2rem; line-height: 1.5"
+            >
+              Are you sure you want to delete "<strong>{{
+                deleteUserName()
+              }}</strong
+              >"?
+            </p>
+
+            <div class="d-flex justify-content-center gap-3">
+              <button
+                type="button"
+                class="btn px-4 py-2"
+                style="
+                  border: 1px solid #e74c3c;
+                  color: #e74c3c;
+                  min-width: 120px;
+                "
+                (click)="closeDeleteConfirm()"
+              >
+                <i class="bi bi-x-circle me-2"></i>No
+              </button>
+
+              <button
+                type="button"
+                class="btn px-4 py-2 text-white"
+                style="background-color: #e74c3c; min-width: 120px"
+                (click)="confirmDeleteUser()"
+              >
+                <i class="bi bi-check-circle me-2"></i>Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (showModal()) {
+    <div
+      class="modal fade show"
+      tabindex="-1"
+      style="display: block; background-color: rgba(0, 0, 0, 0.5)"
+      role="dialog"
+    >
+      <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div
+          class="modal-content border-0 shadow-lg"
+          style="border-radius: 12px"
+        >
+          <div class="modal-header bg-white border-bottom-0 pt-4 px-4">
+            <h5 class="modal-title fw-bold text-primary">
+              <i class="bi bi-person-badge-fill me-2 fs-4"></i> User
+              Registration
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              (click)="closeModal()"
+            ></button>
+          </div>
+
+          <div class="modal-body px-4 pb-4">
+            <form
+              [formGroup]="userForm"
+              (ngSubmit)="onSubmit()"
+              class="bg-white"
+            >
+              <div
+                class="alert alert-primary d-flex align-items-center mb-4"
+                role="alert"
+              >
+                <i class="bi bi-info-circle-fill me-2"></i>
+                <div>
+                  Creating user for: <strong>{{ currentProjectName() }}</strong>
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <h6
+                  class="text-uppercase text-muted fw-bold small mb-3 border-bottom pb-2"
+                >
+                  <i class="bi bi-person-lines-fill me-2"></i>Identity & Details
+                </h6>
+                <div class="row g-3">
+                  <div class="col-md-3">
+                    <label class="form-label fw-semibold small"
+                      >Project Type</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control bg-light"
+                      [value]="currentProjectName()"
+                      readonly
+                    />
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label fw-semibold small"
+                      >Employee ID <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      formControlName="employeeId"
+                      placeholder="e.g. 10052"
+                    />
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label fw-semibold small"
+                      >First Name <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      formControlName="firstName"
+                      placeholder="First name"
+                    />
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label fw-semibold small"
+                      >Last Name <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      formControlName="lastName"
+                      placeholder="Last name"
+                    />
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label fw-semibold small"
+                      >Email <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="email"
+                      class="form-control"
+                      formControlName="email"
+                      placeholder="name@mahindra.com"
+                    />
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label fw-semibold small"
+                      >Mobile <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      formControlName="mobile"
+                      placeholder="10-digit mobile"
+                    />
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label fw-semibold small"
+                      >Password <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="password"
+                      class="form-control"
+                      formControlName="password"
+                      placeholder="Min 4 chars"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <h6
+                  class="text-uppercase text-muted fw-bold small mb-3 border-bottom pb-2"
+                >
+                  <i class="bi bi-diagram-3 me-2"></i>Hierarchy & Location
+                </h6>
+                <div class="row g-3">
+                  <div class="col-md-3">
+                    <label class="form-label fw-semibold small"
+                      >Role <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-select"
+                      formControlName="designation"
+                      (change)="onDesignationChange($event)"
+                    >
+                      <option value="">-- Select --</option>
+                      @for (r of roles(); track $index) {
+                        <option [value]="r.Value">{{ r.Text }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <div class="col-md-3">
+                    <label class="form-label fw-semibold small"
+                      >Zone <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-select"
+                      formControlName="zone"
+                      (change)="onZoneChange($event)"
+                    >
+                      <option value="">-- Select --</option>
+                      @for (z of zones(); track $index) {
+                        <option [value]="z.Value">{{ z.Text }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <div class="col-md-3">
+                    <label class="form-label fw-semibold small"
+                      >Region <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-select"
+                      formControlName="region"
+                      (change)="onRegionChange($event)"
+                    >
+                      <option value="">-- Select --</option>
+                      @for (r of regions(); track $index) {
+                        <option [value]="r.Value">{{ r.Text }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <div class="col-md-3">
+                    <label class="form-label fw-semibold small"
+                      >Area <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-select"
+                      formControlName="area"
+                      (change)="onAreaChange($event)"
+                    >
+                      <option value="">-- Select --</option>
+                      @for (a of areas(); track $index) {
+                        <option [value]="a.Value">{{ a.Text }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <div class="col-md-3">
+                    <label class="form-label fw-semibold small"
+                      >Reporting Manager
+                      <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-select"
+                      formControlName="reportingManagerId"
+                    >
+                      <option value="">-- Select Manager --</option>
+                      @for (mgr of reportingManagers(); track $index) {
+                        <option [value]="mgr.Value">{{ mgr.Text }}</option>
+                      }
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-3 border rounded-3 bg-light">
+                <div class="row g-3 align-items-center">
+                  <div class="col-md-4">
+                    <label class="form-label fw-semibold small mb-0"
+                      >Created By:</label
+                    >
+                    <span class="ms-2 badge bg-white border text-dark">{{
+                      userForm.get("createdBy")?.value
+                    }}</span>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="d-flex align-items-center">
+                      <label class="form-label fw-semibold small mb-0 me-2"
+                        >Status:</label
+                      >
+                      <select
+                        class="form-select form-select-sm w-auto"
+                        formControlName="activeStatus"
+                      >
+                        <option [ngValue]="true">Active</option>
+                        <option [ngValue]="false">Inactive</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="d-flex align-items-center">
+                      <label class="form-label fw-semibold small mb-0 me-2"
+                        >Access:</label
+                      >
+                      <select
+                        class="form-select form-select-sm w-auto"
+                        formControlName="lockStatus"
+                      >
+                        <option [ngValue]="true">Locked</option>
+                        <option [ngValue]="false">Unlocked</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end gap-2 mt-4">
+                <button
+                  type="button"
+                  class="btn btn-light border"
+                  (click)="closeModal()"
+                >
+                  Cancel
+                </button>
+                <button type="submit" class="btn btn-primary">
+                  {{ isEditMode() ? "Update User" : "Register User" }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  }

@@ -1,0 +1,752 @@
+<div class="content">
+  <div
+    class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3"
+  >
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+      <div class="me-0 mb-2">
+        <app-breadcrumbs
+          title="Add Sidebar Menu"
+          [breadcrumbItems]="breadCrumbItems()"
+        ></app-breadcrumbs>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0" style="border-radius: 12px">
+    <div class="card-header bg-white border-0 pt-3">
+      <h5 class="mb-0 fw-semibold">Create Sidebar Menu</h5>
+    </div>
+
+    <div class="card-body">
+      <form [formGroup]="menuForm" (ngSubmit)="onSubmit()">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Menu Value</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="menuValue"
+              placeholder="Dashboard"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Icon</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="icon"
+              placeholder="dashboard-icon"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Route</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="route"
+              placeholder="/dashboard"
+            />
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Has Sub Route</label>
+            <select class="form-select" formControlName="hasSubRoute">
+              <option value="false">false</option>
+              <option value="true">true</option>
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Has Sub Route Two</label>
+            <select class="form-select" formControlName="hasSubRouteTwo">
+              <option value="false">false</option>
+              <option value="true">true</option>
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Sort Order</label>
+            <input
+              type="number"
+              class="form-control"
+              formControlName="sortOrder"
+              placeholder="Select Order"
+            />
+          </div>
+
+          <div class="col-md-4">
+  <label class="form-label fw-semibold">Project Types</label>
+
+  <div class="position-relative project-type-dropdown-wrapper">
+    <div
+      class="form-control d-flex align-items-center flex-wrap gap-1"
+      style="min-height: 38px; cursor: pointer"
+      (click)="toggleProjectTypeDropdown()"
+    >
+      @if (selectedProjectTypes().length > 0) {
+        @for (item of selectedProjectTypes(); track item.projectTypeId) {
+          <span class="badge bg-primary d-flex align-items-center gap-1">
+            {{ item.projectTypeName }}
+            <i
+              class="bi bi-x-circle"
+              style="cursor: pointer"
+              (click)="removeSelectedProjectType(item.projectTypeId); $event.stopPropagation()"
+            ></i>
+          </span>
+        }
+      } @else {
+        <span class="text-muted">Select Project Types</span>
+      }
+    </div>
+
+    @if (showProjectTypeDropdown()) {
+      <div
+        class="border rounded shadow-sm bg-white position-absolute w-100 mt-1 p-2"
+        style="z-index: 1000; max-height: 220px; overflow-y: auto"
+      >
+        @for (pt of projectTypes(); track pt.projectTypeId) {
+          <div class="form-check mb-2">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              [id]="'pt_' + pt.projectTypeId"
+              [checked]="isProjectTypeSelected(pt.projectTypeId)"
+              (change)="onProjectTypeSelect(pt)"
+            />
+            <label
+              class="form-check-label"
+              [for]="'pt_' + pt.projectTypeId"
+            >
+              {{ pt.projectTypeName }}
+            </label>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <small class="text-muted">
+    Multiple selection allowed.
+  </small>
+</div>
+
+          <div class="col-md-4">
+  <label class="form-label fw-semibold">Roles</label>
+
+  <div class="position-relative role-dropdown-wrapper">
+    <div
+      class="form-control d-flex align-items-center flex-wrap gap-1"
+      style="min-height: 38px; cursor: pointer"
+      (click)="toggleRoleDropdown()"
+    >
+      @if (selectedRoles().length > 0) {
+        @for (item of selectedRoles(); track item.roleId) {
+          <span class="badge bg-success d-flex align-items-center gap-1">
+            {{ item.roleName }}
+            <i
+              class="bi bi-x-circle"
+              style="cursor: pointer"
+              (click)="removeSelectedRole(item.roleId); $event.stopPropagation()"
+            ></i>
+          </span>
+        }
+      } @else {
+        <span class="text-muted">Select Roles</span>
+      }
+    </div>
+
+    @if (showRoleDropdown()) {
+      <div
+        class="border rounded shadow-sm bg-white position-absolute w-100 mt-1 p-2"
+        style="z-index: 1000; max-height: 220px; overflow-y: auto"
+      >
+        @for (role of roles(); track role.roleId) {
+          <div class="form-check mb-2">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              [id]="'role_' + role.roleId"
+              [checked]="isRoleSelected(role.roleId)"
+              (change)="onRoleSelect(role)"
+            />
+            <label
+              class="form-check-label"
+              [for]="'role_' + role.roleId"
+            >
+              {{ role.roleName }}
+            </label>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <small class="text-muted">
+    Multiple Selection allowed.
+  </small>
+</div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <button
+            type="button"
+            class="btn btn-light border"
+            (click)="resetForm()"
+          >
+            Reset
+          </button>
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="isSaving()"
+          >
+            @if (isSaving()) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Saving...
+            } @else {
+              Save
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 mt-4" style="border-radius: 12px">
+  <div class="card-header bg-white border-0 pt-3">
+    <h5 class="mb-0 fw-semibold">Create Sub Menu</h5>
+  </div>
+
+  <div class="card-body">
+    <form [formGroup]="subMenuForm" (ngSubmit)="onSubMenuSubmit()">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Menu Item Id</label>
+          <input
+            type="number"
+            class="form-control"
+            formControlName="menuItemId"
+            placeholder="Item Id"
+          />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Menu Value</label>
+          <input
+            type="text"
+            class="form-control"
+            formControlName="menuValue"
+            placeholder="User Management"
+          />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Route</label>
+          <input
+            type="text"
+            class="form-control"
+            formControlName="route"
+            placeholder="users"
+          />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Sort Order</label>
+          <input
+            type="number"
+            class="form-control"
+            formControlName="sortOrder"
+            placeholder="Select Order"
+          />
+        </div>
+
+        <div class="col-md-6">
+  <label class="form-label fw-semibold">Project Types</label>
+
+  <div class="position-relative sub-project-type-dropdown-wrapper">
+    <div
+      class="form-control d-flex align-items-center flex-wrap gap-1"
+      style="min-height: 38px; cursor: pointer"
+      (click)="toggleSubProjectTypeDropdown()"
+    >
+      @if (selectedSubProjectTypes().length > 0) {
+        @for (item of selectedSubProjectTypes(); track item.projectTypeId) {
+          <span class="badge bg-primary d-flex align-items-center gap-1">
+            {{ item.projectTypeName }}
+            <i
+              class="bi bi-x-circle"
+              style="cursor: pointer"
+              (click)="removeSelectedSubProjectType(item.projectTypeId); $event.stopPropagation()"
+            ></i>
+          </span>
+        }
+      } @else {
+        <span class="text-muted">Select Project Types</span>
+      }
+    </div>
+
+    @if (showSubProjectTypeDropdown()) {
+      <div
+        class="border rounded shadow-sm bg-white position-absolute w-100 mt-1 p-2"
+        style="z-index: 1000; max-height: 220px; overflow-y: auto"
+      >
+        @for (pt of projectTypes(); track pt.projectTypeId) {
+          <div class="form-check mb-2">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              [id]="'sub_pt_' + pt.projectTypeId"
+              [checked]="isSubProjectTypeSelected(pt.projectTypeId)"
+              (change)="onSubProjectTypeSelect(pt)"
+            />
+            <label
+              class="form-check-label"
+              [for]="'sub_pt_' + pt.projectTypeId"
+            >
+              {{ pt.projectTypeName }}
+            </label>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <small class="text-muted">Multiple selection allowed.</small>
+</div>
+
+<div class="col-md-6">
+  <label class="form-label fw-semibold">Roles</label>
+
+  <div class="position-relative sub-role-dropdown-wrapper">
+    <div
+      class="form-control d-flex align-items-center flex-wrap gap-1"
+      style="min-height: 38px; cursor: pointer"
+      (click)="toggleSubRoleDropdown()"
+    >
+      @if (selectedSubRoles().length > 0) {
+        @for (item of selectedSubRoles(); track item.roleId) {
+          <span class="badge bg-success d-flex align-items-center gap-1">
+            {{ item.roleName }}
+            <i
+              class="bi bi-x-circle"
+              style="cursor: pointer"
+              (click)="removeSelectedSubRole(item.roleId); $event.stopPropagation()"
+            ></i>
+          </span>
+        }
+      } @else {
+        <span class="text-muted">Select Roles</span>
+      }
+    </div>
+
+    @if (showSubRoleDropdown()) {
+      <div
+        class="border rounded shadow-sm bg-white position-absolute w-100 mt-1 p-2"
+        style="z-index: 1000; max-height: 220px; overflow-y: auto"
+      >
+        @for (role of roles(); track role.roleId) {
+          <div class="form-check mb-2">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              [id]="'sub_role_' + role.roleId"
+              [checked]="isSubRoleSelected(role.roleId)"
+              (change)="onSubRoleSelect(role)"
+            />
+            <label
+              class="form-check-label"
+              [for]="'sub_role_' + role.roleId"
+            >
+              {{ role.roleName }}
+            </label>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <small class="text-muted">Multiple selection allowed.</small>
+</div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button
+          type="button"
+          class="btn btn-light border"
+          (click)="resetSubMenuForm()"
+        >
+          Reset
+        </button>
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="isSubMenuSaving()"
+        >
+          @if (isSubMenuSaving()) {
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Saving...
+          } @else {
+            Save
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0 mt-4" style="border-radius: 12px">
+  <div class="card-header bg-white border-0 pt-3">
+    <h5 class="mb-0 fw-semibold">Update Menu</h5>
+  </div>
+
+  <div class="card-body">
+    <form [formGroup]="updateMenuForm" (ngSubmit)="onUpdateMenuSubmit()">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Menu Item Id</label>
+          <input type="number" class="form-control" formControlName="menuItemId" placeholder="Item Id" />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Menu Value</label>
+          <input type="text" class="form-control" formControlName="menuValue" placeholder="DDDD" />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Icon</label>
+          <input type="text" class="form-control" formControlName="icon" placeholder="icon" />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Sort Order</label>
+          <input type="number" class="form-control" formControlName="sortOrder" placeholder="Select Order" />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Is Active</label>
+          <select class="form-select" formControlName="isActive">
+            <option [ngValue]="true">true</option>
+            <option [ngValue]="false">false</option>
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Project Types</label>
+
+          <div class="position-relative update-menu-project-type-dropdown-wrapper">
+            <div
+              class="form-control d-flex align-items-center flex-wrap gap-1"
+              style="min-height: 38px; cursor: pointer"
+              (click)="toggleUpdateMenuProjectTypeDropdown()"
+            >
+              @if (selectedUpdateMenuProjectTypes().length > 0) {
+                @for (item of selectedUpdateMenuProjectTypes(); track item.projectTypeId) {
+                  <span class="badge bg-primary d-flex align-items-center gap-1">
+                    {{ item.projectTypeName }}
+                    <i
+                      class="bi bi-x-circle"
+                      style="cursor: pointer"
+                      (click)="removeSelectedUpdateMenuProjectType(item.projectTypeId); $event.stopPropagation()"
+                    ></i>
+                  </span>
+                }
+              } @else {
+                <span class="text-muted">Select Project Types</span>
+              }
+            </div>
+
+            @if (showUpdateMenuProjectTypeDropdown()) {
+              <div class="border rounded shadow-sm bg-white position-absolute w-100 mt-1 p-2"
+                   style="z-index: 1000; max-height: 220px; overflow-y: auto">
+                @for (pt of projectTypes(); track pt.projectTypeId) {
+                  <div class="form-check mb-2">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      [id]="'upd_menu_pt_' + pt.projectTypeId"
+                      [checked]="isUpdateMenuProjectTypeSelected(pt.projectTypeId)"
+                      (change)="onUpdateMenuProjectTypeSelect(pt)"
+                    />
+                    <label class="form-check-label" [for]="'upd_menu_pt_' + pt.projectTypeId">
+                      {{ pt.projectTypeName }}
+                    </label>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="col-md-5">
+          <label class="form-label fw-semibold">Roles</label>
+
+          <div class="position-relative update-menu-role-dropdown-wrapper">
+            <div
+              class="form-control d-flex align-items-center flex-wrap gap-1"
+              style="min-height: 38px; cursor: pointer"
+              (click)="toggleUpdateMenuRoleDropdown()"
+            >
+              @if (selectedUpdateMenuRoles().length > 0) {
+                @for (item of selectedUpdateMenuRoles(); track item.roleId) {
+                  <span class="badge bg-success d-flex align-items-center gap-1">
+                    {{ item.roleName }}
+                    <i
+                      class="bi bi-x-circle"
+                      style="cursor: pointer"
+                      (click)="removeSelectedUpdateMenuRole(item.roleId); $event.stopPropagation()"
+                    ></i>
+                  </span>
+                }
+              } @else {
+                <span class="text-muted">Select Roles</span>
+              }
+            </div>
+
+            @if (showUpdateMenuRoleDropdown()) {
+              <div class="border rounded shadow-sm bg-white position-absolute w-100 mt-1 p-2"
+                   style="z-index: 1000; max-height: 220px; overflow-y: auto">
+                @for (role of roles(); track role.roleId) {
+                  <div class="form-check mb-2">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      [id]="'upd_menu_role_' + role.roleId"
+                      [checked]="isUpdateMenuRoleSelected(role.roleId)"
+                      (change)="onUpdateMenuRoleSelect(role)"
+                    />
+                    <label class="form-check-label" [for]="'upd_menu_role_' + role.roleId">
+                      {{ role.roleName }}
+                    </label>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button type="button" class="btn btn-light border" (click)="resetUpdateMenuForm()">Reset</button>
+        <button type="submit" class="btn btn-primary" [disabled]="isUpdateMenuSaving()">
+          @if (isUpdateMenuSaving()) {
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Updating...
+          } @else {
+            Update
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0 mt-4" style="border-radius: 12px">
+  <div class="card-header bg-white border-0 pt-3">
+    <h5 class="mb-0 fw-semibold">Delete Menu</h5>
+  </div>
+
+  <div class="card-body">
+    <form [formGroup]="deleteMenuForm" (ngSubmit)="onDeleteMenuSubmit()">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Menu Item Id</label>
+          <input type="number" class="form-control" formControlName="menuItemId" placeholder="Item Id" />
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button type="button" class="btn btn-light border" (click)="resetDeleteMenuForm()">Reset</button>
+        <button type="submit" class="btn btn-danger" [disabled]="isDeleteMenuSaving()">
+          @if (isDeleteMenuSaving()) {
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Deleting...
+          } @else {
+            Delete
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0 mt-4" style="border-radius: 12px">
+  <div class="card-header bg-white border-0 pt-3">
+    <h5 class="mb-0 fw-semibold">Update Sub Menu</h5>
+  </div>
+
+  <div class="card-body">
+    <form [formGroup]="updateSubMenuForm" (ngSubmit)="onUpdateSubMenuSubmit()">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Sub Menu Item Id</label>
+          <input type="number" class="form-control" formControlName="subMenuItemId" placeholder="Item Id" />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Menu Value</label>
+          <input type="text" class="form-control" formControlName="menuValue" placeholder="customermaster" />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Route</label>
+          <input type="text" class="form-control" formControlName="route" placeholder="/custom" />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Sort Order</label>
+          <input type="number" class="form-control" formControlName="sortOrder" placeholder="Select Order" />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Is Active</label>
+          <select class="form-select" formControlName="isActive">
+            <option [ngValue]="true">true</option>
+            <option [ngValue]="false">false</option>
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Project Types</label>
+
+          <div class="position-relative update-submenu-project-type-dropdown-wrapper">
+            <div
+              class="form-control d-flex align-items-center flex-wrap gap-1"
+              style="min-height: 38px; cursor: pointer"
+              (click)="toggleUpdateSubMenuProjectTypeDropdown()"
+            >
+              @if (selectedUpdateSubMenuProjectTypes().length > 0) {
+                @for (item of selectedUpdateSubMenuProjectTypes(); track item.projectTypeId) {
+                  <span class="badge bg-primary d-flex align-items-center gap-1">
+                    {{ item.projectTypeName }}
+                    <i
+                      class="bi bi-x-circle"
+                      style="cursor: pointer"
+                      (click)="removeSelectedUpdateSubMenuProjectType(item.projectTypeId); $event.stopPropagation()"
+                    ></i>
+                  </span>
+                }
+              } @else {
+                <span class="text-muted">Select Project Types</span>
+              }
+            </div>
+
+            @if (showUpdateSubMenuProjectTypeDropdown()) {
+              <div class="border rounded shadow-sm bg-white position-absolute w-100 mt-1 p-2"
+                   style="z-index: 1000; max-height: 220px; overflow-y: auto">
+                @for (pt of projectTypes(); track pt.projectTypeId) {
+                  <div class="form-check mb-2">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      [id]="'upd_sub_pt_' + pt.projectTypeId"
+                      [checked]="isUpdateSubMenuProjectTypeSelected(pt.projectTypeId)"
+                      (change)="onUpdateSubMenuProjectTypeSelect(pt)"
+                    />
+                    <label class="form-check-label" [for]="'upd_sub_pt_' + pt.projectTypeId">
+                      {{ pt.projectTypeName }}
+                    </label>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="col-md-5">
+          <label class="form-label fw-semibold">Roles</label>
+
+          <div class="position-relative update-submenu-role-dropdown-wrapper">
+            <div
+              class="form-control d-flex align-items-center flex-wrap gap-1"
+              style="min-height: 38px; cursor: pointer"
+              (click)="toggleUpdateSubMenuRoleDropdown()"
+            >
+              @if (selectedUpdateSubMenuRoles().length > 0) {
+                @for (item of selectedUpdateSubMenuRoles(); track item.roleId) {
+                  <span class="badge bg-success d-flex align-items-center gap-1">
+                    {{ item.roleName }}
+                    <i
+                      class="bi bi-x-circle"
+                      style="cursor: pointer"
+                      (click)="removeSelectedUpdateSubMenuRole(item.roleId); $event.stopPropagation()"
+                    ></i>
+                  </span>
+                }
+              } @else {
+                <span class="text-muted">Select Roles</span>
+              }
+            </div>
+
+            @if (showUpdateSubMenuRoleDropdown()) {
+              <div class="border rounded shadow-sm bg-white position-absolute w-100 mt-1 p-2"
+                   style="z-index: 1000; max-height: 220px; overflow-y: auto">
+                @for (role of roles(); track role.roleId) {
+                  <div class="form-check mb-2">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      [id]="'upd_sub_role_' + role.roleId"
+                      [checked]="isUpdateSubMenuRoleSelected(role.roleId)"
+                      (change)="onUpdateSubMenuRoleSelect(role)"
+                    />
+                    <label class="form-check-label" [for]="'upd_sub_role_' + role.roleId">
+                      {{ role.roleName }}
+                    </label>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button type="button" class="btn btn-light border" (click)="resetUpdateSubMenuForm()">Reset</button>
+        <button type="submit" class="btn btn-primary" [disabled]="isUpdateSubMenuSaving()">
+          @if (isUpdateSubMenuSaving()) {
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Updating...
+          } @else {
+            Update
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0 mt-4" style="border-radius: 12px">
+  <div class="card-header bg-white border-0 pt-3">
+    <h5 class="mb-0 fw-semibold">Delete Sub Menu</h5>
+  </div>
+
+  <div class="card-body">
+    <form [formGroup]="deleteSubMenuForm" (ngSubmit)="onDeleteSubMenuSubmit()">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Sub Menu Item Id</label>
+          <input type="number" class="form-control" formControlName="subMenuItemId" placeholder="Item Id" />
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button type="button" class="btn btn-light border" (click)="resetDeleteSubMenuForm()">Reset</button>
+        <button type="submit" class="btn btn-danger" [disabled]="isDeleteSubMenuSaving()">
+          @if (isDeleteSubMenuSaving()) {
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Deleting...
+          } @else {
+            Delete
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+</div>

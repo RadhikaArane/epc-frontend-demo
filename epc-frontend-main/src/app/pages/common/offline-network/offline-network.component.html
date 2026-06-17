@@ -1,0 +1,9 @@
+@if ((networkService.isOnline$ | async) === false) {
+<div class="offline-overlay">
+    <div class="offline-content">
+        <div class="offline-icon"><i class="bi bi-wifi-off"></i></div>
+        <h2>No Internet Connection</h2>
+        <p>Please check your network and try again.</p>
+    </div>
+</div>
+}

@@ -1,0 +1,137 @@
+<div class="content container-fluid" style="background-color: #f8f9fa;">
+
+  <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+      <div class="me-0 mb-2">
+        <app-breadcrumbs title="PM Comparison" [breadcrumbItems]="breadCrumbItems()"></app-breadcrumbs>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-3" style="border-radius:12px; overflow:hidden;">
+
+    <div class="px-3 pb-4 pt-4 d-flex align-items-center justify-content-between flex-wrap">
+      <h3 class="fw-semibold text-dark mb-2 mb-sm-0">
+        PM Comparison {{ formatMonthYearUI(selectedDate()) }}
+      </h3>
+
+      <div class="d-flex align-items-center gap-3 flex-wrap">
+        <div class="d-flex align-items-center gap-2">
+          <label for="currencySelect" class="small text-muted mb-0 fw-bold">Currency</label>
+          <select id="currencySelect" class="form-select form-select-sm" [value]="selectedUnit()"
+            (change)="onUnitChange($event)" [disabled]="isLoading()" style="min-width: 100px;">
+            <option value="L">Lakhs</option>
+            <option value="Cr">Crores</option>
+          </select>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+          <label for="pmDate" class="small text-muted mb-0 text-nowrap fw-bold">Month–Year</label>
+          <input id="pmDate" type="month" class="form-control form-control-sm" style="min-width: 170px;"
+            [value]="selectedDate()" [max]="maxDate" (change)="onDateChange($event)" [disabled]="isLoading()" />
+        </div>
+      </div>
+    </div>
+
+    @if (isLoading()) {
+    <div class="card-body text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3 text-muted">Loading PM comparison data...</p>
+    </div>
+    }
+
+    @else if (!pmData() || pmData()?.stateWiseData?.length === 0) {
+    <div class="card-body text-center py-5">
+      <i class="bi bi-inbox" style="font-size: 3rem; color: #6c757d;"></i>
+      <p class="mt-3 text-muted">No data available for selected period</p>
+    </div>
+    }
+
+    @else {
+    <div class="px-2 pb-2">
+      <div class="table-responsive" style="max-height: 700px; overflow: auto;">
+        <table class="table table-striped table-bordered mb-0 align-middle table-ultra-compact">
+
+          <thead class="thead-light">
+            <!-- Row 1: Month group headers -->
+            <tr>
+              <th rowspan="3" style="position: sticky; left: 0; z-index: 12;
+                  min-width: 120px; max-width: 160px; width: 140px;
+                  white-space: normal; word-break: break-word;">
+                States / Bus.
+              </th>
+              <!-- <th rowspan="3" style="position: sticky; left: 120px; z-index: 12;
+                  min-width: 120px; max-width: 160px; width: 140px;
+                  white-space: normal; word-break: break-word;">
+                Zonal Manager
+              </th> -->
+              @for (monthLabel of dynamicMonths(); track monthLabel) {
+              <th colspan="4" class="text-center">{{ monthLabel }}</th>
+              }
+            </tr>
+
+            <!-- Row 2: Section label -->
+            <tr>
+              @for (monthLabel of dynamicMonths(); track monthLabel) {
+              <th colspan="4" class="text-center">Outstanding Stagewise</th>
+              }
+            </tr>
+
+            <!-- Row 3: Column labels -->
+            <tr>
+              @for (monthLabel of dynamicMonths(); track monthLabel) {
+              <th class="text-end">FP</th>
+              <th class="text-end">Insp Done</th>
+              <th class="text-end">Insp Pend &lt;90</th>
+              <th class="text-end">Insp Pend &gt;90</th>
+              }
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (item of pmData()!.stateWiseData; track $index) {
+            <tr>
+              <td style="position: sticky; left: 0; z-index: 10; font-weight: 500;
+                  min-width: 120px; max-width: 160px; width: 140px;
+                  white-space: normal; word-break: break-word; vertical-align: top;">
+                {{ item.State }}
+              </td>
+              <!-- <td style="position: sticky; left: 120px; z-index: 10;
+                  min-width: 120px; max-width: 160px; width: 140px;
+                  white-space: normal; word-break: break-word; vertical-align: top;">
+                {{ item.ZonalManager || '-' }}
+              </td> -->
+              @for (monthLabel of dynamicMonths(); track monthLabel) {
+              <td class="text-end">{{ formatNumber(getVal(item, monthLabel, 'OpFPClear')) }}</td>
+              <td class="text-end">{{ formatNumber(getVal(item, monthLabel, 'InspectionDone')) }}</td>
+              <td class="text-end">{{ formatNumber(getVal(item, monthLabel, 'InspectionDueLessThan90Days')) }}</td>
+              <td class="text-end">{{ formatNumber(getVal(item, monthLabel, 'InspectionDueGreaterThan90Days')) }}</td>
+              }
+            </tr>
+            }
+          </tbody>
+
+          <tfoot>
+            <!-- ✅ Grand Total: per-month values from monthlyGrandTotals -->
+            <tr style="background-color: #EDD249; color:#050505; font-weight:700;">
+              <td colspan="1" style="position: sticky; left: 0; z-index: 11; background-color: #EDD249;
+                  font-weight: 700;">
+                Grand Total
+              </td>
+              @for (monthLabel of dynamicMonths(); track monthLabel) {
+              <td class="text-end" style="background-color: #EDD249;">{{ formatNumber(getMonthlyGrandTotal(monthLabel, 'OpFPClear')) }}</td>
+              <td class="text-end" style="background-color: #EDD249;">{{ formatNumber(getMonthlyGrandTotal(monthLabel, 'InspectionDone')) }}</td>
+              <td class="text-end" style="background-color: #EDD249;">{{ formatNumber(getMonthlyGrandTotal(monthLabel, 'InspectionDueLessThan90Days')) }}</td>
+              <td class="text-end" style="background-color: #EDD249;">{{ formatNumber(getMonthlyGrandTotal(monthLabel, 'InspectionDueGreaterThan90Days')) }}</td>
+              }
+            </tr>
+          </tfoot>
+
+        </table>
+      </div>
+    </div>
+    }
+  </div>
+</div>

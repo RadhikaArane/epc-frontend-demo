@@ -1,0 +1,312 @@
+<div class="content container-fluid">
+
+    <!-- Breadcrumb -->
+    <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+        <div class="d-flex my-xl-auto right-content align-items-center flex-wrap w-100 justify-content-between gap-2">
+            <div class="me-0">
+                <app-breadcrumbs title="State Data Overview" [breadcrumbItems]="breadCrumbItems()">
+                </app-breadcrumbs>
+            </div>
+            <div>
+                <button class="btn btn-primary shadow-sm" type="button" style="border-radius: 8px;" (click)="onExportClick()">
+                    <i class="bi bi-file-earmark-arrow-down me-2"></i>
+                    Export
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div>
+        <div class="card border mb-3">
+            <div class="card-body">
+                <div class="row align-items-center g-2">
+                    <div class="col-12 col-md-6">
+                        <h3 class="mb-0 text-center text-md-start">Tamilnadu List ({{this.scrappingDate() |date}})</h3>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="d-flex flex-column flex-sm-row justify-content-center justify-content-md-end gap-2">
+                            <button class="btn btn-primary" (click)="BacktoDashboard()">
+                                Back
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+
+                    <!-- Card header: page size + project filter -->
+                    <div class="card-header">
+                        <div class="row g-2 align-items-center">
+                            <!-- Page size selector -->
+                            <div class="col-12 col-md-6">
+                                <div class="dataTables_length">
+                                    <label class="d-inline-flex align-items-center mb-0">
+                                        <span class="me-1">Show</span>
+                                        <select class="form-select form-select-sm mx-1" style="width: auto;"
+                                            [value]="pageSize()" (change)="onPageSizeChange($event)"
+                                            [disabled]="isLoading()">
+                                            <option [value]="10">10</option>
+                                            <option [value]="25">25</option>
+                                            <option [value]="50">50</option>
+                                            <option [value]="100">100</option>
+                                        </select>
+                                        <span>entries</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Project filter dropdown -->
+
+
+
+                        </div>
+                    </div>
+
+                    <!-- Card body -->
+                    <div class="card-body p-2">
+                        <div class="custom-datatable-filter">
+                            <div class="dataTables_wrapper dt-bootstrap5 no-footer">
+
+                                <!-- Loading Overlay -->
+                                @if (isLoading()) {
+                                <div class="position-relative" style="min-height: 400px;">
+                                    <div class="position-absolute top-50 start-50 translate-middle">
+                                        <div class="text-center">
+                                            <div class="spinner-border text-primary" role="status"
+                                                style="width: 3rem; height: 3rem;">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <p class="mt-2 text-muted">Loading vendor...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                } @else {
+
+                                <!-- Table -->
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-bordered mb-0">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>Sr No</th>
+                                                <th>Srl No</th>
+                                                <th>Year</th>
+                                                <th>Application Id</th>
+                                                <th>Farmer Name</th>
+                                                <th>Father Name</th>
+                                                <th>Caste</th>
+                                                <th>Mobile</th>
+                                                <th>Gender</th>
+                                                <th>Work Order No</th>
+                                                <th>District</th>
+                                                <th>Block</th>
+                                                <th>Village</th>
+                                                <th>Crop</th>
+                                                <th>Spacing</th>
+                                                <th>Survey No Subdivision No</th>
+                                                <th class="text-end">Total Area Ha</th>
+                                                <th class="text-end">Applied Area Ha</th>
+                                                <th>Department</th>
+                                                <th>Scheme</th>
+                                                <th>Irrigation Type</th>
+                                                <th>Sprinkler Type</th>
+                                                <th>Sprinkler Spacing</th>
+                                                <th>Sugar Mill</th>
+                                                <th>Sugar Drip Type</th>
+                                                <th>Sugar Well Type</th>
+                                                <th>MI Company</th>
+                                                <th>MI Referrence No</th>
+                                                <th>Dealer Name</th>
+                                                <th>Farmer Type</th>
+                                                <th class="text-end">Quotation Subsidy Amount (₹/100)</th>
+                                                <th class="text-end">Farmer Contribution (₹/25)</th>
+                                                <th class="text-end">Invoice Amount (₹/100)</th>
+                                                <th class="text-end">State Restricted Amount (₹/100)</th>
+                                                <th class="text-end">First Fund amount (Lakhs)</th>
+                                                <th class="text-end">GOI Share amount</th>
+                                                <th class="text-end">State Share amount</th>
+                                                <th>First Fund Proceeding No</th>
+                                                <th>First Fund UTR No</th>
+                                                <th class="text-end">AE Restricted Amount (₹/100)</th>
+                                                <th>Bank Gaurantee Deducted</th>
+                                                <th class="text-end">Bank Gaurantee Deducted Amount</th>
+                                                <th class="text-end">Second Fund amount (Lakhs)</th>
+                                                <th class="text-end">Addl State Share amount</th>
+                                                <th class="text-end">GST amount</th>
+                                                <th>Second Fund Proceeding No</th>
+                                                <th>Final Fund UTR No</th>
+                                                <th>Treasury Fund UTR No</th>
+                                                <th class="text-end">Total Fund Released (Lakhs)</th>
+                                                <th>Application Received Date</th>
+                                                <th>Quotation Date</th>
+                                                <th>Work Order Date</th>
+                                                <th>Supply Date</th>
+                                                <th>Invoice Date</th>
+                                                <th>First Fund UTR Date</th>
+                                                <th>JV Recommended Date</th>
+                                                <th>Final Fund UTR Date</th>
+                                                <th>Treasury Fund UTR Date</th>
+                                                <th>Current Status Date</th>
+                                                <th>Current Status</th>
+                                                <th>Current Status Remarks</th>
+                                                <th>Fund type</th>
+                                                <th>Proceeding Status</th>
+                                                <th>FRA Act</th>
+                                                <th>col_7YC Renewal Days</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (overview().length > 0) {
+                                            @for (overview of overview(); track overview.Id) {
+                                            <tr>
+                                                <td>{{ $index + 1 }}</td>
+                                                <td>{{ overview['Srl No'] }}</td>
+                                                <td>{{ overview.Year }}</td>
+                                                <td>{{ overview['Application Id'] }}</td>
+                                                <td>{{ overview['Farmer Name'] }}</td>
+                                                <td>{{ overview['Father Name'] }}</td>
+                                                <td>{{ overview.Caste }}</td>
+                                                <td>{{ overview.Mobile }}</td>
+                                                <td>{{ overview.Gender }}</td>
+                                                <td>{{ overview['Work Order No'] }}</td>
+                                                <td>{{ overview.District }}</td>
+                                                <td>{{ overview.Block }}</td>
+                                                <td>{{ overview.Village }}</td>
+                                                <td>{{ overview.Crop }}</td>
+                                                <td>{{ overview.Spacing }}</td>
+                                                <td>{{ overview['Survey No Subdivision No'] }}</td>
+                                                <td class="text-end">{{ overview['Total Area Ha'] }}</td>
+                                                <td class="text-end">{{ overview['Applied Area Ha'] }}</td>
+                                                <td>{{ overview.Department }}</td>
+                                                <td>{{ overview.Scheme }}</td>
+                                                <td>{{ overview['Irrigation Type'] }}</td>
+                                                <td>{{ overview['Sprinkler Type'] }}</td>
+                                                <td>{{ overview['Sprinkler Spacing'] }}</td>
+                                                <td>{{ overview['Sugar Mill'] }}</td>
+                                                <td>{{ overview['Sugar Drip Type'] }}</td>
+                                                <td>{{ overview['Sugar Well Type'] }}</td>
+                                                <td>{{ overview['MI Company'] }}</td>
+                                                <td>{{ overview['MI Referrence No'] }}</td>
+                                                <td>{{ overview['Dealer Name'] }}</td>
+                                                <td>{{ overview['Farmer Type'] }}</td>
+                                                <td class="text-end">{{ overview['Quotation Subsidy Amount Rs 100'] }}
+                                                </td>
+                                                <td class="text-end">{{ overview['Farmer Contribution Rs 25'] }}</td>
+                                                <td class="text-end">{{ overview['Invoice Amount Rs 100'] }}</td>
+                                                <td class="text-end">{{ overview['State Restricted Amount Rs 100'] }}
+                                                </td>
+                                                <td class="text-end">{{ overview['First Fund amount Lakhs'] }}</td>
+                                                <td class="text-end">{{ overview['GOI Share amount'] }}</td>
+                                                <td class="text-end">{{ overview['State Share amount'] }}</td>
+                                                <td>{{ overview['First Fund Proceeding No'] }}</td>
+                                                <td>{{ overview['First Fund UTR No'] }}</td>
+                                                <td class="text-end">{{ overview['AE Restricted Amount Rs 100'] }}</td>
+                                                <td>{{ overview['Bank Gaurantee Deducted'] }}</td>
+                                                <td class="text-end">{{ overview['Bank Gaurantee Deducted Amount'] }}
+                                                </td>
+                                                <td class="text-end">{{ overview['Second Fund amount Lakhs'] }}</td>
+                                                <td class="text-end">{{ overview['Addl State Share amount'] }}</td>
+                                                <td class="text-end">{{ overview['GST amount'] }}</td>
+                                                <td>{{ overview['Second Fund Proceeding No'] }}</td>
+                                                <td>{{ overview['Final Fund UTR No'] }}</td>
+                                                <td>{{ overview['Treasury Fund UTR No'] }}</td>
+                                                <td class="text-end">{{ overview['Total Fund Released Lakhs'] }}</td>
+                                                <td>{{ overview['Application Received Date'] }}</td>
+                                                <td>{{ overview['Quotation Date'] }}</td>
+                                                <td>{{ overview['Work Order Date'] }}</td>
+                                                <td>{{ overview['Supply Date'] }}</td>
+                                                <td>{{ overview['Invoice Date'] }}</td>
+                                                <td>{{ overview['First Fund UTR Date'] }}</td>
+                                                <td>{{ overview['JV Recommended Date'] }}</td>
+                                                <td>{{ overview['Final Fund UTR Date'] }}</td>
+                                                <td>{{ overview['Treasury Fund UTR Date'] }}</td>
+                                                <td>{{ overview['Current Status Date'] }}</td>
+                                                <td>{{ overview['Current Status'] }}</td>
+                                                <td>{{ overview['Current Status Remarks'] }}</td>
+                                                <td>{{ overview['Fund type'] }}</td>
+                                                <td>{{ overview['Proceeding Status'] }}</td>
+                                                <td>{{ overview['FRA Act'] }}</td>
+                                                <td>{{ overview['col_7YC Renewal Days'] }}</td>
+                                            </tr>
+
+                                            }
+                                            } @else {
+                                            <tr>
+                                                <td colspan="13" class="text-center py-4">No overview found</td>
+                                            </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Pagination Controls -->
+                                @if (totalRecords() > 0) {
+                                <div class="row mt-3 align-items-center">
+                                    <div class="col-12 col-md-5 mb-2 mb-md-0">
+                                        <div class="dataTables_info text-center text-md-start">
+                                            Showing {{ getStartRecord() }} to {{ getEndRecord() }} of {{ totalRecords()
+                                            }} entries
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-7">
+                                        <div
+                                            class="dataTables_paginate paging_simple_numbers d-flex justify-content-center justify-content-md-end">
+                                            <ul class="pagination mb-0">
+                                                <!-- Previous Button -->
+                                                <li class="paginate_button page-item"
+                                                    [class.disabled]="currentPage() === 1">
+                                                    <a class="page-link" [class.pe-none]="currentPage() === 1"
+                                                        style="cursor: pointer;"
+                                                        (click)="currentPage() === 1 ? null : onPageChange(currentPage() - 1)">
+                                                        Previous
+                                                    </a>
+                                                </li>
+
+                                                <!-- Page Numbers with Ellipsis -->
+                                                @for (page of getVisiblePages(); track $index) {
+                                                @if (page === -1 || page === -2) {
+                                                <li class="paginate_button page-item disabled">
+                                                    <span class="page-link">...</span>
+                                                </li>
+                                                } @else {
+                                                <li class="paginate_button page-item"
+                                                    [class.active]="page === currentPage()">
+                                                    <a class="page-link" style="cursor: pointer;"
+                                                        [class.pe-none]="page === currentPage()"
+                                                        (click)="page === currentPage() ? null : onPageChange(page)">
+                                                        {{ page }}
+                                                    </a>
+                                                </li>
+                                                }
+                                                }
+
+                                                <!-- Next Button -->
+                                                <li class="paginate_button page-item"
+                                                    [class.disabled]="currentPage() === totalPages()">
+                                                    <a class="page-link"
+                                                        [class.pe-none]="currentPage() === totalPages()"
+                                                        style="cursor: pointer;"
+                                                        (click)="currentPage() === totalPages() ? null : onPageChange(currentPage() + 1)">
+                                                        Next
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                }
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                </div> <!-- /card -->
+            </div>
+        </div>
+    </div>
+</div>

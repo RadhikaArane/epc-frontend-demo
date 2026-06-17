@@ -1,0 +1,240 @@
+<div class="content container-fluid">
+
+    <!-- Breadcrumb -->
+    <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+        <div class="d-flex my-xl-auto right-content align-items-center flex-wrap w-100 justify-content-between gap-2">
+            <div class="me-0">
+                <app-breadcrumbs title="State Data Overview" [breadcrumbItems]="breadCrumbItems()">
+                </app-breadcrumbs>
+            </div>
+            <div>
+                <button class="btn btn-primary shadow-sm" type="button" style="border-radius: 8px;" (click)="onExportClick()">
+                    <i class="bi bi-file-earmark-arrow-down me-2"></i>
+                    Export
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div>
+        <div class="card border mb-3">
+            <div class="card-body">
+                <div class="row align-items-center g-2">
+                    <div class="col-12 col-md-6">
+                        <h3 class="mb-0 text-center text-md-start">Chattisgarh List ({{this.scrappingDate() |date}})</h3>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="d-flex flex-column flex-sm-row justify-content-center justify-content-md-end gap-2">
+                            <button class="btn btn-primary" (click)="BacktoDashboard()">
+                                Back
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+
+                    <!-- Card header: page size + project filter -->
+                    <div class="card-header">
+                        <div class="row g-2 align-items-center">
+                            <!-- Page size selector -->
+                            <div class="col-12 col-md-6">
+                                <div class="dataTables_length">
+                                    <label class="d-inline-flex align-items-center mb-0">
+                                        <span class="me-1">Show</span>
+                                        <select class="form-select form-select-sm mx-1" style="width: auto;"
+                                            [value]="pageSize()" (change)="onPageSizeChange($event)"
+                                            [disabled]="isLoading()">
+                                            <option [value]="10">10</option>
+                                            <option [value]="25">25</option>
+                                            <option [value]="50">50</option>
+                                            <option [value]="100">100</option>
+                                        </select>
+                                        <span>entries</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Project filter dropdown -->
+
+
+
+                        </div>
+                    </div>
+
+                    <!-- Card body -->
+                    <div class="card-body p-2">
+                        <div class="custom-datatable-filter">
+                            <div class="dataTables_wrapper dt-bootstrap5 no-footer">
+
+                                <!-- Loading Overlay -->
+                                @if (isLoading()) {
+                                <div class="position-relative" style="min-height: 400px;">
+                                    <div class="position-absolute top-50 start-50 translate-middle">
+                                        <div class="text-center">
+                                            <div class="spinner-border text-primary" role="status"
+                                                style="width: 3rem; height: 3rem;">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <p class="mt-2 text-muted">Loading vendor...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                } @else {
+
+                                <!-- Table -->
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-bordered mb-0">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>Sr No</th>
+                                                <th>SRNO</th>
+                                                <th>REGNO</th>
+                                                <th>FARMERNAME</th>
+                                                <th>DTL</th>
+                                                <th>DISTRICT</th>
+                                                <th>TALUKA</th>
+                                                <th>VILLAGE</th>
+                                                <th>SUPPLIER</th>
+                                                <th>STAGECODE</th>
+                                                <th>STATUSCODE</th>
+                                                <th>ONLINESTAGE</th>
+                                                <th>ONLINESTATUS</th>
+                                                <th>REGNLSTATUSDESCR</th>
+                                                <th>PHYSTAGECODE</th>
+                                                <th>PHYSTATUSCODE</th>
+                                                <th>UPDBY</th>
+                                                <th>UPDDT1</th>
+                                                <th>UPDDT</th>
+                                                <th>REGDT1</th>
+                                                <th>REGDT</th>
+                                                <th>BIOSTATUS</th>
+                                                <th>custid</th>
+                                                <th>MISNAME</th>
+                                                <th>INSP Name</th>
+                                                <th>INSP Call Date</th>
+                                                <th>INSPDate</th>
+                                                <th>FARMER CONTACT NO</th>
+                                                <th>TPA Date</th>
+                                                <th>Financial Year</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            @if (overview().length > 0) {
+                                            @for (overview of overview(); track overview.Id) {
+                                            <tr>
+                                                <td>{{ getSerialNumber($index) }}</td>
+                                                <td>{{ overview.SRNO }}</td>
+                                                <td>{{ overview.REGNO }}</td>
+                                                <td>{{ overview.FARMERNAME }}</td>
+                                                <td>{{ overview.DTL }}</td>
+                                                <td>{{ overview.DISTRICT }}</td>
+                                                <td>{{ overview.TALUKA }}</td>
+                                                <td>{{ overview.VILLAGE }}</td>
+                                                <td>{{ overview.SUPPLIER }}</td>
+                                                <td>{{ overview.STAGECODE }}</td>
+                                                <td>{{ overview.STATUSCODE }}</td>
+                                                <td>{{ overview.ONLINESTAGE }}</td>
+                                                <td>{{ overview.ONLINESTATUS }}</td>
+                                                <td>{{ overview.REGNLSTATUSDESCR }}</td>
+                                                <td>{{ overview.PHYSTAGECODE }}</td>
+                                                <td>{{ overview.PHYSTATUSCODE }}</td>
+                                                <td>{{ overview.UPDBY }}</td>
+                                                <td class="text-end">{{ overview.UPDDT1 }}</td>
+                                                <td class="text-end">{{ overview.UPDDT }}</td>
+                                                <td class="text-end">{{ overview.REGDT1 }}</td>
+                                                <td class="text-end">{{ overview.REGDT }}</td>
+                                                <td>{{ overview.BIOSTATUS }}</td>
+                                                <td>{{ overview.custid }}</td>
+                                                <td>{{ overview.MISNAME }}</td>
+                                                <td>{{ overview['INSP Name'] }}</td>
+                                                <td class="text-end">{{ overview['INSP Call Date'] }}</td>
+                                                <td class="text-end">{{ overview.INSPDate }}</td>
+                                                <td class="text-end">{{ overview['FARMER CONTACT NO'] }}</td>
+                                                <td class="text-end">{{ overview['TPA Date'] }}</td>
+                                                <td>{{ overview.FinancialYear }}</td>
+                                            </tr>
+                                            }
+                                            } @else {
+                                            <tr>
+                                                <td colspan="30" class="text-center py-4">No overview found</td>
+                                            </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+
+                                </div>
+
+                                <!-- Pagination Controls -->
+                                @if (totalRecords() > 0) {
+                                <div class="row mt-3 align-items-center">
+                                    <div class="col-12 col-md-5 mb-2 mb-md-0">
+                                        <div class="dataTables_info text-center text-md-start">
+                                            Showing {{ getStartRecord() }} to {{ getEndRecord() }} of {{ totalRecords()
+                                            }} entries
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-7">
+                                        <div
+                                            class="dataTables_paginate paging_simple_numbers d-flex justify-content-center justify-content-md-end">
+                                            <ul class="pagination mb-0">
+                                                <!-- Previous Button -->
+                                                <li class="paginate_button page-item"
+                                                    [class.disabled]="currentPage() === 1">
+                                                    <a class="page-link" [class.pe-none]="currentPage() === 1"
+                                                        style="cursor: pointer;"
+                                                        (click)="currentPage() === 1 ? null : onPageChange(currentPage() - 1)">
+                                                        Previous
+                                                    </a>
+                                                </li>
+
+                                                <!-- Page Numbers with Ellipsis -->
+                                                @for (page of getVisiblePages(); track $index) {
+                                                @if (page === -1 || page === -2) {
+                                                <li class="paginate_button page-item disabled">
+                                                    <span class="page-link">...</span>
+                                                </li>
+                                                } @else {
+                                                <li class="paginate_button page-item"
+                                                    [class.active]="page === currentPage()">
+                                                    <a class="page-link" style="cursor: pointer;"
+                                                        [class.pe-none]="page === currentPage()"
+                                                        (click)="page === currentPage() ? null : onPageChange(page)">
+                                                        {{ page }}
+                                                    </a>
+                                                </li>
+                                                }
+                                                }
+
+                                                <!-- Next Button -->
+                                                <li class="paginate_button page-item"
+                                                    [class.disabled]="currentPage() === totalPages()">
+                                                    <a class="page-link"
+                                                        [class.pe-none]="currentPage() === totalPages()"
+                                                        style="cursor: pointer;"
+                                                        (click)="currentPage() === totalPages() ? null : onPageChange(currentPage() + 1)">
+                                                        Next
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                }
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                </div> <!-- /card -->
+            </div>
+        </div>
+    </div>
+</div>

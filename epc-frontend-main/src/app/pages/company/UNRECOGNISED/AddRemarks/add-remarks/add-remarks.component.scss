@@ -1,0 +1,22 @@
+/* Light Red background for Remark Button */
+.remark-btn {
+  background-color: #f8d7da; /* Light red */
+  border: 1px solid #f5c6cb; /* Slightly darker red for border */
+  color: #721c24; /* Dark red text color */
+}
+
+/* Light Yellow background for CEO / CFO Remark Button */
+.ceo-cfo-btn {
+  background-color: #fff3cd; /* Light yellow */
+  border: 1px solid #ffeeba; /* Slightly darker yellow for border */
+  color: #856404; /* Dark yellow text color */
+}
+
+/* Make the active state more visible */
+.remark-btn.active {
+  background-color: #f5c6cb; /* Darker red for active state */
+}
+
+.ceo-cfo-btn.active {
+  background-color: #ffeeba; /* Darker yellow for active state */
+}

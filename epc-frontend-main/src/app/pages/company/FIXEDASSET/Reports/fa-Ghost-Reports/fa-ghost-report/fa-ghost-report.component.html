@@ -1,0 +1,166 @@
+<div class="content container-fluid">
+
+  <!-- ===== BREADCRUMBS HEADER ===== -->
+  <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+      <div class="me-0 mb-2">
+        <app-breadcrumbs
+          title="Asset Master"
+          [breadcrumbItems]="breadCrumbItems()">
+        </app-breadcrumbs>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SEARCH / FILTER CARD ===== -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+
+        <div class="col-12 col-md-3">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Asset No / Description">
+        </div>
+
+        <div class="col-12 col-md-2">
+          <select class="form-select">
+            <option>All Locations</option>
+            <option>Nashik</option>
+            <option>Mumbai</option>
+            <option>Chakan</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-2">
+          <select class="form-select">
+            <option>All Classes</option>
+            <option>Furniture</option>
+            <option>Computers</option>
+            <option>Machinery</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-2">
+          <select class="form-select">
+            <option>All Statuses</option>
+            <option>Verified</option>
+            <option>Pending</option>
+            <option>Not Available</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ASSET TABLE CARD ===== -->
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+
+      <div class="table-responsive">
+        <table class="table align-middle mb-3">
+          <thead class="thead-light text-center">
+            <tr>
+              <th>Asset Number</th>
+              <th>Description</th>
+              <th>Location</th>
+              <th>Asset Class</th>
+              <th>Status</th>
+              <th>Scan By</th>
+              <th>Verified On</th>
+              <th>Verified By</th>
+              <th>Scan Type / Method</th>
+              <th>Campaign</th>
+              <th>View</th>
+            </tr>
+          </thead>
+
+          <tbody class="text-end">
+            <tr>
+              <td class="fw-semibold">104000018259</td>
+              <td>Furniture - Steel Rack</td>
+              <td>Nashik</td>
+              <td>Furniture</td>
+              <td>
+                <span class="badge bg-success-subtle text-success px-3">
+                  Verified
+                </span>
+              </td>
+              <td>Mobile App</td>
+              <td>12 Aug 2025</td>
+              <td>Rahul Patil</td>
+              <td>QR Scan</td>
+              <td>FY25 Annual</td>
+              <td>
+                <a class="text-danger fw-semibold text-decoration-none">
+                  View
+                </a>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="fw-semibold">104000018301</td>
+              <td>Laptop - Dell Latitude</td>
+              <td>Mumbai</td>
+              <td>Computers</td>
+              <td>
+                <span class="badge bg-warning-subtle text-warning px-3">
+                  Pending
+                </span>
+              </td>
+              <td>Handheld Scanner</td>
+              <td>—</td>
+              <td>—</td>
+              <td>Barcode</td>
+              <td>IT Audit Q2</td>
+              <td>
+                <a class="text-danger fw-semibold text-decoration-none">
+                  View
+                </a>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="fw-semibold">104000018450</td>
+              <td>Hydraulic Press 50T</td>
+              <td>Chakan</td>
+              <td>Machinery</td>
+              <td>
+                <span class="badge bg-secondary-subtle text-secondary px-3">
+                  Not Available
+                </span>
+              </td>
+              <td>Manual</td>
+              <td>10 Aug 2025</td>
+              <td>Suresh More</td>
+              <td>Physical Check</td>
+              <td>Plant Verification</td>
+              <td>
+                <a class="text-danger fw-semibold text-decoration-none">
+                  View
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ===== PAGINATION ===== -->
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="text-muted small">
+          Showing 1 to 3 of 12,000 assets
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-outline-secondary btn-sm">Prev</button>
+          <button class="btn btn-danger btn-sm">1</button>
+          <button class="btn btn-outline-secondary btn-sm">2</button>
+          <button class="btn btn-outline-secondary btn-sm">Next</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

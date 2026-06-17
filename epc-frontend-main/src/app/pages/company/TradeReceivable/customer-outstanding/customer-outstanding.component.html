@@ -1,0 +1,106 @@
+<div class="content">
+    <!-- Breadcrumb -->
+    <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+        <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+            <div class="me-0 mb-2"></div>
+        </div>
+    </div>
+
+    <!-- Header Card -->
+    <div class="card mb-3">
+        <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
+            <h5 class="mb-0">Customer Outstanding</h5>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive custom-datatable-filter">
+        <table class="table table-striped table-bordered mb-0">
+            <thead class="thead-light">
+                <tr>
+                    <th style="width:40px;"></th>
+                    <th>State</th>
+                    <th>Customer</th>
+                    <th>Name</th>
+                    <th>180-270 Days</th>
+                    <th>270-365 Days</th>
+                    <th>365-640 Days</th>
+                    <th>640-670 Days</th>
+                    <th>670-730 Days</th>
+                    <th>730-1095 Days</th>
+                    <th>&gt; 1095 Days</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Parent Row -->
+                <tr style="background:#f8f9fa;">
+                    <td>
+                        <button class="btn btn-sm btn-light" data-bs-toggle="collapse" data-bs-target=".ap-children"
+                            aria-expanded="false">
+                            <i class="ti ti-plus"></i>
+                        </button>
+                    </td>
+                    <td><strong>Andhra Pradesh Total</strong></td>
+                    <td></td>
+                    <td></td>
+                    <td>2,56,000</td>
+                    <td>1,58,000</td>
+                    <td>42,000</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>28,000</td>
+                    <td>0</td>
+                    <td>4,84,000</td>
+                </tr>
+
+                <!-- Child Rows (same table, hidden until expanded) -->
+                <tr class="collapse ap-children">
+                    <td></td>
+                    <td>Andhra Pradesh</td>
+                    <td>CIAP00011</td>
+                    <td>Sri Lakshmi Traders</td>
+                    <td>1,25,000</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>28,000</td>
+                    <td>0</td>
+                    <td>1,53,000</td>
+                </tr>
+                <tr class="collapse ap-children">
+                    <td></td>
+                    <td>Andhra Pradesh</td>
+                    <td>CIAP00022</td>
+                    <td>Venkatesh Agencies</td>
+                    <td>-</td>
+                    <td>98,000</td>
+                    <td>42,000</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>0</td>
+                    <td>1,40,000</td>
+                </tr>
+            </tbody>
+            <tfoot class="table-light" style="background-color: rgba(237, 210, 73, 0.303);">
+                <tr>
+                    <td></td>
+                    <td><strong>Grand Total</strong></td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+</div>

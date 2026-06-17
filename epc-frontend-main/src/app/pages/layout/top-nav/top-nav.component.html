@@ -1,0 +1,102 @@
+<div class="header">
+  <div class="main-header">
+    <a id="mobile_btn" (click)="togglesMobileSideBar()" (keydown.enter)="togglesMobileSideBar()" tabindex="0"
+      class="mobile_btn" href="javascript:void(0);">
+      <span class="bar-icon">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    </a>
+    <div class="header-user">
+      <div class="nav user-menu">
+        <div class="me-auto d-flex align-items-center" id="header-search">
+          <a id="toggle_btn" (click)="toggleSideBar()" href="javascript:void(0);" class="btn btn-menubar me-1">
+            <i class="ti ti-arrow-bar-to-left"></i>
+          </a>
+        </div>
+        <div class="d-flex align-items-center">
+          <!-- <div class="me-1">
+            <p>{{ getUserName() | titlecase }}</p>
+          </div> --> 
+          <div class="me-1">
+            <a href="javascript:void(0);" (click)="fullscreen()" class="btn btn-menubar btnFullscreen">
+              <i class="ti ti-maximize"></i>
+            </a>
+          </div>
+
+
+          <div class="dropdown profile-dropdown">
+
+            <a class="dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
+              <span class="avatar avatar-sm online">
+                <img [src]="'assets/img/Mahindra_Project/User-img/user-img.jpg'" alt="Profile"
+                  class="img-fluid rounded-circle">
+              </span>
+              <span class="user-display-name d-none d-md-inline-block">{{ getUserName() | titlecase }}</span>
+            </a>
+
+            <div class="dropdown-menu shadow-none">
+              <div class="card mb-0">
+                <div class="card-header">
+                  <div class="d-flex align-items-center">
+                    <span class="avatar avatar-lg me-2 avatar-rounded">
+                      <img [src]="'assets/img/Mahindra_Project/User-img/user-img.jpg'" alt="Profile"
+                        class="img-fluid rounded-circle w-5">
+                    </span>
+                    <div>
+                      <h5 class="mb-0">
+                        <p>{{ getUserName() }}</p>
+                      </h5>
+                      <p class="fs-12 fw-medium mb-0">{{ getUserEmail() }}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card-footer">
+                  <a class="dropdown-item d-inline-flex align-items-center p-0 py-2" (click)="logout()">
+                    <i class="ti ti-login me-2"></i>Logout
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dropdown mobile-user-menu">
+      <div class="dropdown profile-dropdown">
+        <a href="javascript:void(0);" class="dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
+          <span class="avatar avatar-sm online">
+            <img [src]="'assets/img/Mahindra_Project/User-img/user-img.jpg'" alt="Profile"
+              class="img-fluid rounded-circle">
+          </span>
+        </a>
+        <div class="dropdown-menu shadow-none">
+          <div class="card mb-0">
+            <div class="card-header">
+              <div class="d-flex align-items-center">
+                <span class="avatar avatar-lg me-2 avatar-rounded">
+                  <img [src]="'assets/img/Mahindra_Project/User-img/user-img.jpg'" alt="Profile"
+                    class="img-fluid rounded-circle">
+                </span>
+                <div>
+                  <h5 class="mb-0">
+                    <p>{{ getUserName() }}</p>
+                  </h5>
+                  <p class="fs-12 fw-medium mb-0">{{ getUserEmail() }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <a class="dropdown-item d-inline-flex align-items-center p-0 py-2" (click)="logout()">
+                <i class="ti ti-login me-2"></i>Logout
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

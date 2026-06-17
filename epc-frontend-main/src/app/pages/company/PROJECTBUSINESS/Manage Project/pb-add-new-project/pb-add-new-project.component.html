@@ -1,0 +1,282 @@
+<form [formGroup]="addProjectForm" (ngSubmit)="onSubmit()">
+  <div class="modal-body" style="max-height:70vh; overflow:auto;">
+
+    <!-- Row 1: Chak No, CCA, WBS -->
+    <div class="row g-3">
+       <div class="col-12 col-md-3">
+        <label class="form-label" for="ProjectNumber">Project No.<span class="text-danger">*</span></label>
+        <input id="ProjectNumber" formControlName="ProjectNumber" type="text" class="form-control" placeholder="Enter Project Number">
+        @if (isFieldInvalid('ProjectNumber')) {
+          <div class="invalid-feedback d-block">{{ getFieldError('ProjectNumber') }}</div>
+        } 
+      </div> 
+      <div class="col-12 col-md-3">
+        <label class="form-label" for="chakNo">Chak No <span class="text-danger">*</span></label>
+        <input id="chakNo" formControlName="chakNo" type="text" class="form-control" placeholder="Enter Chak No">
+        @if (isFieldInvalid('chakNo')) {
+        <div class="invalid-feedback d-block">{{ getFieldError('chakNo') }}</div> 
+        }
+      </div>
+     
+      <div class="col-12 col-md-3">
+        <label class="form-label" for="wbsNo">WBS No <span class="text-danger">*</span></label>
+        <input id="wbsNo" formControlName="wbsNo" type="text" class="form-control" placeholder="Enter WBS number">
+        @if (isFieldInvalid('wbsNo')) {
+        <div class="invalid-feedback d-block">{{ getFieldError('wbsNo') }}</div>
+        }
+      </div>
+
+      <div class="col-12 col-md-3">
+        <label class="form-label" for="projectName">Project Name <span class="text-danger">*</span></label>
+        <input id="projectName" formControlName="projectName" type="text" class="form-control"
+          placeholder="Enter project name">
+        @if (isFieldInvalid('projectName')) {
+        <div class="invalid-feedback d-block">{{ getFieldError('projectName') }}</div>
+        }
+      </div>
+    </div>
+
+    <!-- Row 2: Project Name, Customer, Status -->
+    <div class="row g-3 mt-1">
+
+
+      <!-- Customer Dropdown -->
+      <div class="col-12 col-md-8" id="customerDropdownContainer">
+        <label class="form-label" for="customerId">Customer <span class="text-danger">*</span></label>
+        <div class="position-relative">
+          <button type="button" class="form-select text-start" (click)="toggleCustomerDropdown()">
+            {{ selectedCustomerName() }}
+          </button>
+
+          @if (isCustomerDropdownOpen()) {
+          <div class="dropdown-menu show w-100 p-0" style="max-height: 200px; display: block;">
+            <div #customerDropdownList class="overflow-auto" style="max-height: 200px;"
+              (scroll)="onCustomerDropdownScroll($event)">
+              @if (isLoadingCustomers()) {
+              <div class="text-center py-3">
+                <div class="spinner-border spinner-border-sm text-primary"></div>
+                <div class="text-muted small mt-2">Loading...</div>
+              </div>
+              } @else {
+              @for (customer of getFilteredCustomers(); track customer.Id) {
+              <button type="button" class="dropdown-item" (click)="selectCustomer(customer)">
+                {{ customer.Name1 }} / {{customer.Customer}}
+              </button>
+              }
+              @if (isLoadingMoreCustomers()) {
+              <div class="text-center py-2 border-top">
+                <div class="spinner-border spinner-border-sm text-primary"></div>
+              </div>
+              }
+              }
+            </div>
+          </div>
+          }
+        </div>
+        <input type="hidden" formControlName="customerId" />
+        @if (isFieldInvalid('customerId')) {
+        <div class="invalid-feedback d-block">{{ getFieldError('customerId') }}</div>
+        }
+      </div>
+
+      <div class="col-12 col-md-4">
+        <label class="form-label" for="status">Status <span class="text-danger">*</span></label>
+        <select id="status" formControlName="status" class="form-select">
+          <option value="Active">Active</option>
+          <option value="On Hold">On Hold</option>
+          <option value="Completed">Completed</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+        @if (isFieldInvalid('status')) {
+        <div class="invalid-feedback d-block">{{ getFieldError('status') }}</div>
+        }
+      </div>
+    </div>
+
+    <!-- Row 3: Dates -->
+    <div class="row g-3 mt-1">
+      <div class="col-12 col-md-3">
+        <label class="form-label" for="agreementDate">Agreement Date <span class="text-danger">*</span></label>
+        <input id="agreementDate" formControlName="agreementDate" type="date" class="form-control">
+        @if (isFieldInvalid('agreementDate')) {
+        <div class="invalid-feedback d-block">{{ getFieldError('agreementDate') }}</div>
+        }
+      </div>
+      <div class="col-12 col-md-3">
+        <label class="form-label" for="projectStartDate">Project Start Date <span class="text-danger">*</span></label>
+        <input id="projectStartDate" formControlName="projectStartDate" type="date" class="form-control">
+        @if (isFieldInvalid('projectStartDate')) {
+        <div class="invalid-feedback d-block">{{ getFieldError('projectStartDate') }}</div>
+        }
+      </div>
+      <div class="col-12 col-md-3">
+        <label class="form-label" for="endDate">End Date <span class="text-danger">*</span></label>
+        <input id="endDate" formControlName="endDate" type="date" class="form-control">
+        @if (isFieldInvalid('endDate')) {
+        <div class="invalid-feedback d-block">{{ getFieldError('endDate') }}</div>
+        }
+      </div>
+      <div class="col-12 col-md-3">
+        <label class="form-label" for="expectedCompletionDate">Expected Completion Date <span
+            class="text-danger">*</span></label>
+        <input id="expectedCompletionDate" formControlName="expectedCompletionDate" type="date" class="form-control">
+        @if (isFieldInvalid('expectedCompletionDate')) {
+        <div class="invalid-feedback d-block">{{ getFieldError('expectedCompletionDate') }}</div>
+        }
+      </div>
+    </div> 
+
+    <!-- Row 4: Expected Date, Area, Nodal Agency -->
+    <div class="row g-3 mt-1">
+      <div class="col-12 col-md-4">
+        <label class="form-label" for="projectArea">Project Area (Ha) <span class="text-danger">*</span></label>
+        <input id="projectArea" formControlName="projectArea" type="number" step="0.01" class="form-control"
+          placeholder="e.g. 12.50" (blur)="onSaleValue()">
+
+        <div *ngIf="isFieldInvalid('projectArea')" class="invalid-feedback d-block">
+          {{ getFieldError('projectArea') }}
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <label class="form-label" for="HectareRate">Hector Rate</label>
+        <input id="HectareRate" formControlName="HectareRate" type="number" step="0.01" class="form-control"
+          placeholder="e.g. 12" (blur)="onSaleValue()">
+
+        <div *ngIf="isFieldInvalid('HectareRate')" class="invalid-feedback d-block">
+          {{ getFieldError('HectareRate') }}
+        </div>
+      </div>
+
+
+      <div class="col-12 col-md-4">
+        <label class="form-label" for="nodalAgencyId">Nodal Agency <span class="text-danger">*</span></label>
+        <select id="nodalAgencyId" class="form-select" (change)="onNodalAgencyChange($event)"
+          (focus)="onNodalAgencyDropdownOpen()">
+          <option value="">Select Nodal Agency</option>
+          @for (agency of nodalAgencyList(); track agency.NodalAgencyId) {
+          <option [value]="agency.NodalAgencyId">{{ agency.NodalAgencyName }}</option>
+          }
+        </select>
+        <input type="hidden" formControlName="nodalAgencyId" />
+        @if (isFieldInvalid('nodalAgencyId')) {
+        <div class="invalid-feedback d-block">{{ getFieldError('nodalAgencyId') }}</div>
+        }
+      </div>
+    </div>
+
+    <!-- Row 5: Incharge, Sale Values -->
+    <div class="row g-3 mt-2">
+      <div class="col-12 col-md-4">
+        <label class="form-label" for="projectIncharge">Project Incharge <span class="text-danger">*</span></label>
+        <input id="projectIncharge" formControlName="projectIncharge" type="text" class="form-control"
+          placeholder="Enter project incharge">
+        @if (isFieldInvalid('projectIncharge')) {
+        <div class="invalid-feedback d-block">{{ getFieldError('projectIncharge') }}</div>
+        }
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label" for="totalSaleValueExclGst">Total Sale Value (Excl GST) <span
+            class="text-danger">*</span></label>
+        <input id="totalSaleValueExclGst" formControlName="totalSaleValueExclGst" type="text" class="form-control"
+          placeholder="₹">
+        @if (isFieldInvalid('totalSaleValueExclGst')) {
+        <div class="invalid-feedback d-block">{{ getFieldError('totalSaleValueExclGst') }}</div>
+        }
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label" for="totalSaleValueInclGst">Total Sale Value (Incl GST) <span
+            class="text-danger">*</span></label>
+        <input id="totalSaleValueInclGst" formControlName="totalSaleValueInclGst" type="text" class="form-control"
+          placeholder="₹">
+        @if (isFieldInvalid('totalSaleValueInclGst')) {
+        <div class="invalid-feedback d-block">{{ getFieldError('totalSaleValueInclGst') }}</div>
+        }
+      </div> 
+    </div>
+
+    <!-- Row 6: File Attachments -->
+    <div class="row g-3 mt-2">
+      <!-- CEO Agreement Attachment -->
+      <div class="col-12 col-md-6">
+        <label class="form-label">Work Order Attachment <span class="text-danger">*</span></label>
+        <input #ceoAgreementInput type="file" class="d-none" accept=".pdf,.xls,.xlsx"
+          (change)="onCeoAgreementFileSelect($event)">
+
+        @if (!ceoAgreementFile()) {
+        <button type="button" class="btn btn-outline-primary w-100" (click)="triggerCeoAgreementFileInput()">
+          <i class="ti ti-upload me-2"></i>Choose PDF or Excel File
+        </button>
+        } @else {
+        <div class="d-flex align-items-center justify-content-between p-3 border rounded bg-light">
+          <div class="d-flex align-items-center flex-grow-1 overflow-hidden">
+            <i class="ti ti-file-text fs-4 me-2 text-primary"></i>
+            <span class="text-truncate">{{ ceoAgreementFileName() }}</span>
+          </div>
+          <button type="button" class="btn btn-sm btn-danger ms-2" (click)="removeCeoAgreementFile()">
+            <i class="ti ti-trash"></i>
+          </button>
+        </div>
+        }
+
+        @if (ceoAgreementError()) {
+        <div class="invalid-feedback d-block">{{ ceoAgreementError() }}</div>
+        }
+        @if (isFieldInvalid('ceoAgreementAttachment') && !ceoAgreementError()) {
+        <div class="invalid-feedback d-block">{{ getFieldError('ceoAgreementAttachment') }}</div>
+        }
+        <small class="text-muted d-block mt-1">Allowed: PDF, Excel | Max: 10MB</small>
+      </div>
+
+      <!-- CEO Email Attachment with Drag & Drop -->
+      <div class="col-12 col-md-6">
+        <label class="form-label">CEO/Approved Email Attachment <span class="text-danger">*</span></label>
+        <input #ceoEmailInput type="file" class="d-none" accept=".msg,.eml" (change)="onCeoEmailFileSelect($event)">
+
+        @if (!ceoEmailFile()) {
+        <div (click)="triggerCeoEmailFileInput()" (dragover)="onEmailDragOver($event)"
+          (dragleave)="onEmailDragLeave($event)" (drop)="onEmailDrop($event)" [class.border-primary]="isDragging()"
+          [class.bg-primary-subtle]="isDragging()" class="border border-2 border-dashed rounded p-4 text-center"
+          style="cursor: pointer; transition: all 0.2s;">
+          <i class="ti ti-mail fs-1 text-primary d-block mb-2"></i>
+          <p class="mb-1 fw-medium">Drag & Drop Email or Click to Browse</p>
+          <p class="mb-0 small text-muted">Save email as .msg/.eml file first</p>
+        </div>
+        } @else {
+        <div class="d-flex align-items-center justify-content-between p-3 border rounded bg-light">
+          <div class="d-flex align-items-center flex-grow-1 overflow-hidden">
+            <i class="ti ti-mail fs-4 me-2 text-success"></i>
+            <span class="text-truncate">{{ ceoEmailFileName() }}</span>
+          </div>
+          <button type="button" class="btn btn-sm btn-danger ms-2" (click)="removeCeoEmailFile()">
+            <i class="ti ti-trash"></i>
+          </button>
+        </div>
+        }
+
+        @if (ceoEmailError()) {
+        <div class="invalid-feedback d-block">{{ ceoEmailError() }}</div>
+        }
+        @if (isFieldInvalid('ceoEmailAttachment') && !ceoEmailError()) {
+        <div class="invalid-feedback d-block">{{ getFieldError('ceoEmailAttachment') }}</div>
+        }
+        <small class="text-muted d-block mt-1">Allowed: .msg, .eml | Max: 10MB</small>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modal Footer -->
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-secondary" (click)="resetAndClose()" [disabled]="isSubmitting()">
+      Cancel
+    </button>
+    <button type="submit" class="btn btn-primary ms-2" [disabled]="isSubmitting()">
+      @if (isSubmitting()) {
+      <span class="spinner-border spinner-border-sm me-2"></span>Adding...
+      } @else {
+      Add Project
+      }
+    </button>
+  </div>
+</form>

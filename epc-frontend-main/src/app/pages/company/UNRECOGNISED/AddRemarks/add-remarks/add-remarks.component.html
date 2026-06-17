@@ -1,0 +1,306 @@
+  @if (showModal()) {
+<div class="modal fade show" tabindex="-1" style="display: block; background-color: rgba(0,0,0,0.5);" role="dialog">
+  <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+    <div class="modal-content">
+
+      <!-- Header -->
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Add Remark</h5>
+        <button type="button" class="btn-close" (click)="closeModal()"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- ─── SHARED: Registration No & Remark For ─── -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Registration No <span class="text-danger">*</span></label>
+            <div class="registration-dropdown-container position-relative">
+              <button type="button"
+                class="btn btn-outline-secondary w-100 d-flex justify-content-between align-items-center"
+                (click)="toggleRegistrationDropdown()"
+                style="border-radius: 6px; padding: 8px 12px; background-color: #fff; text-align: left;">
+                <span class="text-truncate" style="max-width: 90%">{{ selectedRegistrationText() }}</span>
+                <i class="bi" [ngClass]="isRegistrationOpen() ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+              </button>
+
+              @if (isRegistrationOpen()) {
+              <div class="dropdown-menu show w-100 shadow-lg mt-1 p-0"
+                style="border-radius: 8px; border: 1px solid #dee2e6; z-index: 1050;">
+                <div style="max-height: 200px; overflow-y: auto;">
+                  @for (item of registrationList(); track item.Id) {
+                  @if (item.RegistrationNumber) {
+                  <div class="dropdown-item py-2 px-3 d-flex align-items-center gap-2"
+                    (click)="toggleSelection(item, $event)" style="cursor: pointer; border-bottom: 1px solid #f8f9fa;">
+                    <input type="checkbox" class="form-check-input" [checked]="isSelected(item)"
+                      (click)="$event.stopPropagation()" (change)="toggleSelection(item, $event)">
+                    <span class="text-truncate">{{ item.RegistrationNumber }}</span>
+                  </div>
+                  }
+                  }
+                  @if (registrationList().length === 0) {
+                  <div class="text-center py-3">
+                    <p class="text-muted mb-0 small">No items selected</p>
+                  </div>
+                  }
+                </div>
+              </div>
+              }
+            </div>
+            @if (selectedIds().size === 0) {
+            <div class="text-danger small mt-1">Please select at least one registration</div>
+            }
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Remark For <span class="text-danger">*</span></label>
+            <div class="remarkfor-dropdown-container position-relative">
+              <button type="button"
+                class="btn btn-outline-secondary w-100 d-flex justify-content-between align-items-center"
+                (click)="toggleRemarkForDropdown()"
+                style="border-radius: 6px; padding: 8px 12px; background-color: #fff; text-align: left;">
+                <span class="text-truncate" style="max-width: 90%">{{ selectedRemarkForText() }}</span>
+                <i class="bi" [ngClass]="isRemarkForOpen() ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+              </button>
+              @if (isRemarkForOpen()) {
+              <div class="dropdown-menu show w-100 shadow-lg mt-1 p-0"
+                style="border-radius: 8px; border: 1px solid #dee2e6; z-index: 1050;">
+                <div style="max-height: 200px; overflow-y: auto;">
+                  @for (option of remarkForOptions(); track $index) {
+                  <button type="button" class="dropdown-item py-2 px-3" (click)="selectRemarkFor(option)"
+                    style="cursor: pointer; border-bottom: 1px solid #f8f9fa;">
+                    {{ option }}
+                  </button>
+                  }
+                </div>
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── TABS: Normal vs CEO/CFO ─── -->
+        <ul class="nav nav-tabs mb-0">
+          <li class="nav-item">
+            <button class="nav-link remark-btn" [class.active]="activeTab() === 'normal'" (click)="switchTab('normal')"
+              style="font-weight: 600;">
+              <i class="bi bi-pencil-square me-1"></i> Remark
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link ceo-cfo-btn" [class.active]="activeTab() === 'ceo'" (click)="switchTab('ceo')"
+              style="font-weight: 600;">
+              <i class="bi bi-person-badge me-1"></i> CEO / CFO Remark
+            </button>
+          </li>
+        </ul>
+
+        <!-- ═══════════════════════════════════════════════ -->
+        <!--  TAB 1: NORMAL REMARK                          -->
+        <!-- ═══════════════════════════════════════════════ -->
+        @if (activeTab() === 'normal') {
+        <div class="border border-top-0 rounded-bottom p-3 bg-light">
+          <form [formGroup]="normalForm">
+
+            <!-- Row 1: Predefined Reason + Billing/RR -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Predefined Reason Remark</label>
+                <select class="form-select" formControlName="predefinedReasonRemarkNo">
+                  <option value="">-- Select Predefined Reason --</option>
+                  @for (item of loadPredefined(); track item.PredefinedRemarkNo) {
+                  <option [value]="item.PredefinedRemarkNo">{{ item.BillingRRPendingReason }}</option>
+                  }
+                </select>
+                <small class="text-muted">Pick from list <strong>OR</strong> type manually</small>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Billing/RR Pending Reason</label>
+                <textarea class="form-control" rows="2" formControlName="billingRRPendingReason"
+                  placeholder="Type reason manually if not using predefined..."
+                  [class.is-invalid]="normalForm.touched && !isReasonValid()"></textarea>
+                @if (normalForm.touched && !isReasonValid()) {
+                <div class="invalid-feedback d-block">Either select predefined reason or type manually</div>
+                }
+              </div>
+            </div>
+
+            <!-- Row 2: Predefined Action + Action To Be Taken -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Predefined Action Remark</label>
+                <select class="form-select" formControlName="predefinedActionRemarkNo">
+                  <option value="">-- Select Predefined Action --</option>
+                  @for (item of loadPredefined(); track item.PredefinedRemarkNo) {
+                  <option [value]="item.PredefinedRemarkNo">{{ item.ActionToBeTakenForCompletionRR }}</option>
+                  }
+                </select>
+                <small class="text-muted">Pick from list <strong>OR</strong> type manually</small>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Action To Be Taken</label>
+                <textarea class="form-control" rows="2" formControlName="actionToBeTakenForCompletionRR"
+                  placeholder="Type action manually if not using predefined..."
+                  [class.is-invalid]="normalForm.touched && !isActionValid()"></textarea>
+                @if (normalForm.touched && !isActionValid()) {
+                <div class="invalid-feedback d-block">Either select predefined action or type manually</div>
+                }
+              </div>
+            </div>
+
+            <!-- Row 3: Month, Year, Target Date -->
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Month <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="completionMonth"
+                  [class.is-invalid]="isFieldInvalid('completionMonth')">
+                  <option value="">-- Select Month --</option>
+                  <option value="1">January</option>
+                  <option value="2">February</option>
+                  <option value="3">March</option>
+                  <option value="4">April</option>
+                  <option value="5">May</option>
+                  <option value="6">June</option>
+                  <option value="7">July</option>
+                  <option value="8">August</option>
+                  <option value="9">September</option>
+                  <option value="10">October</option>
+                  <option value="11">November</option>
+                  <option value="12">December</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Year <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="completionYear"
+                  [class.is-invalid]="isFieldInvalid('completionYear')">
+                  @for (year of availableYears(); track year) {
+                  <option [value]="year">{{ year }}</option>
+                  }
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Target Date <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" formControlName="billingRRCompletionTargetDate"
+                  [class.is-invalid]="isFieldInvalid('billingRRCompletionTargetDate')">
+              </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="text-end">
+              <button type="button" class="btn btn-primary" (click)="submitNormalRemark()" [disabled]="isLoading()">
+                @if (isLoading()) {
+                <span class="spinner-border spinner-border-sm me-1"></span> Saving...
+                } @else {
+                <i class="bi bi-save me-1"></i> Save Remark
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+        }
+
+        <!-- ═══════════════════════════════════════════════ -->
+        <!--  TAB 2: CEO / CFO REMARK                       -->
+        <!-- ═══════════════════════════════════════════════ -->
+        @if (activeTab() === 'ceo') {
+        <div class="border border-top-0 rounded-bottom p-3" style="background-color: #fff8e1;">
+          <form [formGroup]="ceoForm">
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Month <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="completionMonth"
+                  [class.is-invalid]="isFieldInvalid('completionMonth')">
+                  <option value="">-- Select Month --</option>
+                  <option value="1">January</option>
+                  <option value="2">February</option>
+                  <option value="3">March</option>
+                  <option value="4">April</option>
+                  <option value="5">May</option>
+                  <option value="6">June</option>
+                  <option value="7">July</option>
+                  <option value="8">August</option>
+                  <option value="9">September</option>
+                  <option value="10">October</option>
+                  <option value="11">November</option>
+                  <option value="12">December</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Year <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="completionYear"
+                  [class.is-invalid]="isFieldInvalid('completionYear')">
+                  @for (year of availableYears(); track year) {
+                  <option [value]="year">{{ year }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">
+                Reviewed Remark By CEO/CFO <span class="text-danger">*</span>
+              </label>
+              <textarea class="form-control" rows="3" formControlName="reviewedRemarkByCEO_CFO"
+                placeholder="Enter CEO/CFO review remark..."
+                [class.is-invalid]="isFieldInvalid('reviewedRemarkByCEO_CFO')"></textarea>
+            </div>
+
+            <!-- Submit -->
+            <div class="text-end">
+              <button type="button" class="btn btn-warning" (click)="submitCeoCfoRemark()" [disabled]="isLoading()">
+                @if (isLoading()) {
+                <span class="spinner-border spinner-border-sm me-1"></span> Saving...
+                } @else {
+                <i class="bi bi-person-check me-1"></i> Save CEO/CFO Remark
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+        }
+
+        <!-- ─── BULK EXCEL SECTION ─── -->
+        <hr class="my-4" style="border-top: 2px dashed #bbb;">
+        <h6 class="fw-bold text-success mb-3"><i class="bi bi-table me-2"></i>Bulk Actions (Excel)</h6>
+        <div class="row g-3">
+          <div class="col-md-6 border-end">
+            <label class="form-label text-muted small">Step 1: Get Current Data</label>
+            <button class="btn btn-outline-success w-100 py-2" (click)="exportRemarksExcel()"
+              [disabled]="isDownloadRemarksExcel()">
+              @if (isDownloadRemarksExcel()) {
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              Loading...
+              } @else {
+              <i class="bi bi-download me-2"></i>
+              Download Remarks Excel
+              }
+            </button>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label text-muted small">Step 2: Upload Changes</label>
+            <div class="input-group">
+              <input type="file" class="form-control" #fileInput accept=".xls,.xlsx" (change)="onFileSelected($event)"
+                [disabled]="isLoading()">
+              <button class="btn btn-success" (click)="uploadRemarksExcel()"
+                [disabled]="isLoading() || !selectedFile()">
+                <i class="bi bi-upload"></i> Upload
+              </button>
+            </div>
+            @if (selectedFile()) {
+            <small class="text-success d-block mt-1">Selected: {{ selectedFile()!.name }}</small>
+            }
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()" [disabled]="isLoading()">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+}

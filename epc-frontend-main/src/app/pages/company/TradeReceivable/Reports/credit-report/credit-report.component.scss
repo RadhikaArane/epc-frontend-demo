@@ -1,0 +1,9 @@
+.acc-toggle .icon-minus {
+  display: none;
+}
+.acc-toggle[aria-expanded="true"] .icon-plus {
+  display: none;
+}
+.acc-toggle[aria-expanded="true"] .icon-minus {
+  display: inline-block;
+}

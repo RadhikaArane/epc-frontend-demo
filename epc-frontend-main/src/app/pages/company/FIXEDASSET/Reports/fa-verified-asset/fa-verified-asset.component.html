@@ -1,0 +1,283 @@
+<div class="content container-fluid">
+  <!-- BREADCRUMB -->
+  <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <app-breadcrumbs title="Verified Asset" [breadcrumbItems]="breadCrumbItems()">
+    </app-breadcrumbs>
+    <div class="pe-2 pt-1">
+      @if (!isExporting()) {
+      <button class="btn btn-primary shadow-sm" type="button" style="border-radius: 8px;"
+        (click)="exportVerifiedAssets()">
+        <i class="bi bi-file-earmark-excel me-2"></i>
+        Export
+      </button>
+      } @else {
+      <button class="btn btn-primary shadow-sm px-4 py-2" type="button" style="font-size: 15px; border-radius: 8px;"
+        disabled>
+        <i class="bi bi-download me-2"></i>
+        Downloading...
+      </button>
+      }
+    </div>
+  </div>
+  <!-- TABLE CARD -->
+  <div class="card shadow-sm border-0">
+    <div class="card-header">
+      <div class="row g-2 align-items-center">
+        <!-- Left: Page Size Selector -->
+        <div class="col-12 col-md-4">
+          <div class="dataTables_length">
+            <label class="d-inline-flex align-items-center mb-0">
+              <span class="me-1">Show</span>
+              <select class="form-select form-select-sm mx-1" style="width: auto" [value]="pageSize()"
+                (change)="onPageSizeChange($event)" [disabled]="isLoading()">
+                <option [value]="10">10</option>
+                <option [value]="25">25</option>
+                <option [value]="50">50</option>
+                <option [value]="100">100</option>
+              </select>
+              <span>entries</span>
+            </label>
+          </div>
+        </div>
+        <div class="col-md"></div>
+        <div class="col-12 col-md-3 col-lg-2">
+          <select style="border-color: crimson;" class="form-select form-select-sm" [ngModel]="selectedCampaignId()"
+            (ngModelChange)="selectedCampaignId.set($event); onFilterChange()" [disabled]="isLoading()">
+            <!-- <option [value]="0">Select Campaign</option> -->
+            @for (camp of campaignList(); track camp.id) {
+            <option [value]="camp.id">
+              {{ camp.name }}
+            </option>
+            }
+          </select>
+        </div>
+        <div class="col-12 col-md-3 col-lg-2">
+          <select style="border-color: crimson;" class="form-select form-select-sm" [ngModel]="selectedStatus()"
+            (ngModelChange)="selectedStatus.set($event); onFilterChange()" [disabled]="isLoading()">
+            <option value="All">All Status</option>
+            @for (status of statusList(); track status) {
+            <option [value]="status">{{ status }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-12 col-md-3 col-lg-2">
+          <select style="border-color: crimson;" class="form-select form-select-sm" [ngModel]="selectedMethod()"
+            (ngModelChange)="selectedMethod.set($event); onFilterChange()" [disabled]="isLoading()">
+            <option value="All">All Methods</option>
+            @for (method of methodList(); track method) {
+            <option [value]="method">{{ method }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+    <!-- Card Body -->
+    <div class="card-body p-2">
+      <div class="custom-datatable-filter">
+        <div class="dataTables_wrapper dt-bootstrap5 no-footer">
+          <!-- Loading Overlay -->
+          @if (isLoading()) {
+          <div class="position-relative" style="min-height: 400px">
+            <div class="position-absolute top-50 start-50 translate-middle">
+              <div class="text-center">
+                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-muted">Loading assets...</p>
+              </div>
+            </div>
+          </div>
+          } @else {
+          <!-- Table -->
+          <div class="table-responsive">
+            <table class="table table-striped table-bordered mb-0    table-ultra-compact">
+              <thead class="thead-light text-center">
+                <tr>
+                  <th>Sr No</th>
+                  <th>Asset Number</th>
+                  <th>Description</th>
+                  <th>Location</th>
+                  <th>Asset Class</th>
+                  <th>Status</th>
+                  <th>Verified By</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+
+              <tbody class="text-end">
+                @if (assets().length > 0) {
+                @for (asset of assets(); track $index) {
+                <tr>
+                  <td>{{ getSerialNumber($index) }}</td>
+                  <td class="fw-semibold">{{ asset.AssetNumber }}</td>
+                  <td>{{ asset.AssetDescription }}</td>
+                  <td>{{ asset.Location }}</td>
+                  <td>{{ asset.AssetClass }}</td>
+                  <td>
+                    <span class="badge bg-light text-dark px-3">
+                      {{ asset.Status }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="fw-medium text-dark">
+                      {{ asset.VerifiedBy }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <a href="javascript:void(0)" class="text-danger fw-semibold" (click)="onViewClick(asset)" >
+                      View
+                    </a>
+                  </td>
+                </tr>
+                }
+                } @else {
+                <tr>
+                  <td colspan="8" class="text-center py-4">
+                    No assets found
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination Controls -->
+          @if (totalRecords() > 0) {
+          <div class="row mt-3 align-items-center">
+            <div class="col-12 col-md-5 mb-2 mb-md-0">
+              <div class="dataTables_info text-center text-md-start">
+                Showing {{ getStartRecord() }} to {{ getEndRecord() }} of
+                {{ totalRecords() }} entries
+              </div>
+            </div>
+            <div class="col-12 col-md-7">
+              <div
+                class="dataTables_paginate paging_simple_numbers d-flex justify-content-center justify-content-md-end">
+                <ul class="pagination mb-0">
+                  <!-- Previous Button -->
+                  <li class="paginate_button page-item" [class.disabled]="currentPage() === 1">
+                    <a class="page-link" [class.pe-none]="currentPage() === 1" style="cursor: pointer" (click)="
+                            currentPage() === 1
+                              ? null
+                              : onPageChange(currentPage() - 1)
+                          ">
+                      Previous
+                    </a>
+                  </li>
+
+                  <!-- Page Numbers with Ellipsis -->
+                  @for (page of getVisiblePages(); track $index) {
+                  @if (page === -1 || page === -2) {
+                  <li class="paginate_button page-item disabled">
+                    <span class="page-link">...</span>
+                  </li>
+                  } @else {
+                  <li class="paginate_button page-item" [class.active]="page === currentPage()">
+                    <a class="page-link" style="cursor: pointer" [class.pe-none]="page === currentPage()" (click)="
+                                page === currentPage()
+                                  ? null
+                                  : onPageChange(page)
+                              ">
+                      {{ page }}
+                    </a>
+                  </li>
+                  }
+                  }
+
+                  <!-- Next Button -->
+                  <li class="paginate_button page-item" [class.disabled]="currentPage() === totalPages()">
+                    <a class="page-link" [class.pe-none]="currentPage() === totalPages()" style="cursor: pointer"
+                      (click)="
+                            currentPage() === totalPages()
+                              ? null
+                              : onPageChange(currentPage() + 1)
+                          ">
+                      Next
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          }
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW ASSET MODAL -->
+  <div class="modal fade" #viewAssetModal tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content shadow rounded-4 border-0">
+        <!-- Header -->
+        <div class="modal-header px-4 py-3 border-bottom">
+          <h5 class="modal-title fw-semibold mb-0">Asset Details</h5>
+          <button type="button" class="btn-close" (click)="closeModal()"></button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body px-4 py-4">
+          @if (selectedAsset()) {
+          <div class="row g-4">
+            <!-- AssetId
+            <div class="col-lg-3 col-md-6 col-12">
+              <label class="form-label fw-medium">Asset ID</label>
+              <input class="form-control" [value]="selectedAsset()!.AssetId" readonly>
+            </div> -->
+
+            <!-- AssetNumber -->
+            <div class="col-lg-3 col-md-6 col-12">
+              <label class="form-label fw-medium">Asset Number</label>
+              <input class="form-control" [value]="selectedAsset()!.AssetNumber" readonly />
+            </div>
+
+            <!-- AssetClass -->
+            <div class="col-lg-3 col-md-6 col-12">
+              <label class="form-label fw-medium">Asset Class</label>
+              <input class="form-control" [value]="selectedAsset()!.AssetClass" readonly />
+            </div>
+
+            <!-- Location -->
+            <div class="col-lg-3 col-md-6 col-12">
+              <label class="form-label fw-medium">Location</label>
+              <input class="form-control" [value]="selectedAsset()!.Location" readonly />
+            </div>
+
+            <!-- Status -->
+            <div class="col-lg-3 col-md-6 col-12">
+              <label class="form-label fw-medium">Status</label>
+              <input class="form-control" [value]="selectedAsset()!.Status" readonly />
+            </div>
+            <!-- verified by -->
+            <div class="col-lg-3 col-md-6 col-12">
+              <label class="form-label fw-medium">Verified By</label>
+              <input class="form-control" [value]="selectedAsset()!.VerifiedBy" readonly />
+            </div>
+            <!-- Method -->
+            <div class="col-lg-3 col-md-6 col-12">
+              <label class="form-label fw-medium">Method</label>
+              <input class="form-control" [value]="selectedAsset()!.Method" readonly />
+            </div>
+
+            <!-- Description (full width) -->
+            <div class="col-12">
+              <label class="form-label fw-medium">Description</label>
+              <textarea class="form-control" rows="2" readonly>{{
+                  selectedAsset()!.AssetDescription
+                }}</textarea>
+            </div>
+          </div>
+          }
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer px-4 py-3 border-top">
+          <button class="btn btn-outline-secondary" (click)="closeModal()">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

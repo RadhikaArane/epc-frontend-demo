@@ -1,0 +1,549 @@
+
+<!-- <div class="content mb-4"> -->
+  <!-- <app-breadcrumbs
+    title="Manage Modules"
+    [breadcrumbItems]="breadCrumbItems()"
+  ></app-breadcrumbs>
+
+  <div class="card mb-3">
+    <div class="card-header d-flex align-items-center flex-nowrap">
+      <h5 class="mb-0 text-truncate">{{ currentProjectTitle }} Permissions</h5>
+
+      <div class="ms-auto d-flex align-items-center gap-3">
+        <div class="d-flex align-items-center">
+          <label class="mb-0 me-2 small text-muted text-nowrap" for="userRoleFilter">Select User Role:</label>
+          <select class="form-select" id="userRoleFilter">
+            <option>Zonal Manager</option>
+            <option>National Sales Head</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- Table -->
+  <!-- <div class="card">
+    <div class="border-0" style="border-radius: 12px;">
+      <div class="card-header bg-white py-3">
+        <h5 class="mb-0 fw-bold text-dark">Module Permissions</h5>
+      </div>
+      <div class="card-body p-3">
+        <div style="min-height: 500px; overflow-y: auto; overflow-x: auto">
+          <table class="table table-bordered table-hover align-middle mb-0">
+            <thead
+              class="thead-light"
+              style="position: sticky; top: 0; z-index: 10; background-color: #f8f9fa;"
+            >
+              <tr>
+                <th>Module Name</th>
+                <th>Sub-Module Name</th>
+                <th>Sub Sub-Module</th>
+              </tr>
+            </thead>
+
+            <tbody class="bg-white">
+              <tr>
+                <td rowspan="3" class="fw-bold bg-light">
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span>Unrecognised Invoices</span>
+                    <div class="form-check form-switch mb-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        style="cursor: pointer"
+                      />
+                    </div>
+                  </div>
+                </td>
+
+                <td class="fw-semibold">
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span>Pan India Summary</span>
+                    <div class="form-check form-switch mb-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        style="cursor: pointer"
+                      />
+                    </div>
+                  </div>
+                </td>
+
+                <td>
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span>Invoice Pan-wise Bucket</span>
+                    <div class="form-check form-switch mb-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        style="cursor: pointer"
+                      />
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span>State-Wise Stage Summary</span>
+                    <div class="form-check form-switch mb-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        style="cursor: pointer"
+                      />
+                    </div>
+                  </div>
+                </td>
+                <td class="text-muted bg-light"></td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span>Area-Wise Aging</span>
+                    <div class="form-check form-switch mb-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        style="cursor: pointer"
+                      />
+                    </div>
+                  </div>
+                </td>
+                <td class="text-muted bg-light"></td>
+              </tr>
+
+              <tr>
+                <td>&nbsp;</td>
+              </tr>
+
+              <tr>
+                <td rowspan="3" class="fw-bold bg-light">
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span>Consignment Stock</span>
+                    <div class="form-check form-switch mb-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        style="cursor: pointer"
+                      />
+                    </div>
+                  </div>
+                </td>
+
+                <td class="fw-semibold">
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span>Pan India Summary</span>
+                    <div class="form-check form-switch mb-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        style="cursor: pointer"
+                      />
+                    </div>
+                  </div>
+                </td>
+
+                <td>
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span>COGS Pan-wise Bucket</span>
+                    <div class="form-check form-switch mb-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        style="cursor: pointer"
+                      />
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span>State-Wise Stage Summary</span>
+                    <div class="form-check form-switch mb-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        style="cursor: pointer"
+                      />
+                    </div>
+                  </div>
+                </td>
+                <td class="text-muted bg-light"></td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span>Area-Wise Aging</span>
+                    <div class="form-check form-switch mb-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        style="cursor: pointer"
+                      />
+                    </div>
+                  </div>
+                </td>
+                <td class="text-muted bg-light"></td>
+              </tr>
+
+              <tr>
+                <td>&nbsp;</td>
+              </tr>
+
+              <tr>
+                <td rowspan="3" class="fw-bold bg-light">
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span>Manage Data</span>
+                    <div class="form-check form-switch mb-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        style="cursor: pointer"
+                      />
+                    </div>
+                  </div>
+                </td>
+
+                <td>
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span>Dealer Master</span>
+                    <div class="form-check form-switch mb-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        style="cursor: pointer"
+                      />
+                    </div>
+                  </div>
+                </td>
+                <td class="text-muted bg-light"></td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span>User Master</span>
+                    <div class="form-check form-switch mb-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        style="cursor: pointer"
+                      />
+                    </div>
+                  </div>
+                </td>
+                <td class="text-muted bg-light"></td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span>Stage Master</span>
+                    <div class="form-check form-switch mb-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        style="cursor: pointer"
+                      />
+                    </div>
+                  </div>
+                </td>
+                <td class="text-muted bg-light"></td>
+              </tr>
+
+              <tr>
+                <td>&nbsp;</td>
+              </tr>
+
+              <tr>
+                <td class="fw-bold bg-light">
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span>Upload Center</span>
+                    <div class="form-check form-switch mb-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        style="cursor: pointer"
+                      />
+                    </div>
+                  </div>
+                </td>
+
+                <td>
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span>Upload</span>
+                    <div class="form-check form-switch mb-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        style="cursor: pointer"
+                      />
+                    </div>
+                  </div>
+                </td>
+                <td class="text-muted bg-light"></td>
+              </tr>
+
+              <tr>
+                <td>&nbsp;</td>
+              </tr>
+
+              <tr>
+                <td rowspan="2" class="fw-bold bg-light">
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span>Reports</span>
+                    <div class="form-check form-switch mb-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        style="cursor: pointer"
+                      />
+                    </div>
+                  </div>
+                </td>
+
+                <td>
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span>Audit Logs</span>
+                    <div class="form-check form-switch mb-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        style="cursor: pointer"
+                      />
+                    </div>
+                  </div>
+                </td>
+                <td class="text-muted bg-light"></td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span>User Logs</span>
+                    <div class="form-check form-switch mb-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        style="cursor: pointer"
+                      />
+                    </div>
+                  </div>
+                </td>
+                <td class="text-muted bg-light"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div> -->
+<!-- </div> -->
+
+<!-- NEW ADDED -->
+
+<div class="content mb-3"> 
+
+  <app-breadcrumbs title="Manage Modules" [breadcrumbItems]="breadCrumbItems()"></app-breadcrumbs>
+
+  <div class="card mb-2"> 
+    <div class="card-header d-flex align-items-center flex-nowrap py-2"> 
+      <h5 class="mb-0 text-truncate">{{ currentProjectTitle }} Permissions</h5> 
+
+      <div class="ms-auto d-flex align-items-center gap-3">
+        <div class="d-flex align-items-center">
+          <label class="mb-0 me-2 small text-muted text-nowrap" for="userRoleFilter">Select User Role:</label>
+          <select class="form-select form-select-sm" 
+                  id="userRoleFilter" 
+                  [(ngModel)]="selectedRoleId" 
+                  (change)="onRoleChange()"> 
+            @for (role of availableUserRoles; track role.id) {
+              <option [value]="role.id">{{ role.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (currentUserRole) {
+    <div class="card shadow-sm border-0" style="border-radius: 8px;">
+      
+      <div class="card-header bg-white py-2">
+        <h6 class="mb-0 fw-bold text-dark">Module Permissions</h6>
+      </div>
+
+      <div class="card-body p-0">
+        
+        <div class="small" style="max-height: 65vh; overflow-y: auto; overflow-x: hidden;">
+          
+          <table class="table table-bordered table-sm table-hover align-middle mb-0">
+            
+            <thead class="thead-light" style="position: sticky; top: 0; z-index: 10;">
+              <tr>
+                <th style="width: 35%;">Module Name</th>
+                <th style="width: 35%;">Sub-Module Name</th>
+                <th style="width: 30%;">Sub Sub-Module</th>
+              </tr>
+            </thead>
+
+            <tbody class="bg-white border-top-0">
+              
+              @for (module of currentUserRole.modules; track module.id; let isFirstModule = $first) {
+                
+                @if (!isFirstModule) {
+                  <tr class="spacer-row">
+                    <td colspan="3"></td> 
+                  </tr>
+                }
+
+                @for (subModule of module.subModules; track subModule.id; let subIndex = $index) {
+                  
+                  @for (feature of (subModule.features.length ? subModule.features : [null]); track feature?.id; let featIndex = $index) {
+                    <tr>
+                      
+                      @if (subIndex === 0 && featIndex === 0) {
+                        <td [attr.rowspan]="getModuleRowSpan(module)" class="fw-bold bg-light" style="vertical-align: top;">
+                          <div class="d-flex justify-content-between align-items-start px-1">
+                            <span>{{ module.name }}</span>
+                            <div class="form-check form-switch mb-0">
+                              <input class="form-check-input" 
+                                     type="checkbox" 
+                                     role="switch" 
+                                     style="cursor: pointer"
+                                     [(ngModel)]="module.isEnabled"
+                                     (change)="onModuleToggle(module)">
+                            </div>
+                          </div>
+                        </td>
+                      }
+
+                      @if (featIndex === 0) {
+                        <td [attr.rowspan]="getSubModuleRowSpan(subModule)" class="fw-semibold" style="vertical-align: top;">
+                          <div class="d-flex justify-content-between align-items-start px-1">
+                            <span>{{ subModule.name }}</span>
+                            <div class="form-check form-switch mb-0">
+                              <input class="form-check-input" 
+                                     type="checkbox" 
+                                     role="switch" 
+                                     style="cursor: pointer"
+                                     [(ngModel)]="subModule.isActive"
+                                     [disabled]="!module.isEnabled"
+                                     (change)="onSubModuleToggle(subModule)">
+                            </div>
+                          </div>
+                        </td>
+                      }
+
+                      <td class="bg-white">
+                        @if (feature) {
+                          <div class="d-flex justify-content-between align-items-center px-1">
+                            <span>{{ feature.name }}</span>
+                            <div class="form-check form-switch mb-0">
+                              <input class="form-check-input" 
+                                     type="checkbox" 
+                                     role="switch" 
+                                     style="cursor: pointer"
+                                     [(ngModel)]="feature.isActive"
+                                     [disabled]="!subModule.isActive || !module.isEnabled">
+                            </div>
+                          </div>
+                        }
+                      </td>
+
+                    </tr>
+                  }
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<style>
+  .form-check-input:focus {
+    box-shadow: none;
+  }
+
+  /* Spacer Row Styling - Background color creates the visual gap */
+  .spacer-row td {
+    background-color: #f8f9fa; 
+    border: none !important;
+  }
+
+  .table-sm th, .table-sm td {
+    padding: 0.5rem;
+  }
+  
+  .custom-table-borders {
+    border-collapse: separate; 
+    border-spacing: 0;
+  }
+</style>
+

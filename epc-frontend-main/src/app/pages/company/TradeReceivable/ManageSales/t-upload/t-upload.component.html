@@ -1,0 +1,615 @@
+<div class="content container-fluid">
+  <!-- Breadcrumb -->
+  <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap w-100 justify-content-between gap-2">
+      <div class="me-0">
+        <app-breadcrumbs title="Upload Sales Data" [breadcrumbItems]="breadCrumbItems()"></app-breadcrumbs>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div>
+    <!-- Upload Section -->
+    <div class="row">
+      <div class="col-12">
+        <div class="">
+          <div class="">
+
+            <!-- ===== ProjectsRR Upload ===== -->
+            <div class="card mb-4 p-4 pb-4 border-bottom shadow-sm">
+              <label class="form-label fw-semibold d-flex align-items-center mb-2">
+                ProjectsRR Upload
+                @if (projectsRRUploading()) {
+                <span class="badge bg-primary ms-2">
+                  <span class="spinner-border spinner-border-sm me-1" role="status"
+                    style="width: 12px; height: 12px"></span>
+                  Uploading...
+                </span>
+                }
+              </label>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Month <span class="text-danger">*</span></label>
+                  <select class="form-select" [(ngModel)]="projectsRRMonth" [disabled]="projectsRRUploading()">
+                    <option value="">Select Month</option>
+                    @for (month of getAvailableMonths(projectsRRYear()); track month) {
+                    <option [value]="month">{{ month }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Year <span class="text-danger">*</span></label>
+                  <select class="form-select" [(ngModel)]="projectsRRYear"
+                    (ngModelChange)="onProjectsRRYearChange($event)" [disabled]="projectsRRUploading()">
+                    <option value="">Select Year</option>
+                    @for (year of years; track year) {
+                    <option [value]="year">{{ year }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+
+              <input type="file" class="form-control" #projectsRRInput accept=".xls,.xlsx,.xlsb"
+                (change)="onProjectsRRSelect($event)" [disabled]="projectsRRUploading()" />
+              <div class="form-text">Select ProjectsRR Excel file (Max: 50MB, Format: .xls, .xlsx, .xlsb)</div>
+
+              @if (projectsRRError()) {
+              <div class="alert alert-danger mt-2 mb-0" role="alert">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>{{ projectsRRError() }}
+              </div>
+              }
+              @if (projectsRRFile() && !projectsRRError()) {
+              <div class="alert alert-success mt-2 mb-0" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                Selected: {{ projectsRRFile()!.name }} ({{ getFileSize(projectsRRFile()) }} MB)
+              </div>
+              }
+            </div>
+
+            <!-- ===== Grouping Sale Upload ===== -->
+            <div class="card mb-4 p-4 pb-4 border-bottom shadow-sm">
+              <label class="form-label fw-semibold d-flex align-items-center mb-2">
+                Grouping Sale Upload
+                @if (groupingSaleUploading()) {
+                <span class="badge bg-primary ms-2">
+                  <span class="spinner-border spinner-border-sm me-1" role="status"
+                    style="width: 12px; height: 12px"></span>
+                  Uploading...
+                </span>
+                }
+              </label>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Month <span class="text-danger">*</span></label>
+                  <select class="form-select" [(ngModel)]="groupingSaleMonth" [disabled]="groupingSaleUploading()">
+                    <option value="">Select Month</option>
+                    @for (month of getAvailableMonths(groupingSaleYear()); track month) {
+                    <option [value]="month">{{ month }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Year <span class="text-danger">*</span></label>
+                  <select class="form-select" [(ngModel)]="groupingSaleYear"
+                    (ngModelChange)="onGroupingSaleYearChange($event)" [disabled]="groupingSaleUploading()">
+                    <option value="">Select Year</option>
+                    @for (year of years; track year) {
+                    <option [value]="year">{{ year }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+
+              <input type="file" class="form-control" #groupingSaleInput accept=".xls,.xlsx,.xlsb"
+                (change)="onGroupingSaleSelect($event)" [disabled]="groupingSaleUploading()" />
+              <div class="form-text">Select Grouping Sale Excel file (Max: 50MB, Format: .xls, .xlsx, .xlsb)</div>
+
+              @if (groupingSaleError()) {
+              <div class="alert alert-danger mt-2 mb-0" role="alert">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>{{ groupingSaleError() }}
+              </div>
+              }
+              @if (groupingSaleFile() && !groupingSaleError()) {
+              <div class="alert alert-success mt-2 mb-0" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                Selected: {{ groupingSaleFile()!.name }} ({{ getFileSize(groupingSaleFile()) }} MB)
+              </div>
+              }
+            </div>
+
+            <!-- ===== SALES FTM UPLOAD + SALES FTM FINAL UPLOAD ===== -->
+            <div class="card mb-4 p-4 pb-4 border-bottom shadow-sm">
+              <div class="row">
+
+                <!-- SalesFTM Upload -->
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center justify-content-between mb-2">
+                    <label class="form-label fw-semibold d-flex align-items-center mb-0">
+                      SalesFTM Upload
+                      @if (salesFTMUploading()) {
+                      <span class="badge bg-primary ms-2">
+                        <span class="spinner-border spinner-border-sm me-1"></span>
+                        Uploading...
+                      </span>
+                      }
+                    </label>
+                    <button type="button" class="btn btn-outline-success btn-sm" (click)="exportSalesFTM()"
+                      [disabled]="salesFTMUploading() || salesFTMExporting() || !salesFTMMonth() || !salesFTMYear()">
+                      @if (salesFTMExporting()) {
+                      <span class="spinner-border spinner-border-sm me-1"></span>
+                      Exporting...
+                      } @else {
+                      <i class="bi bi-download me-1"></i>Export Excel
+                      }
+                    </button>
+                  </div>
+
+                  <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                      <label class="form-label">Month *</label>
+                      <select class="form-select" [(ngModel)]="salesFTMMonth" [disabled]="salesFTMUploading()">
+                        <option value="">Select Month</option>
+                        @for (month of getAvailableMonths(salesFTMYear()); track month) {
+                        <option [value]="month">{{ month }}</option>
+                        }
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Year *</label>
+                      <select class="form-select" [(ngModel)]="salesFTMYear"
+                        (ngModelChange)="onSalesFTMYearChange($event)" [disabled]="salesFTMUploading()">
+                        <option value="">Select Year</option>
+                        @for (year of years; track year) {
+                        <option [value]="year">{{ year }}</option>
+                        }
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Portal Status Date *</label>
+                      <input type="date" class="form-control" [(ngModel)]="salesFTMPortalStatusDate"
+                        [max]="getPortalStatusMaxDate(salesFTMMonth(), salesFTMYear())" />
+                    </div>
+                  </div>
+
+                  <input type="file" class="form-control" #salesFTMInput accept=".xls,.xlsx,.xlsb"
+                    (change)="onSalesFTMSelect($event)" [disabled]="salesFTMUploading()" />
+                  <div class="form-text">Select SalesFTM Excel file (Max: 50MB, Format: .xls, .xlsx, .xlsb)</div>
+
+                  @if (salesFTMError()) {
+                  <div class="alert alert-danger mt-2 mb-0" role="alert">
+                    <i class="bi bi-exclamation-circle-fill me-2"></i>{{ salesFTMError() }}
+                  </div>
+                  }
+                  @if (salesFTMFile() && !salesFTMError()) {
+                  <div class="alert alert-success mt-2 mb-0" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    Selected: {{ salesFTMFile()!.name }} ({{ getFileSize(salesFTMFile()) }} MB)
+                  </div>
+                  }
+                </div>
+
+                <!-- SalesFTM Final Upload -->
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold d-flex align-items-center mb-2">
+                    Sales-FTM-Final Upload
+                    @if (salesFTMFinalUploading()) {
+                    <span class="badge bg-primary ms-2">
+                      <span class="spinner-border spinner-border-sm me-1"></span>
+                      Uploading...
+                    </span>
+                    }
+                  </label>
+
+                  <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Month *</label>
+                      <select class="form-select" [(ngModel)]="salesFTMFinalMonth"
+                        [disabled]="salesFTMFinalUploading()">
+                        <option value="">Select Month</option>
+                        @for (month of getAvailableMonths(salesFTMFinalYear()); track month) {
+                        <option [value]="month">{{ month }}</option>
+                        }
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Year *</label>
+                      <select class="form-select" [(ngModel)]="salesFTMFinalYear"
+                        (ngModelChange)="onSalesFTMFinalYearChange($event)" [disabled]="salesFTMFinalUploading()">
+                        <option value="">Select Year</option>
+                        @for (year of years; track year) {
+                        <option [value]="year">{{ year }}</option>
+                        }
+                      </select>
+                    </div>
+                  </div>
+
+                  <input type="file" class="form-control" #salesFTMFinalInput accept=".xls,.xlsx,.xlsb"
+                    (change)="onSalesFTMFinalSelect($event)" [disabled]="salesFTMFinalUploading()" />
+                  <div class="form-text">Select Sales FTM Final Excel file (Max: 50MB, Format: .xls, .xlsx, .xlsb)</div>
+
+                  @if (salesFTMFinalError()) {
+                  <div class="alert alert-danger mt-2 mb-0" role="alert">
+                    <i class="bi bi-exclamation-circle-fill me-2"></i>{{ salesFTMFinalError() }}
+                  </div>
+                  }
+                  @if (salesFTMFinalFile() && !salesFTMFinalError()) {
+                  <div class="alert alert-success mt-2 mb-0" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    Selected: {{ salesFTMFinalFile()!.name }} ({{ getFileSize(salesFTMFinalFile()) }} MB)
+                  </div>
+                  }
+                </div>
+              </div>
+
+              <br>
+
+              <!-- ===== Missing Data Upload (inside same card) ===== -->
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <label class="form-label fw-semibold d-flex align-items-center mb-0">
+                  Missing Data Upload
+                  @if (missingDataUploading()) {
+                  <span class="badge bg-primary ms-2">
+                    <span class="spinner-border spinner-border-sm me-1"></span>
+                    Uploading...
+                  </span>
+                  }
+                </label>
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-outline-primary btn-sm" (click)="viewMissingReport()"
+                    [disabled]="!isMissingDataFormValid() || missingDataUploading() || missingDataExporting()">
+                    <i class="bi bi-eye me-1"></i>View
+                  </button>
+                  <button type="button" class="btn btn-outline-success btn-sm" (click)="exportMissingData()"
+                    [disabled]="!isMissingDataFormValid() || missingDataUploading() || missingDataExporting()">
+                    @if (missingDataExporting()) {
+                    <span class="spinner-border spinner-border-sm me-1"></span>
+                    Exporting...
+                    } @else {
+                    <i class="bi bi-download me-1"></i>Export
+                    }
+                  </button>
+                </div>
+              </div>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                  <label class="form-label">Month *</label>
+                  <select class="form-select" [(ngModel)]="missingDataMonth" [disabled]="missingDataUploading()">
+                    <option value="">Select Month</option>
+                    @for (month of getAvailableMonths(missingDataYear()); track month) {
+                    <option [value]="month">{{ month }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Year *</label>
+                  <select class="form-select" [(ngModel)]="missingDataYear"
+                    (ngModelChange)="onMissingDataYearChange($event)" [disabled]="missingDataUploading()">
+                    <option value="">Select Year</option>
+                    @for (year of years; track year) {
+                    <option [value]="year">{{ year }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Portal Status Date *</label>
+                  <input type="date" class="form-control" [(ngModel)]="missingDataPortalStatusDate"
+                    [max]="getPortalStatusMaxDate(missingDataMonth(), missingDataYear())" />
+                </div>
+              </div>
+
+              <input type="file" class="form-control" #missingDataInput accept=".xls,.xlsx,.xlsb"
+                (change)="onMissingDataSelect($event)" [disabled]="missingDataUploading()" />
+              <div class="form-text">Select Missing Data Excel file (Max: 50MB, Format: .xls, .xlsx, .xlsb)</div>
+
+              @if (missingDataError()) {
+              <div class="alert alert-danger mt-2 mb-0" role="alert">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>{{ missingDataError() }}
+              </div>
+              }
+              @if (missingDataFile() && !missingDataError()) {
+              <div class="alert alert-success mt-2 mb-0" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                Selected: {{ missingDataFile()!.name }} ({{ getFileSize(missingDataFile()) }} MB)
+              </div>
+              }
+            </div>
+
+            <!-- ===== Project Sale Upload ===== -->
+            <div class="card mb-4 p-4 pb-4 shadow-sm">
+              <label class="form-label fw-semibold d-flex align-items-center mb-2">
+                Projects Upload
+                @if (projectsUploading()) {
+                <span class="badge bg-primary ms-2">
+                  <span class="spinner-border spinner-border-sm me-1" role="status"
+                    style="width: 12px; height: 12px"></span>
+                  Uploading...
+                </span>
+                }
+              </label>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Month <span class="text-danger">*</span></label>
+                  <select class="form-select" [(ngModel)]="projectMonth" [disabled]="projectsUploading()">
+                    <option value="">Select Month</option>
+                    @for (month of getAvailableMonths(projectYear()); track month) {
+                    <option [value]="month">{{ month }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Year <span class="text-danger">*</span></label>
+                  <select class="form-select" [(ngModel)]="projectYear" (ngModelChange)="onProjectYearChange($event)"
+                    [disabled]="projectsUploading()">
+                    <option value="">Select Year</option>
+                    @for (year of years; track year) {
+                    <option [value]="year">{{ year }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+
+              <input type="file" class="form-control" #projectInput accept=".xls,.xlsx,.xlsb"
+                (change)="onProjectSelect($event)" [disabled]="projectsUploading()" />
+              <div class="form-text">Select Project Excel file (Max: 50MB, Format: .xls, .xlsx, .xlsb)</div>
+
+              @if (projectError()) {
+              <div class="alert alert-danger mt-2 mb-0" role="alert">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>{{ projectError() }}
+              </div>
+              }
+              @if (projectFile() && !projectError()) {
+              <div class="alert alert-success mt-2 mb-0" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                Selected: {{ projectFile()!.name }} ({{ getFileSize(projectFile()) }} MB)
+              </div>
+              }
+            </div>
+
+            <!-- ===== Credit Note Upload ===== -->
+            <div class="card mb-4 p-4 pb-4 shadow-sm">
+              <label class="form-label fw-semibold d-flex align-items-center mb-2">
+                Credit Note Upload
+                @if (CreditNoteUploading()) {
+                <span class="badge bg-primary ms-2">
+                  <span class="spinner-border spinner-border-sm me-1" role="status"
+                    style="width: 12px; height: 12px"></span>
+                  Uploading...
+                </span>
+                }
+              </label>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Month <span class="text-danger">*</span></label>
+                  <select class="form-select" [(ngModel)]="creditNoteMonth" [disabled]="CreditNoteUploading()">
+                    <option value="">Select Month</option>
+                    @for (month of getAvailableMonths(creditNoteYear()); track month) {
+                    <option [value]="month">{{ month }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Year <span class="text-danger">*</span></label>
+                  <select class="form-select" [(ngModel)]="creditNoteYear"
+                    (ngModelChange)="onCreditNoteYearChange($event)" [disabled]="CreditNoteUploading()">
+                    <option value="">Select Year</option>
+                    @for (year of years; track year) {
+                    <option [value]="year">{{ year }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+
+              <input type="file" class="form-control" #creditNoteInput accept=".xls,.xlsx,.xlsb"
+                (change)="onCreditNoteSelect($event)" [disabled]="CreditNoteUploading()" />
+              <div class="form-text">Select Credit Note Excel file (Max: 50MB, Format: .xls, .xlsx, .xlsb)</div>
+
+              @if (creditNoteError()) {
+              <div class="alert alert-danger mt-2 mb-0" role="alert">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>{{ creditNoteError() }}
+              </div>
+              }
+              @if (CreditNoteFile() && !creditNoteError()) {
+              <div class="alert alert-success mt-2 mb-0" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                Selected: {{ CreditNoteFile()!.name }} ({{ getFileSize(CreditNoteFile()) }} MB)
+              </div>
+              }
+            </div>
+
+            <!-- Upload Summary -->
+            @if (hasAnyFileSelected()) {
+            <div class="alert alert-info mb-0" role="alert">
+              <i class="bi bi-info-circle me-2"></i>
+              <strong>Selected files ({{ getSelectedFilesCount() }}):</strong>
+              <span class="ms-2">{{ getSelectedFilesList() }}</span>
+            </div>
+            }
+          </div>
+
+          <!-- Card footer with single upload button -->
+          <div class="card p-2 card-footer bg-white shadow-sm">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <div>
+                @if (!hasAnyFileSelected()) {
+                <small class="text-muted">
+                  <i class="bi bi-info-circle me-1"></i>
+                  Please select at least one file to upload
+                </small>
+                } @else if (isAnyUploading()) {
+                <small class="text-primary">
+                  <span class="spinner-border spinner-border-sm me-1" role="status"
+                    style="width: 14px; height: 14px"></span>
+                  Uploading files...
+                </small>
+                }
+              </div>
+              <div>
+                <button type="button" class="btn btn-primary" (click)="uploadAllSelectedFiles()"
+                  [disabled]="!hasAnyFileSelected() || isAnyUploading()">
+                  @if (isAnyUploading()) {
+                  <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                  Uploading...
+                  } @else {
+                  <i class="bi bi-cloud-upload me-2"></i>Upload Selected Files
+                  }
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Missing Report Modal ===== -->
+@if (showMissingReportModal()) {
+<div class="modal fade show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5)"
+  (click)="showMissingReportModal.set(false)">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Missing Data Report</h5>
+        <button type="button" class="btn-close" (click)="showMissingReportModal.set(false)"></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- SUMMARY TABLE -->
+        <h6 class="fw-bold mb-2">Summary</h6>
+        <table class="table table-bordered table-sm">
+          <thead class="table-light">
+            <tr>
+              <th>Project Type</th>
+              <th>Total Count</th>
+              <th>Missing Count</th>
+              <th>Considered Amount</th>
+              <th>Not Considered Amount</th>
+              <th>Missing Amount</th>
+              <th>Total Amount</th>
+              <th style="text-align: center; width: 60px">Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of missingSummaryData(); track row.ProjectType) {
+            <tr>
+              <td class="text-start">{{ row.ProjectType }}</td>
+              <td class="text-end">{{ row.TotalCount | number: "1.0-0" }}</td>
+              <td class="text-end">{{ row.MissingCount | number: "1.0-0" }}</td>
+              <td class="text-end">{{ row.ConsideredAmount | number: "1.0-0" }}</td>
+              <td class="text-end">{{ row.NotConsideredAmount | number: "1.0-0" }}</td>
+              <td class="text-end">{{ row.MissingAmount | number: "1.0-0" }}</td>
+              <td class="text-end">{{ row.TotalAmount | number: "1.0-0" }}</td>
+              <td style="text-align: center">
+                @if (row.ProjectType === "Project Market") {
+                <button class="btn btn-sm" (click)="toggleProjectMarketDetails()"
+                  style="border: 1px solid #dee2e6; background: #fff; color: #0d6efd; padding: 0;">
+                  <i class="bi" [class.bi-plus-circle]="!showProjectMarketDetails()"
+                    [class.bi-dash-circle]="showProjectMarketDetails()" style="font-size: 1.1rem">
+                  </i>
+                </button>
+                }
+              </td>
+            </tr>
+
+            <!-- EXPANDED ROW JUST BELOW PROJECT MARKET -->
+            @if (row.ProjectType === "Project Market" && showProjectMarketDetails()) {
+            <tr class="table-light">
+              <td colspan="6">
+                <h6 class="fw-bold mb-2">Project Market – State Wise</h6>
+                <div class="table-responsive">
+                  <table class="table table-bordered table-sm mb-0">
+                    <thead class="table-light">
+                      <tr>
+                        <th>State Name</th>
+                        <th>Total Count</th>
+                        <th>Missing Count</th>
+                        <th>Considered Amount</th>
+                        <th>Not Considered Amount</th>
+                        <th>Missing Amount</th>
+                        <th>Total Amount</th>
+                        <th style="text-align: center; width: 60px">Details</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (state of missingStateWiseData(); track state.StateName) {
+                      <tr>
+                        <td class="text-start">{{ state.StateName }}</td>
+                        <td class="text-end">{{ state.TotalCount | number: "1.0-0" }}</td>
+                        <td class="text-end">{{ state.MissingCount | number: "1.0-0" }}</td>
+                        <td class="text-end">{{ state.ConsideredAmount | number: "1.0-0" }}</td>
+                        <td class="text-end">{{ state.NotConsideredAmount | number: "1.0-0" }}</td>
+                        <td class="text-end">{{ state.MissingAmount | number: "1.0-0" }}</td>
+                        <td class="text-end">{{ state.TotalAmount | number: "1.0-0" }}</td>
+                        <td style="text-align: center">
+                          @if (state.StateName === "Karnataka" && state.KarnatakaBreakdown.length) {
+                          <button class="btn btn-sm" (click)="toggleKarnatakaDetails()"
+                            style="border: 1px solid #dee2e6; background: #fff; color: #0d6efd; padding: 0;">
+                            <i class="bi" [class.bi-plus-circle]="!showKarnatakaDetails()"
+                              [class.bi-dash-circle]="showKarnatakaDetails()" style="font-size: 1.1rem">
+                            </i>
+                          </button>
+                          }
+                        </td>
+                      </tr>
+
+                      <!-- EXPANDED ROW JUST BELOW KARNATAKA -->
+                      @if (state.StateName === "Karnataka" && showKarnatakaDetails()) {
+                      <tr class="table-light">
+                        <td colspan="6">
+                          <h6 class="fw-bold mb-2">Karnataka – Portal Wise Breakdown</h6>
+                          <div class="table-responsive">
+                            <table class="table table-bordered table-sm mb-0">
+                              <thead class="table-light">
+                                <tr>
+                                  <th>Portal Table</th>
+                                  <th>Total Count</th>
+                                  <th>Missing Count</th>
+                                  <th>Considered Amount</th>
+                                  <th>Not Considered Amount</th>
+                                  <th>Missing Amount</th>
+                                  <th>Total Amount</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                @for (k of state.KarnatakaBreakdown; track k.PortalTable) {
+                                <tr>
+                                  <td class="text-start">{{ k.PortalTable }}</td>
+                                  <td class="text-end">{{ k.TotalCount | number: "1.0-0" }}</td>
+                                  <td class="text-end">{{ k.MissingCount | number: "1.0-0" }}</td>
+                                  <td class="text-end">{{ k.ConsideredAmount | number: "1.0-0" }}</td>
+                                  <td class="text-end">{{ k.NotConsideredAmount | number: "1.0-0" }}</td>
+                                  <td class="text-end">{{ k.MissingAmount | number: "1.0-0" }}</td>
+                                  <td class="text-end">{{ k.TotalAmount | number: "1.0-0" }}</td>
+                                </tr>
+                                }
+                              </tbody>
+                            </table>
+                          </div>
+                        </td>
+                      </tr>
+                      }
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </td>
+            </tr>
+            }
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="showMissingReportModal.set(false)">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+}

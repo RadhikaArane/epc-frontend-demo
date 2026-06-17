@@ -1,0 +1,209 @@
+<!-- ============================================================ -->
+<!-- UPLOAD MODAL — triggered when expectedCompletionDate changes -->
+<!-- ============================================================ -->
+@if (showUploadModal()) {
+<div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5); z-index: 1055;">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i> Extension Letter Required
+        </h5>
+        <button type="button" class="btn-close" (click)="cancelUpload()"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <!-- Info Banner -->
+        <div class="alert alert-info border-0 mb-4">
+          <div class="d-flex align-items-start gap-2">
+            <i class="bi bi-info-circle-fill text-primary mt-1"></i>
+            <div>
+              <strong>Why is this required?</strong>
+              <p class="mb-0 small mt-1">
+                The Expected Completion Date has been changed. Please upload an extension letter (PDF)
+                with remarks explaining the reason for this extension.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- New Expected Completion Date (read-only) -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">New Expected Completion Date</label>
+          <input type="date" class="form-control bg-light" [value]="expectedCompletionDate" readonly>
+        </div>
+
+        <!-- PDF File Upload -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">
+            Extension Letter (PDF) <span class="text-danger">*</span>
+          </label>
+          <input type="file" class="form-control" accept=".pdf" (change)="onFileSelect($event)">
+          <small class="text-muted">Only PDF files allowed, max 25MB</small>
+
+          <!-- Selected file preview -->
+          @if (uploadFile()) {
+          <div class="d-flex align-items-center gap-2 mt-2 p-2 bg-light rounded">
+            <i class="bi bi-file-earmark-pdf text-danger" style="font-size: 1.2rem;"></i>
+            <div class="flex-grow-1">
+              <div class="small fw-semibold text-truncate">{{ uploadFile()!.name }}</div>
+              <div class="text-muted" style="font-size: 0.75rem;">{{ formatFileSize(uploadFile()!.size) }}</div>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-danger" (click)="uploadFile.set(null)">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+          }
+        </div>
+
+        <!-- Remarks -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">
+            Remarks <span class="text-danger">*</span>
+          </label>
+          <textarea class="form-control" rows="3" placeholder="Enter reason for extending the completion date..."
+            [ngModel]="uploadRemarks()" (ngModelChange)="uploadRemarks.set($event)"></textarea>
+        </div>
+
+        <!-- Error Message -->
+        @if (uploadErrorMessage()) {
+        <div class="alert alert-danger mb-0" role="alert">
+          <i class="bi bi-exclamation-circle-fill me-2"></i>
+          {{ uploadErrorMessage() }}
+        </div>
+        }
+      </div>
+
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-outline-secondary me-2" (click)="cancelUpload()"
+          [disabled]="isUploading()">
+          <i class="bi bi-x-circle me-1"></i> Cancel
+        </button>
+        <button type="button" class="btn btn-warning" (click)="submitUpload()" [disabled]="isUploading()">
+          @if (isUploading()) {
+          <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+          Uploading...
+          } @else {
+          <i class="bi bi-upload me-1"></i> Upload & Proceed
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+}
+
+
+<!-- ============================================================ -->
+<!-- VIEW MODAL — browse extension letter history -->
+<!-- ============================================================ -->
+@if (showViewModal()) {
+<div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5); z-index: 1055;">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-file-earmark-text me-2"></i> Extension Letters History
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeViewModal()"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        @if (isLoadingLetters()) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="text-muted mt-2">Loading extension letters...</p>
+        </div>
+
+        } @else if (extensionLetters().length === 0) {
+        <div class="text-center py-5">
+          <i class="bi bi-inbox" style="font-size: 3rem; color: #ddd;"></i>
+          <p class="text-muted mt-3">No extension letters found for this project</p>
+        </div>
+
+        } @else {
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 50px;">Sr.</th>
+                <th>Expected Completion Date</th>
+                <th>File Name</th>
+                <th>Remarks</th>
+                <th>Employee</th>
+                <th>Uploaded Date</th>
+                <th class="text-center" style="width: 120px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (letter of extensionLetters(); track letter.ExtensionLetterId; let i = $index) {
+              <tr>
+                <td>
+                  <span class="badge bg-secondary">{{ i + 1 }}</span>
+                </td>
+                <td>
+                  <span class="fw-semibold">
+                    {{ letter.ExpectedCompletionDate | date: 'dd-MMM-yyyy' }}
+                  </span>
+                </td>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-file-earmark-pdf text-danger"></i>
+                    <div>
+                      <div class="text-truncate" style="max-width: 200px;" [title]="letter.FileName">
+                        {{ letter.FileName }}
+                      </div>
+                      <small class="text-muted">{{ formatFileSize(letter.FileSizeBytes) }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="text-truncate"  [title]="letter.Remarks">
+                    {{ letter.Remarks || '—' }}
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    <div class="small fw-semibold">{{ letter.EmployeeName || '—' }}</div>
+                    <small class="text-muted">ID: {{ letter.EmployeeId || '—' }}</small>
+                  </div>
+                </td>
+                <td>
+                  <small>{{ letter.UploadedDate | date: 'dd-MMM-yyyy ' }}</small>
+                </td>
+                <td class="text-center">
+                  <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-outline-primary" title="Download"
+                      (click)="downloadLetter(letter)">
+                      <i class="bi bi-download"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" title="Delete"
+                      (click)="deleteLetter(letter)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-3 text-muted small">
+          <i class="bi bi-info-circle me-1"></i>
+          Total {{ extensionLetters().length }} extension letter(s) found
+        </div>
+        }
+      </div>
+
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-secondary" (click)="closeViewModal()">
+          <i class="bi bi-x-circle me-1"></i> Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+}

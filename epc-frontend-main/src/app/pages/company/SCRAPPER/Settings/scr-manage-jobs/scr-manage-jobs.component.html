@@ -1,0 +1,234 @@
+<!-- scr-manage-jobs.component.html -->
+<div class="content">
+  <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+      <div class="me-0 mb-2">
+        <app-breadcrumbs title="Manage Jobs" [breadcrumbItems]="breadCrumbItems()"></app-breadcrumbs>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <!-- Header Card -->
+    <div class="card mb-3" style="border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+      <div class="card-header d-flex align-items-center flex-wrap" style="background: #fff; border-bottom: 1px solid #e9ecef;">
+        <h5 class="mb-0 me-auto">Manage Job State</h5>
+        <button class="btn btn-sm btn-primary mt-2 mt-md-0" (click)="openAddModal()">
+          <i class="bi bi-plus-circle me-1"></i> Add State
+        </button>
+      </div>
+    </div>
+
+    <!-- Data Card -->
+    <div class="card" style="border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+      <div class="card-body p-0">
+        @if (isLoading()) {
+          <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        } @else {
+          <div class="table-responsive" style="max-height: 65vh; overflow-y: auto;">
+            <table class="table table-striped table-bordered table-hover mb-0">
+              <thead class="thead-light" style="position: sticky; top: 0; z-index: 2; background: #f8f9fa;">
+                <tr>
+                  <th>Sr No</th>
+                  <th>State Name</th>
+                  <th>Portal Link</th>
+                  <th>User Name</th>
+                  <th style="min-width: 200px;">Password</th>
+                  <th>OTP Required</th>
+                  <th>OTP Number</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @if (stateList().length > 0) {
+                  @for (state of stateList(); track state.id; let i = $index) {
+                  <tr>
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ state.stateName }}</td>
+                    <td>
+                      <a href="javascript:void(0)" 
+                         class="text-primary text-decoration-none"
+                         (click)="openPortalLink(state.portalLink, $event)"
+                         title="Open portal">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>
+                        <!-- {{ state.portalLink }} -->PortalLink
+                      </a>
+                    </td>
+                    <td>{{ state.userName }}</td>
+                    <td>
+                      <div class="input-group input-group-sm">
+                        <input type="password" class="form-control form-control-sm" 
+                               [value]="state.password" readonly 
+                               style="max-width: 150px;">
+                        <button class="btn btn-outline-secondary btn-sm" 
+                                type="button" 
+                                (click)="togglePassword($event)"
+                                title="Show/Hide">
+                          <i class="bi bi-eye"></i>
+                        </button>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge" [ngClass]="state.otpRequired ? 'bg-success' : 'bg-secondary'">
+                        {{ state.otpRequired ? 'Yes' : 'No' }}
+                      </span>
+                    </td>
+                    <td>{{ state.otpNumber || '-' }}</td>
+                    <td>
+                      <div class="btn-group btn-group-sm" role="group">
+                        <button class="btn btn-outline-primary btn-sm" 
+                                (click)="openEditModal(state)"
+                                title="Edit">
+                          <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm" 
+                                (click)="openDeleteModal(state)"
+                                title="Delete">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  }
+                } @else {
+                  <tr>
+                    <td colspan="8" class="text-center py-5 text-muted">
+                      <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                      <p class="mb-0 mt-2">No records found</p>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit State Modal -->
+<div class="modal fade" #addStateModal tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+    <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+      <div class="modal-header" style="border-bottom: 1px solid #e9ecef; padding: 1.25rem;">
+        <h5 class="modal-title fw-bold">
+          <i [class]="isEditMode() ? 'bi bi-pencil-square' : 'bi bi-plus-circle'" class="me-2"></i>
+          {{ isEditMode() ? 'Edit State' : 'Add State' }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeModal()"></button>
+      </div>
+      
+      <div class="modal-body" style="padding: 1.5rem;">
+        <form [formGroup]="stateForm">
+          <!-- State Name -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">State Name <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+              <input type="text" class="form-control" formControlName="stateName"
+                placeholder="Enter state name"
+                [class.is-invalid]="stateForm.get('stateName')?.invalid && stateForm.get('stateName')?.touched">
+            </div>
+            @if (stateForm.get('stateName')?.invalid && stateForm.get('stateName')?.touched) {
+              <div class="text-danger small mt-1">
+                <i class="bi bi-exclamation-circle me-1"></i>State name is required
+              </div>
+            }
+          </div>
+
+          <!-- Portal Link -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Portal Link <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-link-45deg"></i></span>
+              <input type="url" class="form-control" formControlName="portalLink"
+                placeholder="https://example.com"
+                [class.is-invalid]="stateForm.get('portalLink')?.invalid && stateForm.get('portalLink')?.touched">
+            </div>
+            @if (stateForm.get('portalLink')?.invalid && stateForm.get('portalLink')?.touched) {
+              <div class="text-danger small mt-1">
+                <i class="bi bi-exclamation-circle me-1"></i>Valid URL required (http:// or https://)
+              </div>
+            }
+          </div>
+
+          <!-- User Name -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">User Name <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-person"></i></span>
+              <input type="text" class="form-control" formControlName="userName"
+                placeholder="Enter username"
+                [class.is-invalid]="stateForm.get('userName')?.invalid && stateForm.get('userName')?.touched">
+            </div>
+            @if (stateForm.get('userName')?.invalid && stateForm.get('userName')?.touched) {
+              <div class="text-danger small mt-1">
+                <i class="bi bi-exclamation-circle me-1"></i>User name is required
+              </div>
+            }
+          </div>
+
+          <!-- Password -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Password <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-key"></i></span>
+              <input type="password" class="form-control" formControlName="password"
+                placeholder="Enter password"
+                [class.is-invalid]="stateForm.get('password')?.invalid && stateForm.get('password')?.touched">
+            </div>
+            @if (stateForm.get('password')?.invalid && stateForm.get('password')?.touched) {
+              <div class="text-danger small mt-1">
+                <i class="bi bi-exclamation-circle me-1"></i>Password is required
+              </div>
+            }
+          </div>
+
+          <!-- OTP Required -->
+          <div class="mb-3">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" formControlName="otpRequired" 
+                     id="otpRequiredCheck" role="switch">
+              <label class="form-check-label fw-semibold" for="otpRequiredCheck">
+                <i class="bi bi-shield-check me-1"></i>OTP Required
+              </label>
+            </div>
+          </div>
+
+          <!-- OTP Number (Conditional) -->
+          @if (stateForm.get('otpRequired')?.value) {
+          <div class="mb-3">
+            <label class="form-label fw-semibold">OTP Number <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-phone"></i></span>
+              <input type="text" class="form-control" formControlName="otpNumber"
+                placeholder="Enter OTP number"
+                [class.is-invalid]="stateForm.get('otpNumber')?.invalid && stateForm.get('otpNumber')?.touched">
+            </div>
+            @if (stateForm.get('otpNumber')?.invalid && stateForm.get('otpNumber')?.touched) {
+              <div class="text-danger small mt-1">
+                <i class="bi bi-exclamation-circle me-1"></i>OTP number is required
+              </div>
+            }
+          </div>
+          }
+        </form>
+      </div>
+      
+      <div class="modal-footer" style="border-top: 1px solid #e9ecef; padding: 1rem 1.25rem;">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">
+          <i class="bi bi-x-circle me-1"></i>Cancel
+        </button>
+        <button type="button" class="btn btn-primary" (click)="saveState()">
+          <i [class]="isEditMode() ? 'bi bi-check-circle' : 'bi bi-plus-circle'" class="me-1"></i>
+          {{ isEditMode() ? 'Update' : 'Save' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

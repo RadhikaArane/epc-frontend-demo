@@ -1,0 +1,138 @@
+<div class="date-range-picker">
+  <div class="date-range-input-wrapper">
+    <div class="input-group input-group-sm">
+      <span class="input-group-text bg-white">
+        <i class="bi bi-calendar-range text-primary"></i>
+      </span>
+      <input 
+        type="text" 
+        class="form-control form-control-sm" 
+        [value]="displayText()"
+        (click)="toggleCalendar()"
+        [placeholder]="placeholderText()"
+        readonly>
+      
+      @if (hasActiveDateRange()) {
+        <button class="btn btn-outline-danger btn-sm" type="button" (click)="clearDateRange()" title="Clear dates">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      }
+      
+      <button class="btn btn-primary btn-sm" type="button" (click)="toggleCalendar()">
+        <i class="bi bi-funnel"></i>
+      </button>
+    </div>
+
+    <!-- @if (hasActiveDateRange()) {
+      <small class="text-muted mt-1 d-block">
+        <i class="bi bi-check-circle-fill text-success"></i> Active filter
+      </small>
+    } -->
+  </div>
+
+  <!-- Compact Calendar Card -->
+  @if (showCalendar()) {
+    <div class="calendar-card shadow-lg">
+      <div class="calendar-header">
+        <h6 class="mb-0">
+          <i class="bi bi-calendar3 me-1"></i>Date Range
+        </h6>
+        <button type="button" class="btn-close btn-sm" (click)="showCalendar.set(false)"></button>
+      </div>
+
+      <div class="calendar-body">
+        <!-- Compact Month/Year Navigation -->
+        <div class="month-navigation">
+          <button class="btn btn-sm btn-outline-secondary p-1" (click)="previousMonth()" title="Previous month">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          
+          <div class="month-year-selector">
+            <span class="month-name">{{ monthName() }}</span>
+            <select 
+              class="form-select form-select-sm year-select" 
+              [value]="selectedYear()"
+              (change)="onYearChange($event)">
+              @for (year of availableYears(); track year) {
+                <option [value]="year">{{ year }}</option>
+              }
+            </select>
+          </div>
+          
+          <button class="btn btn-sm btn-outline-secondary p-1" (click)="nextMonth()" [disabled]="!canGoNext()" title="Next month">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+
+        <!-- Compact Calendar Grid -->
+        <div class="calendar-grid">
+          <!-- Week days -->
+          <div class="weekday-header">
+            <div class="weekday">S</div>
+            <div class="weekday">M</div>
+            <div class="weekday">T</div>
+            <div class="weekday">W</div>
+            <div class="weekday">T</div>
+            <div class="weekday">F</div>
+            <div class="weekday">S</div>
+          </div>
+
+          <!-- Calendar days -->
+          <div class="calendar-days">
+            @for (day of calendarDays(); track $index) {
+              @if (day === null) {
+                <div class="calendar-day empty"></div>
+              } @else {
+                <div 
+                  class="calendar-day"
+                  [class.disabled]="isDateDisabled(day)"
+                  [class.selected]="isDateSelected(day)"
+                  [class.in-range]="isDateInRange(day)"
+                  [class.start-date]="isStartDate(day)"
+                  [class.end-date]="isEndDate(day)"
+                  [class.today]="isToday(day)"
+                  (click)="selectDate(day)"
+                  (mouseenter)="onDateHover(day)"
+                  (mouseleave)="onDateHover(null)">
+                  {{ day.getDate() }}
+                </div>
+              }
+            }
+          </div>
+        </div>
+
+        <!-- Compact Selection Status -->
+        <!-- <div class="selection-status">
+          @if (selectedStartDate() && !selectedEndDate()) {
+            <small class="text-primary">
+              <i class="bi bi-arrow-right-circle"></i> Select end date
+            </small>
+          } @else if (selectedStartDate() && selectedEndDate()) {
+            <small class="text-success">
+              <i class="bi bi-check-circle"></i> Range selected
+            </small>
+          } @else {
+            <small class="text-muted">
+              <i class="bi bi-arrow-right-circle"></i> Select start date
+            </small>
+          }
+        </div> -->
+      </div>
+
+      <!-- Compact Footer -->
+      <div class="calendar-footer">
+        <button 
+          class="btn btn-outline-secondary btn-sm" 
+          (click)="clearDateRange()">
+          <i class="bi bi-x-circle"></i> Clear
+        </button>
+        <button 
+          class="btn btn-primary btn-sm" 
+          (click)="applyDateRange()" 
+          [disabled]="!canApply() || !hasChanges()">
+          <i class="bi bi-check-circle"></i> Apply
+        </button>
+      </div>
+    </div>
+  }
+</div>

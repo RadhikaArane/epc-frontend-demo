@@ -1,0 +1,295 @@
+<div class="content" style="background-color: #f8f9fa;">
+
+    <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+        <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+            <div class="me-0 mb-2">
+                <app-breadcrumbs title="Open Market" [breadcrumbItems]="breadCrumbItems()"></app-breadcrumbs>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3" style="border-radius:12px; overflow:hidden;">
+
+        <div class="px-2 pb-4 pt-4 d-flex align-items-center justify-content-between flex-wrap">
+            <h3 class="fw-semibold text-dark mb-2 mb-sm-0">
+                Open Market {{ openMarketHeaderLabel() }}
+            </h3>
+
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div class="d-flex align-items-center gap-2">
+                    <label for="currencySelect" class="small text-muted mb-0 fw-bold">Currency</label>
+                    <select id="currencySelect" class="form-select form-select-sm" [value]="selectedUnit()"
+                        (change)="onUnitChange($event)" [disabled]="isLoading()" style="min-width: 100px;">
+                        <option value="L">Lakhs</option>
+                        <option value="Cr">Crores</option>
+                    </select>
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <label for="omMonth" class="small text-muted mb-0 me-2 text-nowrap fw-bold">Month–Year</label>
+                    <input id="omMonth" type="month" class="form-control form-control-sm" style="min-width: 170px;"
+                        [value]="selectedMonth()" (change)="onDateChange($event)" [disabled]="isLoading()" />
+                </div>
+
+                <div class="d-flex align-items-center gap-2 ms-2 border-start ps-3">
+                    @if (!isEditMode()) {
+                        <button class="btn btn-outline-primary btn-sm fw-medium shadow-sm" (click)="toggleEdit()" [disabled]="isLoading() || openMarketList().length === 0">
+                            <i class="bi bi-pencil-square me-1"></i> Edit Remarks
+                        </button>
+                    } @else {
+                        <button class="btn btn-success btn-sm fw-medium shadow-sm" (click)="saveRemarks()" [disabled]="isSaving()">
+                            @if(isSaving()) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                            <i class="bi bi-check-circle me-1"></i> Save
+                        </button>
+                        <button class="btn btn-danger btn-sm fw-medium shadow-sm" (click)="cancelEdit()" [disabled]="isSaving()">
+                            <i class="bi bi-x-circle me-1"></i> Cancel
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @if (isLoading()) {
+        <div class="card-body text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 text-muted">Loading Open Market data...</p>
+        </div>
+        }
+
+        @else if (openMarketList().length === 0) {
+        <div class="card-body text-center py-5">
+            <i class="bi bi-inbox" style="font-size: 3rem; color: #6c757d;"></i>
+            <p class="mt-3 text-muted">No data available for {{ monthYearLabel() }}</p>
+        </div>
+        }
+
+        @else {
+        <div class="px-2 pb-2">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered mb-0 align-middle table-ultra-compact">
+                    <thead class="thead-light">
+                        <tr>
+                            <th rowspan="2" style="text-align: left; position: sticky; left: 0px; z-index: 11; max-width: 117px;">States/ Bus.</th>
+                            <th rowspan="2" style="min-width: 80px; max-width: 120px; width: 100px; white-space: normal; word-break: break-word;">O/p O/s Inclu PDD</th>
+                            <th rowspan="2" style="min-width: 80px; max-width: 120px; width: 100px; white-space: normal; word-break: break-word;">Un-booked Collection</th>
+                            <th rowspan="2">PDD</th>
+                            <th rowspan="2" style="min-width: 80px; max-width: 120px; width: 100px; white-space: normal; word-break: break-word;">O/p O/s Exclu PDD</th>
+
+                            <th colspan="9" class="text-center">Overdue - Outstanding Ageing</th>
+                            <th class="text-center">Not Due</th>
+
+                            <!-- 👇 Plan Columns -->
+                            <th class="text-center">Revenue Plan <br>- {{ nextMonthYearLabel() }}</th>
+                            <th class="text-center">Collection Plan <br>- {{ nextMonthYearLabel() }}</th>
+
+                            <th colspan="5" class="text-center">Plan Collection - {{ nextMonthLabel() }}</th>
+                            
+                            <!-- 👇 CHANGED: Actual Collection column updated to nextMonthYearLabel -->
+                            <th colspan="4" class="text-center">Actual Collection - {{ nextMonthYearLabel() }}</th>
+                            <th rowspan="2" style="min-width: 200px;">Remarks if the Collection plan does not match the main criteria</th>
+                        </tr>
+
+                        <tr>
+                            <th>&lt;30 days</th>
+                            <th>30-60 days</th>
+                            <th>60-90 days</th>
+                            <th>90-120 days</th>
+                            <th>120-180 days</th>
+                            <th>180-365 Days</th>
+                            <th>&lt;3 Yr</th>
+                            <th>&gt;3 Yr</th>
+                            <th>Overdue(%)</th>
+
+                            <!-- Kept this as monthYearLabel because it represents due amounts for the *current selected* month onwards -->
+                            <th style="min-width: 80px; max-width: 120px; width: 100px; white-space: normal; word-break: break-word;">Open Market:Due <br>(due in {{ monthYearLabel() }} & Next)</th>
+
+                            <th>Revenue Plan - {{ nextMonthYearLabel() }}</th>
+                            <th>Collection Plan {{ nextMonthYearLabel() }}</th>
+
+                            <th>Wk-1</th>
+                            <th>Wk-2</th>
+                            <th>Wk-3</th>
+                            <th>Wk-4</th>
+                            <th>Wk-5</th>
+
+                            <th>Wk-1</th>
+                            <th>Wk-2</th>
+                            <th>Wk-3</th>
+                            <th>Wk-4</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @for(item of openMarketList(); track $index) {
+                        <tr>
+                            <td style="text-align: left; position: sticky; left: 0; max-width: 117px; background-color: #fff;">{{item.State}}</td>
+                            <td class="text-end" style="min-width: 80px; max-width: 120px; width: 100px; white-space: normal; word-break: break-word;">{{item.OpOsIncluPDD | number:'1.0-0'}}</td>
+                            <td class="text-end" style="min-width: 80px; max-width: 120px; width: 100px; white-space: normal; word-break: break-word;">{{item.UnbookedCollection | number:'1.0-0'}}</td>
+                            <td class="text-end">{{item.PDD | number:'1.0-0'}}</td>
+                            <td class="text-end" style="min-width: 80px; max-width: 120px; width: 100px; white-space: normal; word-break: break-word;">{{item.OpOsExcluPDD | number:'1.0-0'}}</td>
+                            <td class="text-end">{{item.DaysLessThan30 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{item.Days30To60 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{item.Days60To90 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{item.Days90To120 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{item.Days120To180 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{item.Days180To365 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{item.LessThan3Yr | number:'1.0-0'}}</td>
+                            <td class="text-end">{{item.GreaterThan3Yr | number:'1.0-0'}}</td>
+                            <td class="text-end">{{toPercent(item.OverduePercentage)}}</td>
+                            <td class="text-end" style="min-width: 80px; max-width: 120px; width: 100px; white-space: normal; word-break: break-word;">{{item.NotDue | number:'1.0-0'}}</td>
+
+                            <td><input type="number" class="form-control form-control-sm text-end" style="min-width: 80px;" [(ngModel)]="remarksMap()[item.State].RevenuePlan" [disabled]="!isEditMode()"></td>
+                            <td><input type="number" class="form-control form-control-sm text-end" style="min-width: 80px;" [(ngModel)]="remarksMap()[item.State].CollectionPlan" [disabled]="!isEditMode()"></td>
+                            <td><input type="number" class="form-control form-control-sm text-end" style="min-width: 70px;" [(ngModel)]="remarksMap()[item.State].PlanWk1" [disabled]="!isEditMode()"></td>
+                            <td><input type="number" class="form-control form-control-sm text-end" style="min-width: 70px;" [(ngModel)]="remarksMap()[item.State].PlanWk2" [disabled]="!isEditMode()"></td>
+                            <td><input type="number" class="form-control form-control-sm text-end" style="min-width: 70px;" [(ngModel)]="remarksMap()[item.State].PlanWk3" [disabled]="!isEditMode()"></td>
+                            <td><input type="number" class="form-control form-control-sm text-end" style="min-width: 70px;" [(ngModel)]="remarksMap()[item.State].PlanWk4" [disabled]="!isEditMode()"></td>
+                            <td><input type="number" class="form-control form-control-sm text-end" style="min-width: 70px;" [(ngModel)]="remarksMap()[item.State].PlanWk5" [disabled]="!isEditMode()"></td>
+                            <td><input type="number" class="form-control form-control-sm text-end" style="min-width: 70px;" [(ngModel)]="remarksMap()[item.State].ActualWk1" [disabled]="!isEditMode()"></td>
+                            <td><input type="number" class="form-control form-control-sm text-end" style="min-width: 70px;" [(ngModel)]="remarksMap()[item.State].ActualWk2" [disabled]="!isEditMode()"></td>
+                            <td><input type="number" class="form-control form-control-sm text-end" style="min-width: 70px;" [(ngModel)]="remarksMap()[item.State].ActualWk3" [disabled]="!isEditMode()"></td>
+                            <td><input type="number" class="form-control form-control-sm text-end" style="min-width: 70px;" [(ngModel)]="remarksMap()[item.State].ActualWk4" [disabled]="!isEditMode()"></td>
+                            <td><input type="text"   class="form-control form-control-sm"          style="min-width: 200px;" [(ngModel)]="remarksMap()[item.State].Remarks" [disabled]="!isEditMode()" placeholder="Enter remarks..."></td>
+                        </tr>
+                        }
+                    </tbody>
+
+                    <tfoot class="table-light">
+
+                        @if (currentTotals()) {
+                        <tr style="background-color: rgba(209, 209, 208, 0.97); color:#050505; font-weight:600;">
+                            <td colspan="1" style="text-align: left; position: sticky; left: 0; background-color: rgba(209, 209, 208, 0.97);">Sub-Total {{ monthYearLabel() }}</td>
+                            <td class="text-end">{{currentTotals()?.OpOsIncluPDD | number:'1.0-0'}}</td>
+                            <td class="text-end">{{currentTotals()?.UnbookedCollection | number:'1.0-0'}}</td>
+                            <td class="text-end">{{currentTotals()?.PDD | number:'1.0-0'}}</td>
+                            <td class="text-end">{{currentTotals()?.OpOsExcluPDD | number:'1.0-0'}}</td>
+                            <td class="text-end">{{currentTotals()?.DaysLessThan30 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{currentTotals()?.Days30To60 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{currentTotals()?.Days60To90 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{currentTotals()?.Days90To120 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{currentTotals()?.Days120To180 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{currentTotals()?.Days180To365 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{currentTotals()?.LessThan3Yr | number:'1.0-0'}}</td>
+                            <td class="text-end">{{currentTotals()?.GreaterThan3Yr | number:'1.0-0'}}</td>
+                            <td class="text-end">{{toPercent(currentTotals()?.OverduePercentage)}}</td>
+                            <td class="text-end">{{currentTotals()?.NotDue | number:'1.0-0'}}</td>
+                            <td colspan="12"></td>
+                        </tr>
+                        }
+
+                        @if(previousTotals()) {
+                        <tr style="background-color: rgba(209, 209, 208, 0.97); color:#050505; font-weight:600;">
+                            <td colspan="1" style="text-align: left; position: sticky; left: 0; background-color: rgba(209, 209, 208, 0.97);">Sub-Total Previous</td>
+                            <td class="text-end">{{previousTotals()?.OpOsIncluPDD | number:'1.0-0'}}</td>
+                            <td class="text-end">{{previousTotals()?.UnbookedCollection | number:'1.0-0'}}</td>
+                            <td class="text-end">{{previousTotals()?.PDD | number:'1.0-0'}}</td>
+                            <td class="text-end">{{previousTotals()?.OpOsExcluPDD | number:'1.0-0'}}</td>
+                            <td class="text-end">{{previousTotals()?.DaysLessThan30 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{previousTotals()?.Days30To60 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{previousTotals()?.Days60To90 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{previousTotals()?.Days90To120 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{previousTotals()?.Days120To180 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{previousTotals()?.Days180To365 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{previousTotals()?.LessThan3Yr | number:'1.0-0'}}</td>
+                            <td class="text-end">{{previousTotals()?.GreaterThan3Yr | number:'1.0-0'}}</td>
+                            <td class="text-end">{{toPercent(previousTotals()?.OverduePercentage)}}</td>
+                            <td class="text-end">{{previousTotals()?.NotDue | number:'1.0-0'}}</td>
+                            <td colspan="12"></td>
+                        </tr>
+                        }
+
+                        @if(exportsTotals()){
+                        <tr>
+                            <td colspan="1" style="text-align: left; position: sticky; left: 0; background-color: #fff;">Exports</td>
+                            <td class="text-end">{{exportsTotals()?.OpOsIncluPDD | number:'1.0-0'}}</td>
+                            <td class="text-end">{{exportsTotals()?.UnbookedCollection | number:'1.0-0'}}</td>
+                            <td class="text-end">{{exportsTotals()?.PDD | number:'1.0-0'}}</td>
+                            <td class="text-end">{{exportsTotals()?.OpOsExcluPDD | number:'1.0-0'}}</td>
+                            <td class="text-end">{{exportsTotals()?.DaysLessThan30 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{exportsTotals()?.Days30To60 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{exportsTotals()?.Days60To90 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{exportsTotals()?.Days90To120 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{exportsTotals()?.Days120To180 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{exportsTotals()?.Days180To365 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{exportsTotals()?.LessThan3Yr | number:'1.0-0'}}</td>
+                            <td class="text-end">{{exportsTotals()?.GreaterThan3Yr | number:'1.0-0'}}</td>
+                            <td class="text-end">{{toPercent(exportsTotals()?.OverduePercentage)}}</td>
+                            <td class="text-end">{{exportsTotals()?.NotDue | number:'1.0-0'}}</td>
+                            <td colspan="12"></td>
+                        </tr>
+                        }
+
+                        @if(institutionalTotals()){
+                        <tr>
+                            <td colspan="1" style="text-align: left; position: sticky; left: 0; background-color: #fff;">Institution</td>
+                            <td class="text-end">{{institutionalTotals()?.OpOsIncluPDD | number:'1.0-0'}}</td>
+                            <td class="text-end">{{institutionalTotals()?.UnbookedCollection | number:'1.0-0'}}</td>
+                            <td class="text-end">{{institutionalTotals()?.PDD | number:'1.0-0'}}</td>
+                            <td class="text-end">{{institutionalTotals()?.OpOsExcluPDD | number:'1.0-0'}}</td>
+                            <td class="text-end">{{institutionalTotals()?.DaysLessThan30 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{institutionalTotals()?.Days30To60 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{institutionalTotals()?.Days60To90 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{institutionalTotals()?.Days90To120 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{institutionalTotals()?.Days120To180 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{institutionalTotals()?.Days180To365 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{institutionalTotals()?.LessThan3Yr | number:'1.0-0'}}</td>
+                            <td class="text-end">{{institutionalTotals()?.GreaterThan3Yr | number:'1.0-0'}}</td>
+                            <td class="text-end">{{toPercent(institutionalTotals()?.OverduePercentage)}}</td>
+                            <td class="text-end">{{institutionalTotals()?.NotDue | number:'1.0-0'}}</td>
+                            <td colspan="12"></td>
+                        </tr>
+                        }
+
+                        @if(projectBusinessTotals()){
+                        <tr>
+                            <td colspan="1" style="text-align: left; position: sticky; left: 0; background-color: #fff;">Project Business</td>
+                            <td class="text-end">{{projectBusinessTotals()?.OpOsIncluPDD | number:'1.0-0'}}</td>
+                            <td class="text-end">{{projectBusinessTotals()?.UnbookedCollection | number:'1.0-0'}}</td>
+                            <td class="text-end">{{projectBusinessTotals()?.PDD | number:'1.0-0'}}</td>
+                            <td class="text-end">{{projectBusinessTotals()?.OpOsExcluPDD | number:'1.0-0'}}</td>
+                            <td class="text-end">{{projectBusinessTotals()?.DaysLessThan30 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{projectBusinessTotals()?.Days30To60 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{projectBusinessTotals()?.Days60To90 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{projectBusinessTotals()?.Days90To120 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{projectBusinessTotals()?.Days120To180 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{projectBusinessTotals()?.Days180To365 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{projectBusinessTotals()?.LessThan3Yr | number:'1.0-0'}}</td>
+                            <td class="text-end">{{projectBusinessTotals()?.GreaterThan3Yr | number:'1.0-0'}}</td>
+                            <td class="text-end">{{toPercent(projectBusinessTotals()?.OverduePercentage)}}</td>
+                            <td class="text-end">{{projectBusinessTotals()?.NotDue | number:'1.0-0'}}</td>
+                            <td colspan="12"></td>
+                        </tr>
+                        }
+
+                        @if(totals()){
+                        <tr style="background-color: rgba(237, 210, 73, 0.584);">
+                            <td colspan="1" style="text-align: left; position: sticky; left: 0; z-index: 2; background-color: rgb(244, 228, 148);">
+                                <strong>Total</strong>
+                            </td>
+                            <td class="text-end">{{totals()?.OpOsIncluPDD | number:'1.0-0'}}</td>
+                            <td class="text-end">{{totals()?.UnbookedCollection | number:'1.0-0'}}</td>
+                            <td class="text-end">{{totals()?.PDD | number:'1.0-0'}}</td>
+                            <td class="text-end">{{totals()?.OpOsExcluPDD | number:'1.0-0'}}</td>
+                            <td class="text-end">{{totals()?.DaysLessThan30 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{totals()?.Days30To60 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{totals()?.Days60To90 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{totals()?.Days90To120 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{totals()?.Days120To180 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{totals()?.Days180To365 | number:'1.0-0'}}</td>
+                            <td class="text-end">{{totals()?.LessThan3Yr | number:'1.0-0'}}</td>
+                            <td class="text-end">{{totals()?.GreaterThan3Yr | number:'1.0-0'}}</td>
+                            <td class="text-end">{{toPercent(totals()?.OverduePercentage)}}</td>
+                            <td class="text-end">{{totals()?.NotDue | number:'1.0-0'}}</td>
+                            <td colspan="12"></td>
+                        </tr>
+                        }
+
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        }
+    </div>
+</div>

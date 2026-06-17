@@ -1,0 +1,467 @@
+<div class="content">
+  <!-- Breadcrumb -->
+  <div class="d-flex align-items-center justify-content-between page-breadcrumb mb-3 flex-wrap gap-2">
+    <app-breadcrumbs title="Final Summary" [breadcrumbItems]="breadCrumbItems()"></app-breadcrumbs>
+  </div>
+
+  <!-- Header Card -->
+
+  <!-- Loading -->
+  @if (isLoading()) {
+  <div class="card">
+    <div class="card-body text-center" style="padding: 3rem;">
+      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+      <p class="mt-2 text-muted">Loading data...</p>
+    </div>
+  </div>
+  } @else {
+
+  <!-- ✅ Side-by-Side Tables -->
+  <div style="display: flex; gap: 12px; align-items: flex-start;">
+
+    <!-- ═══════ LEFT TABLE: Final Summary ═══════ -->
+    <div class="card" style="flex: 1; min-width: 0;">
+      <div class="card-header d-flex align-items-center">
+      <h5 class="mb-0 text-truncate">Final Summary {{ selectedMonth() }} {{ selectedYear() }}</h5>
+      <div class="d-flex align-items-center ms-auto">
+        <label class="small text-muted mb-0 me-2 text-nowrap">Month–Year</label>
+        <input type="month" class="form-control form-control-sm" [ngModel]="selectedDate()"
+          (ngModelChange)="onDateChange($event)" style="min-width: 170px;" />
+      </div>
+    </div>
+
+      <div class="card-body p-0">
+        <div style="max-height: 70vh; overflow: auto;">
+          <table class="table table-striped table-bordered table-hover align-middle mb-0 table-ultra-compact"
+            style="font-size: 12px; white-space: nowrap;">
+            <thead class="thead-light" style="position: sticky; top: 0; z-index: 3;">
+              <tr>
+                <th rowspan="2" style="position: sticky; left: 0; z-index: 4; 
+                    font-weight: 700; border-right: 2px solid #dee2e6; min-width: 140px;
+                    padding: 6px 8px; vertical-align: middle;">
+                  State
+                </th>
+                <th colspan="2" class="text-center" style="padding: 4px 6px;">Current Month</th>
+                <th rowspan="2" class="text-center" style="padding: 4px 6px;">Institutional</th>
+                <th rowspan="2" class="text-center" style="padding: 4px 6px;">Projects Business</th>
+                <th rowspan="2" class="text-center" style="padding: 4px 6px;">Export</th>
+                <th rowspan="2" class="text-center" style="padding: 4px 6px;">Total</th>
+                <th colspan="3" class="text-center" style="padding: 4px 6px;">Previous Months Unrecognised</th>
+                <th rowspan="2" class="text-center" style="padding: 4px 6px;">Final Sale FTM</th>
+              </tr>
+              <tr>
+                <th class="text-center" style="padding: 4px 6px;">Open</th>
+                <th class="text-center" style="padding: 4px 6px;">Project Mkt</th>
+                <th class="text-center" style="padding: 4px 6px;">2024-25 & Before</th>
+                <th class="text-center" style="padding: 4px 6px;">YTD Prev Month</th>
+                <th class="text-center" style="padding: 4px 6px;">Institutional Sale</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (ConsideredRow().length > 0) {
+
+              <!-- Section: Considered -->
+              <tr>
+                <td style="position: sticky; left: 0; z-index: 1; background: #fff; font-weight: 700;
+                    border-right: 2px solid #dee2e6; padding: 6px 8px;">
+                  <strong>Considered</strong>
+                </td>
+                <td colspan="10"></td>
+              </tr>
+
+              @for (row of ConsideredRow(); track $index) {
+              <tr>
+                <td style="position: sticky; left: 0; z-index: 1;;
+                    border-right: 2px solid #dee2e6; padding: 4px 8px;">{{ row.State }}</td>
+                <td class="text-end">{{ row.Open | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.ProjectMarket | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.Institutional | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.ProjectsBusiness | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.Export | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.Total | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.Before_2024_25 | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.YTD_PreviousMonth | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.InstitutionalSale | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.FinalSale | number:'1.1-1' }}</td>
+              </tr>
+              }
+
+              <!-- Considered Total -->
+              @if (ConsideredTotal(); as t) {
+              <tr style="background: rgba(237, 210, 73, 0.3);">
+                <td style="background: rgb(237, 210, 73); position: sticky; left: 0; z-index: 1;
+                    border-right: 2px solid #dee2e6; font-weight: 700; padding: 4px 8px;">{{ t.State }}</td>
+                <td class="text-end fw-bold">{{ t.Open | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.ProjectMarket | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.Institutional | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.ProjectsBusiness | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.Export | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.Total | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.Before_2024_25 | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.YTD_PreviousMonth | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.InstitutionalSale | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.FinalSale | number:'1.1-1' }}</td>
+              </tr>
+              }
+
+              <!-- Spacer -->
+              <tr>
+                <td colspan="11" style="height: 6px; padding: 0; border: none;"></td>
+              </tr>
+
+              <!-- Section: Sale Reversal -->
+              <tr>
+                <td style="position: sticky; left: 0; z-index: 1; background: #fff; font-weight: 700;
+                    border-right: 2px solid #dee2e6; padding: 6px 8px;">
+                  <strong>Sale Reversal</strong>
+                </td>
+                <td colspan="10"></td>
+              </tr>
+
+              @for (row of SaleReversalRow(); track $index) {
+              <tr>
+                <td style="position: sticky; left: 0; z-index: 1; 
+                
+                    border-right: 2px solid #dee2e6; padding: 4px 8px;">{{ row.State }}</td>
+                <td class="text-end">{{ row.Open | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.ProjectMarket | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.Institutional | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.ProjectsBusiness | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.Export | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.Total | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.Before_2024_25 | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.YTD_PreviousMonth | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.InstitutionalSale | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.FinalSale | number:'1.1-1' }}</td>
+              </tr>
+              }
+
+              @if (SaleReversalTotal(); as t) {
+              <tr style="background: rgba(237, 210, 73, 0.3);">
+                <td style="background: rgb(237, 210, 73); position: sticky; left: 0; z-index: 1;
+                    border-right: 2px solid #dee2e6; font-weight: 700; padding: 4px 8px;">{{ t.State }}</td>
+                <td class="text-end fw-bold">{{ t.Open | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.ProjectMarket | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.Institutional | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.ProjectsBusiness | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.Export | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.Total | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.Before_2024_25 | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.YTD_PreviousMonth | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.InstitutionalSale | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.FinalSale | number:'1.1-1' }}</td>
+              </tr>
+              }
+
+              <!-- Spacer -->
+              <tr>
+                <td colspan="11" style="height: 6px; padding: 0; border: none;"></td>
+              </tr>
+
+              <!-- Net Sale Before ADJ -->
+              @if (NetSaleBeforeAdj(); as r) {
+              <tr style="background: rgba(237, 210, 73, 0.3);">
+                <td style="background: rgb(237, 210, 73); position: sticky; left: 0; z-index: 1;
+                    border-right: 2px solid #dee2e6; font-weight: 700; padding: 4px 8px;">{{ r.Label }}</td>
+                <td class="text-end fw-bold">{{ r.Open | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ r.ProjectMarket | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ r.Institutional | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ r.ProjectsBusiness | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ r.Export | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ r.Total | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ r.Before_2024_25 | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ r.YTD_PreviousMonth | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ r.InstitutionalSale | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ r.FinalSale | number:'1.1-1' }}</td>
+              </tr>
+              }
+
+              <!-- Institutional Sale -->
+              @if (InstitutionalSale(); as r) {
+              <tr>
+                <td style="position: sticky; left: 0; z-index: 1;  
+                    border-right: 2px solid #dee2e6; padding: 4px 8px;">Institutional</td>
+                <td class="text-end">{{ r.Open | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.ProjectMarket | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.Institutional | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.ProjectsBusiness | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.Export | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.Total | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.Before_2024_25 | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.YTD_PreviousMonth | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.InstitutionalSale | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.FinalSale | number:'1.1-1' }}</td>
+              </tr>
+              }
+
+              <!-- Discounts -->
+              @if (Discounts(); as r) {
+              <tr>
+                <td style="position: sticky; left: 0; z-index: 1; 
+                    border-right: 2px solid #dee2e6; padding: 4px 8px;">{{ r.Label }}</td>
+                <td class="text-end">{{ r.Open | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.ProjectMarket | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.Institutional | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.ProjectsBusiness | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.Export | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.Total | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.Before_2024_25 | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.YTD_PreviousMonth | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.InstitutionalSale | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.FinalSale | number:'1.1-1' }}</td>
+              </tr>
+              }
+
+              <!-- Credit Note -->
+              @if (CreditNote(); as r) {
+              <tr>
+                <td style="position: sticky; left: 0; z-index: 1;  
+                    border-right: 2px solid #dee2e6; padding: 4px 8px;">{{ r.Label }}</td>
+                <td class="text-end">{{ r.Open | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.ProjectMarket | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.Institutional | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.ProjectsBusiness | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.Export | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.Total | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.Before_2024_25 | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.YTD_PreviousMonth | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.InstitutionalSale | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.FinalSale | number:'1.1-1' }}</td>
+              </tr>
+              }
+
+              <!-- Freight Recovery -->
+              @if (FreightRecoverynotconsideredasSale(); as r) {
+              <tr>
+                <td style="position: sticky; left: 0; z-index: 1;  
+                    border-right: 2px solid #dee2e6; padding: 4px 8px; white-space: normal;
+                    max-width: 160px; word-break: break-word;">{{ r.Label }}</td>
+                <td class="text-end">{{ r.Open | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.ProjectMarket | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.Institutional | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.ProjectsBusiness | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.Export | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.Total | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.Before_2024_25 | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.YTD_PreviousMonth | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.InstitutionalSale | number:'1.1-1' }}</td>
+                <td class="text-end">{{ r.FinalSale | number:'1.1-1' }}</td>
+              </tr>
+              }
+
+              <!-- Net Sale After ADJ -->
+              @if (NetSaleAfterAdj(); as r) {
+              <tr style="background: rgba(237, 210, 73, 0.3);">
+                <td style="background: rgb(237, 210, 73); position: sticky; left: 0; z-index: 1;
+                    border-right: 2px solid #dee2e6; font-weight: 700; padding: 4px 8px;">{{ r.Label }}</td>
+                <td class="text-end fw-bold">{{ r.Open | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ r.ProjectMarket | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ r.Institutional | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ r.ProjectsBusiness | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ r.Export | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ r.Total | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ r.Before_2024_25 | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ r.YTD_PreviousMonth | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ r.InstitutionalSale | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ r.FinalSale | number:'1.1-1' }}</td>
+              </tr>
+              }
+
+              <!-- Spacer -->
+              <tr>
+                <td colspan="11" style="height: 6px; padding: 0; border: none;"></td>
+              </tr>
+
+              <!-- Section: Not Considered -->
+              <tr>
+                <td style="position: sticky; left: 0; z-index: 1; background: #fff; font-weight: 700;
+                    border-right: 2px solid #dee2e6; padding: 6px 8px;">
+                  <strong>Not Considered</strong>
+                </td>
+                <td colspan="10"></td>
+              </tr>
+
+              @for (row of NotConsideredRow(); track $index) {
+              <tr>
+                <td style="position: sticky; left: 0; z-index: 1; 
+                    border-right: 2px solid #dee2e6; padding: 4px 8px;">{{ row.State }}</td>
+                <td class="text-end">{{ row.Open | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.ProjectMarket | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.Institutional | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.ProjectsBusiness | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.Export | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.Total | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.Before_2024_25 | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.YTD_PreviousMonth | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.InstitutionalSale | number:'1.1-1' }}</td>
+                <td class="text-end">{{ row.FinalSale | number:'1.1-1' }}</td>
+              </tr>
+              }
+
+              @if (NotConsideredTotal(); as t) {
+              <tr style="background: rgba(237, 210, 73, 0.3);">
+                <td style="background: rgb(237, 210, 73); position: sticky; left: 0; z-index: 1;
+                    border-right: 2px solid #dee2e6; font-weight: 700; padding: 4px 8px;">{{ t.State }}</td>
+                <td class="text-end fw-bold">{{ t.Open | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.ProjectMarket | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.Institutional | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.ProjectsBusiness | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.Export | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.Total | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.Before_2024_25 | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.YTD_PreviousMonth | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.InstitutionalSale | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ t.FinalSale | number:'1.1-1' }}</td>
+              </tr>
+              }
+
+              } @else {
+              <tr>
+                <td colspan="11" class="text-center py-4">No Data found</td>
+              </tr>
+              }
+            </tbody>
+
+            <!-- Gross Sale Footer -->
+            @if (GrossSale(); as g) {
+            <tfoot style="position: sticky; bottom: 0; z-index: 3;">
+              <tr style="background: rgb(237, 210, 73);">
+                <td style="position: sticky; left: 0; z-index: 4; background: rgb(237, 210, 73);
+                    border-right: 2px solid #dee2e6; font-weight: 700; padding: 4px 8px;">{{ g.Label }}</td>
+                <td class="text-end fw-bold">{{ g.Open | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ g.ProjectMarket | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ g.Institutional | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ g.ProjectsBusiness | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ g.Export | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ g.Total | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ g.Before_2024_25 | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ g.YTD_PreviousMonth | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ g.InstitutionalSale | number:'1.1-1' }}</td>
+                <td class="text-end fw-bold">{{ g.FinalSale | number:'1.1-1' }}</td>
+              </tr>
+            </tfoot>
+            }
+          </table>
+        </div>
+
+        <!-- ═══════ Final Reconciliation Strip (Bottom) ═══════ -->
+        @if (NetSaleAfterAdj() && NetSale() !== null && NetSaleDifference() !== null) {
+        <div class="d-flex flex-wrap justify-content-end align-items-center gap-3 p-3 mt-1" style="background: #eef2f5; border-top: 2px solid #dee2e6; border-radius: 0 0 8px 8px;">
+          
+          <div class="text-end p-2 px-3 rounded bg-white shadow-sm border" style="min-width: 170px;">
+            <span class="text-uppercase text-muted fw-bold" style="font-size: 10px; letter-spacing: 0.5px;">Net Sale After ADJ</span>
+            <h5 class="mb-0 fw-bold text-dark mt-1">{{ removeDecimal(NetSaleAfterAdj()!.FinalSale) | number:'1.0-0' }}</h5>
+          </div>
+
+          <div class="text-end p-2 px-3 rounded bg-white shadow-sm border" style="min-width: 170px;">
+            <span class="text-uppercase text-muted fw-bold" style="font-size: 10px; letter-spacing: 0.5px;">Net Sale (As per TB)</span>
+            <h5 class="mb-0 fw-bold text-primary mt-1">{{ removeDecimal(NetSale()) | number:'1.0-0' }}</h5>
+          </div>
+
+          <!-- Highlight Red (Danger) if there's a discrepancy, Green if perfectly 0 -->
+          <div class="text-end p-2 px-3 rounded shadow-sm border" 
+               [class.bg-success]="removeDecimal(NetSaleDifference()) === 0" 
+               [class.border-success]="removeDecimal(NetSaleDifference()) === 0" 
+               [class.bg-danger]="removeDecimal(NetSaleDifference()) !== 0" 
+               [class.border-danger]="removeDecimal(NetSaleDifference()) !== 0" 
+               style="min-width: 170px;">
+            <span class="text-uppercase fw-bold text-white opacity-75" style="font-size: 10px; letter-spacing: 0.5px;">Difference</span>
+            <h5 class="mb-0 fw-bold text-white mt-1">
+              {{ removeDecimal(NetSaleDifference()) | number:'1.0-0' }}
+            </h5>
+          </div>
+          
+        </div>
+        }
+
+      </div>
+    </div>
+  </div>
+  }
+</div>
+
+<!-- ═══════ Upload Modal ═══════ -->
+<div class="modal fade" #secondaryDiscountModel tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 12px; border: none;">
+      <div class="modal-header" style="border-radius: 12px 12px 0 0;">
+        <h5 class="modal-title fw-bold">
+          <i class="bi bi-cloud-arrow-up me-2"></i>Add Secondary Discount
+        </h5>
+        <button type="button" style="background: transparent; border: none; font-size: 18px;"
+          (click)="closeSecondaryDiscountUpload()">&#x2715;</button>
+      </div>
+
+      <div class="modal-body p-4">
+        <!-- Download Template -->
+        <div class="card mb-3 border-0 shadow-sm" style="border-radius: 10px;">
+          <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-3 p-3">
+            <div>
+              <h6 class="fw-bold mb-1"><i class="bi bi-file-earmark-arrow-down me-2 text-success"></i>Download Template
+              </h6>
+              <small class="text-muted">Download the Excel template</small>
+            </div>
+            <button type="button" class="btn btn-danger shadow-sm" style="border-radius: 8px; min-width: 180px;"
+              (click)="downloadBulkCostBasisExcel()" [disabled]="isDownloadingBulkUpload()">
+              @if (isDownloadingBulkUpload()) {
+              <span class="spinner-border spinner-border-sm me-1"></span> Downloading...
+              } @else {
+              <i class="bi bi-download me-1"></i> Download Template
+              }
+            </button>
+          </div>
+        </div>
+
+        <!-- Upload -->
+        <div class="card border-0 shadow-sm" style="border-radius: 10px;">
+          <div class="card-body p-3">
+            <h6 class="fw-bold mb-3"><i class="bi bi-file-earmark-arrow-up me-2 text-primary"></i>Upload Excel File</h6>
+
+            <div class="text-center p-4 mb-3"
+              style="border: 2px dashed #ced4da; border-radius: 10px; background: #f8f9fa; cursor: pointer;"
+              (click)="fileInput.click()" (dragover)="$event.preventDefault()" (drop)="onFileDrop($event)">
+              <i class="bi bi-cloud-upload fs-1 text-muted"></i>
+              <p class="mb-1 mt-2 fw-semibold text-muted">Drag & drop your Excel file here</p>
+              <small class="text-muted">or click to browse | Supported: .xlsx, .xls</small>
+            </div>
+
+            <input #fileInput type="file" accept=".xlsx,.xls" class="d-none"
+              (change)="onFileSelectedBulkUpload($event)" />
+
+            @if (selectedFileBulkUpload()) {
+            <div class="d-flex align-items-center justify-content-between p-2 rounded mb-3"
+              style="background: #e8f4fd; border: 1px solid #b8daff; border-radius: 8px;">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-file-earmark-excel text-success fs-4"></i>
+                <div>
+                  <div class="fw-semibold small">{{ selectedFileBulkUpload()!.name }}</div>
+                  <div class="text-muted" style="font-size: 11px;">{{ (selectedFileBulkUpload()!.size / 1024).toFixed(1)
+                    }} KB</div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline-danger" (click)="clearSelectedFileBulkUpload()">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer gap-2" style="background: #f8f9fa; border-radius: 0 0 12px 12px;">
+        <button type="button" class="btn btn-danger shadow-sm" style="border-radius: 8px; min-width: 200px;"
+          (click)="uploadBulkCostBasisExcel()" [disabled]="!selectedFileBulkUpload() || isUploadingBulkUpload()">
+          @if (isUploadingBulkUpload()) {
+          <span class="spinner-border spinner-border-sm me-1"></span> Uploading...
+          } @else {
+          <i class="bi bi-check-circle me-1"></i> Upload
+          }
+        </button>
+        <button type="button" class="btn btn-secondary shadow-sm" style="border-radius: 8px;"
+          (click)="closeSecondaryDiscountUpload()">
+          <i class="bi bi-x-circle me-1"></i> Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

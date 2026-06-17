@@ -1,0 +1,287 @@
+<div class="container-fluid py-3">
+
+     <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+      <div class="me-0 mb-2">
+        <app-breadcrumbs title="Dashboard" [breadcrumbItems]="breadCrumbItems()"></app-breadcrumbs>
+      </div>
+    </div>
+  </div> 
+  <div class="card border-0 shadow-sm">
+        <div class="card-body d-flex align-items-center justify-content-between flex-wrap pb-1"> 
+            <div class="d-flex align-items-center mb-3">
+                <span class="avatar avatar-xl flex-shrink-0">
+                    <img [src]="'assets/img/Mahindra_Project/User-img/user-img.jpg'" alt="Profile"
+                        class="img-fluid rounded-circle">
+                </span>
+                <div class="ms-3">
+                    <h3 class="mb-2">Welcome,</h3>
+                </div>
+            </div> 
+        </div>
+    </div>
+
+    <!-- ========= KPI STRIP ========= -->
+    <div class="row g-3 mb-3">
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-0 h-100" style="border-radius:12px;">
+                <div class="card-body text-center py-3">
+                    <div class="text-muted small mb-1">Active Projects</div>
+                    <div class="fs-3 fw-bold">24</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-0 h-100" style="border-radius:12px;">
+                <div class="card-body text-center py-3">
+                    <div class="text-muted small mb-1">Total Vendors</div>
+                    <div class="fs-3 fw-bold">118</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-0 h-100" style="border-radius:12px;">
+                <div class="card-body text-center py-3">
+                    <div class="text-muted small mb-1">Recognised Revenue %</div>
+                    <div class="fs-3 fw-bold text-success">62%</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-0 h-100" style="border-radius:12px;">
+                <div class="card-body text-center py-3">
+                    <div class="text-muted small mb-1">Unrecognised Revenue %</div>
+                    <div class="fs-3 fw-bold text-danger">38%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========= MAIN ROW ========= -->
+    <div class="row g-3">
+        <!-- LEFT -->
+        <div class="col-12 col-xl-8">
+            <div class="card shadow-sm border-0 h-100" style="border-radius:12px;">
+                <div class="card-body p-3 p-md-4">
+                    <h5 class="fw-bold mb-2"
+                        style="background:#e9f2ff; display:inline-block; padding:.25rem .6rem; border-radius:6px;">
+                        Project Progress Overview
+                    </h5>
+                    <p class="text-muted mb-3">Consolidated progress of all active projects, updated weekly.</p>
+
+                    <div class="fw-semibold mb-2">Top 5 Active Projects by Progress</div>
+
+                    <!-- Item -->
+                    <div class="border rounded-3 p-3 mb-2 d-flex align-items-center">
+                        <div class="fw-semibold flex-shrink-0">NVDA_Batrangi_1 Ch</div>
+                        <div class="flex-grow-1 mx-3">
+                            <div class="progress" style="height:10px;">
+                                <div class="progress-bar bg-success" style="width:85%"></div>
+                            </div>
+                        </div>
+                        <div class="small fw-semibold text-nowrap">85%</div>
+                    </div>
+
+                    <div class="border rounded-3 p-3 mb-2 d-flex align-items-center">
+                        <div class="fw-semibold flex-shrink-0">LIFT IRRIGATION OL-2 SIMARIYA</div>
+                        <div class="flex-grow-1 mx-3">
+                            <div class="progress" style="height:10px;">
+                                <div class="progress-bar" style="width:42%; background:#00c2ff;"></div>
+                            </div>
+                        </div>
+                        <div class="small fw-semibold text-nowrap">42%</div>
+                    </div>
+
+                    <div class="border rounded-3 p-3 mb-2 d-flex align-items-center">
+                        <div class="text-muted flex-shrink-0">Project X</div>
+                        <div class="flex-grow-1 mx-3">
+                            <div class="progress" style="height:10px;">
+                                <div class="progress-bar bg-warning text-dark" style="width:35%"></div>
+                            </div>
+                        </div>
+                        <div class="small text-nowrap">35%</div>
+                    </div>
+
+                    <div class="border rounded-3 p-3 mb-2 d-flex align-items-center">
+                        <div class="text-muted flex-shrink-0">Project Y</div>
+                        <div class="flex-grow-1 mx-3">
+                            <div class="progress" style="height:10px;">
+                                <div class="progress-bar bg-warning text-dark" style="width:20%"></div>
+                            </div>
+                        </div>
+                        <div class="small text-nowrap">20%</div>
+                    </div>
+
+                    <div class="border rounded-3 p-3 d-flex align-items-center">
+                        <div class="text-muted flex-shrink-0">Project Z</div>
+                        <div class="flex-grow-1 mx-3">
+                            <div class="progress" style="height:10px;">
+                                <div class="progress-bar bg-danger" style="width:15%"></div>
+                            </div>
+                        </div>
+                        <div class="small text-nowrap">15%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col-12 col-xl-4">
+            <div class="card shadow-sm border-0 h-100" style="border-radius:12px;">
+                <div class="card-body p-3 p-md-4">
+                    <h5 class="mb-3 fw-bold">Notifications</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item px-0">
+                            <div class="fw-semibold">Work Order <span class="text-primary">#234</span> pending approval
+                            </div>
+                            <div class="small text-muted">2 hours ago</div>
+                        </li>
+                        <li class="list-group-item px-0">
+                            <div class="fw-semibold"><span class="text-primary">3 projects</span> overdue by &gt;61 days
+                            </div>
+                            <div class="small text-muted">Yesterday</div>
+                        </li>
+                        <li class="list-group-item px-0">
+                            <div class="fw-semibold">Reminder: Upload new SAP data for July</div>
+                            <div class="small text-muted">3 days ago</div>
+                        </li>
+                        <li class="list-group-item px-0">
+                            <div class="fw-semibold">Compliance Doc missing for Project X</div>
+                            <div class="small text-muted">4 days ago</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========= LOWER ROW ========= -->
+    <div class="row g-3 mt-0">
+
+        <!-- LEFT stack -->
+        <div class="col-12 col-xl-8">
+            <!-- Recognised -->
+            <div class="card shadow-sm border-0 mb-3" style="border-radius:12px;">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between"
+                    style="border-radius:12px 12px 0 0;">
+                    <h6 class="mb-0 fw-bold">Revenue Recognised</h6>
+                    <span class="badge bg-light text-dark border px-3">Total: <strong>202</strong> ₹ Lakhs</span>
+                </div>
+                <div class="card-body p-3 p-md-4">
+
+                    <div class="d-flex justify-content-between text-muted small mb-2">
+                        <span>State</span><span>Revenue (₹ Lakhs)</span>
+                    </div>
+
+                    <div class="border rounded-3 p-2 p-md-3 mb-2">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-2"
+                                    style="width:32px;height:32px;background:#eaf7ef;color:#198754;font-weight:700;">TG
+                                </div>
+                                <div class="fw-semibold">Telangana</div>
+                            </div>
+                            <span class="badge rounded-pill text-bg-success px-3">124</span>
+                        </div>
+                        <div class="progress mt-2" style="height:6px;">
+                            <div class="progress-bar bg-success" style="width:62%"></div>
+                        </div>
+                    </div>
+
+                    <div class="border rounded-3 p-2 p-md-3 mb-2">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-2"
+                                    style="width:32px;height:32px;background:#eaf7ef;color:#198754;font-weight:700;">GJ
+                                </div>
+                                <div class="fw-semibold">Gujarat</div>
+                            </div>
+                            <span class="badge rounded-pill text-bg-success px-3">78</span>
+                        </div>
+                        <div class="progress mt-2" style="height:6px;">
+                            <div class="progress-bar bg-success" style="width:39%"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Unrecognised -->
+            <div class="card shadow-sm border-0" style="border-radius:12px;">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between"
+                    style="border-radius:12px 12px 0 0;">
+                    <h6 class="mb-0 fw-bold">Revenue Unrecognised</h6>
+                    <span class="badge bg-light text-dark border px-3">Total: <strong>88</strong> ₹ Lakhs</span>
+                </div>
+                <div class="card-body p-3 p-md-4">
+
+                    <div class="d-flex justify-content-between text-muted small mb-2">
+                        <span>State</span><span>Revenue (₹ Lakhs)</span>
+                    </div>
+
+                    <div class="border rounded-3 p-2 p-md-3 mb-2">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-2"
+                                    style="width:32px;height:32px;background:#fdeceb;color:#dc3545;font-weight:700;">WB
+                                </div>
+                                <div class="fw-semibold">West Bengal</div>
+                            </div>
+                            <span class="badge rounded-pill text-bg-danger px-3">56</span>
+                        </div>
+                        <div class="progress mt-2" style="height:6px;">
+                            <div class="progress-bar bg-danger" style="width:64%"></div>
+                        </div>
+                    </div>
+
+                    <div class="border rounded-3 p-2 p-md-3 mb-2">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-2"
+                                    style="width:32px;height:32px;background:#fdeceb;color:#dc3545;font-weight:700;">MP
+                                </div>
+                                <div class="fw-semibold">Madhya Pradesh</div>
+                            </div>
+                            <span class="badge rounded-pill text-bg-danger px-3">32</span>
+                        </div>
+                        <div class="progress mt-2" style="height:6px;">
+                            <div class="progress-bar bg-danger" style="width:36%"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col-12 col-xl-4">
+            <div class="card shadow-sm border-0 h-auto" style="border-radius:12px;">
+                <div class="card-body p-3 p-md-4">
+                    <h6 class="fw-bold mb-3">Contract Asset</h6>
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex justify-content-between align-items-center border rounded-3 p-2">
+                            <span class="text-muted">C.A.</span>
+                            <span class="fw-bold">₹ 12.5 Cr</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center border rounded-3 p-2">
+                            <span class="text-muted">C.L.</span>
+                            <span class="fw-bold">₹ 4.1 Cr</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center border rounded-3 p-2">
+                            <span class="text-muted">U.B.R.</span>
+                            <span class="fw-bold">₹ 1.6 Cr</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center border rounded-3 p-2">
+                            <span class="text-muted">Debtors</span>
+                            <span class="fw-bold">₹ 6.9 Cr</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

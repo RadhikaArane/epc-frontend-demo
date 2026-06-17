@@ -1,0 +1,260 @@
+<div class="content container-fluid">
+  <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <app-breadcrumbs title="Asset Master" [breadcrumbItems]="breadCrumbItems()">
+    </app-breadcrumbs>
+  </div>
+  
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-white py-3">
+      <div class="row g-3 align-items-center justify-content-between">
+        
+        <div class="col-auto">
+          <div class="dataTables_length">
+            <label class="d-inline-flex align-items-center mb-0">
+              <span class="me-1">Show</span>
+              <select
+                class="form-select form-select-sm mx-1"
+                style="width: auto"
+                [value]="pageSize()"
+                (change)="onPageSizeChange($event)"
+                [disabled]="isLoading()">
+                <option [value]="10">10</option>
+                <option [value]="25">25</option>
+                <option [value]="50">50</option>
+                <option [value]="100">100</option>
+              </select>
+              <span>entries</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-auto">
+          <div class="row g-2 align-items-center justify-content-md-end">
+            
+            <div class="col-auto">
+              <select
+                class="form-select form-select-sm"
+                style="width: 200px;  border-color: crimson;" 
+                [value]="selectedCampaignId() ?? 'All'"
+                (change)="onCampaignChange($event)"
+                [disabled]="isLoading()">
+                <!-- <option value="All">All Campaigns</option> -->
+                @for (camp of Campaign(); track camp.Id) {
+                  <option [value]="camp.Id">{{ camp.Name }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- <div class="col-auto">
+              <input
+                #assetInp
+                type="number"
+                class="form-control form-control-sm"
+                style="width: 140px; border-color: crimson;"
+                placeholder="Asset Number"
+                [value]="assetNumber()"
+                (keyup.enter)="onAssetNumberSearch(assetInp.value)"
+                [disabled]="isLoading()"
+              />
+            </div> -->
+
+
+
+
+<div class="col-auto">
+
+  <div class="input-group input-group-sm">
+    <input
+      #assetInp
+      type="text"
+      class="form-control"
+      style="width: 150px;height: 34px; border-color: crimson;"
+      placeholder="Enter Asset Number"
+      [value]="assetNumber() ?? ''"
+      (keyup.enter)="onAssetSearch(assetInp.value)"
+      [disabled]="isLoading()"
+    />
+
+    <!-- Clear button -->
+    @if (assetNumber()) {
+      <button
+        class="btn btn-outline-danger"
+        type="button"
+        title="Clear"
+        (click)="clearAssetSearch()"
+        [disabled]="isLoading()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    }
+
+    <!-- Search button -->
+    <button
+      class="btn btn-primary"
+      type="button"
+      title="Search"
+      (click)="onAssetSearch(assetInp.value)"
+      [disabled]="isLoading() || !assetInp.value">
+      <i class="bi bi-search"></i>
+    </button>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <div class="col-auto">
+              <select
+                class="form-select form-select-sm"
+                style="width: 150px;  border-color: crimson;"
+                [value]="selectedLocationId()"
+                (change)="onLocationChange($event)"
+                [disabled]="isLoading()">
+                <option value="All">All Locations</option>
+                @for (loc of locations(); track loc.LocationId) {
+                  <option [value]="loc.LocationId">{{ loc.LocationName }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-auto">
+              <select
+                class="form-select form-select-sm"
+                style="width: 150px;  border-color: crimson;"
+                [value]="selectedClassId()"
+                (change)="onClassChange($event)"
+                [disabled]="isLoading()">
+                <option value="All">All Classes</option>
+                @for (cls of assetClasses(); track cls.AssetClassId) {
+                  <option [value]="cls.AssetClassId">{{ cls.ClassName }}</option>
+                }
+              </select>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card-body px-3 py-2">
+
+      <div class="table-responsive">
+        <table class="table table-striped  table-bordered table-hover align-middle mb-0      table-ultra-compact">
+          <thead class="thead-light  text-center">
+            <tr>
+              <th>Sr No</th>
+              <th>Asset Number</th>
+              <th>Description</th>
+              <th>Location</th>
+              <th>Department</th>
+              <th>Cost Center</th>
+              <th>Capitalization Date</th>
+              <th>Quantity</th>
+              <th>Plant Code</th>
+              <th>Tag Status</th>
+              <th>Created On</th>
+            </tr>
+          </thead>
+
+          <tbody class="text-end">
+            @if (assets().length > 0) {
+              @for (asset of assets(); track asset.AssetId) {
+                <tr>
+                  <td>{{ getSerialNumber($index) }}</td>
+                  <td class="fw-semibold">{{ asset.AssetNumber }}</td>
+                  <td class="text-truncate" style="max-width: 150px;" title="{{ asset.Description }}">{{ asset.Description }}</td>
+                  <td>{{ asset.PlantDescription || "N/A" }}</td>
+                  <td>{{ asset.Department || "N/A" }}</td>
+                  <td>{{ asset.CostCenter || "N/A" }}</td>
+                  <td>{{ asset.CapitalisationDate ? (asset.CapitalisationDate | date: "dd-MMM-yyyy") : "N/A" }}</td>
+                  <td>{{ asset.QuantityText || "N/A" }}</td>
+                  <td>{{ asset.PlantCode || "N/A" }}</td>
+                  <td><span class="badge bg-light text-dark border">{{ asset.TagStatus }}</span></td>
+                  <td>{{ asset.CreatedOn ? (asset.CreatedOn | date: "dd-MMM-yyyy") : "N/A" }}</td>
+                </tr>
+              }
+            } @else {
+              <tr>
+                <td colspan="11" class="text-center py-5 text-muted">
+                  No assets found matching the criteria.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+     @if (totalRecords() > 0) {
+  <div class="row mt-2 align-items-center">
+
+    <!-- Showing Records Text -->
+    <div class="col-12 col-md-5 mb-1 mb-md-0">
+      <div class="dataTables_info text-center text-md-start px-2" style="font-size: 12px;">
+        Showing {{ getStartRecord() }} to {{ getEndRecord() }} of {{ totalRecords() }} entries
+      </div>
+    </div>
+
+    <!-- Pagination Buttons -->
+    <div class="col-12 col-md-7">
+      <div class="dataTables_paginate paging_simple_numbers d-flex justify-content-center justify-content-md-end">
+        <ul class="pagination mb-2">
+
+          <!-- Previous -->
+          <li class="paginate_button page-item" [class.disabled]="currentPage() === 1">
+            <a class="page-link"
+              [class.pe-none]="currentPage() === 1"
+              style="cursor: pointer; padding: 2px 8px; font-size: 12px;"
+              (click)="currentPage() === 1 ? null : onPageChange(currentPage() - 1)">
+              Previous
+            </a>
+          </li>
+
+          <!-- Pages -->
+          @for (page of getVisiblePages(); track $index) {
+            @if (page === -1 || page === -2) {
+              <li class="paginate_button page-item disabled">
+                <span class="page-link" style="padding: 2px 8px; font-size: 12px;">...</span>
+              </li>
+            } @else {
+              <li class="paginate_button page-item" [class.active]="page === currentPage()">
+                <a class="page-link"
+                  style="cursor: pointer; padding: 2px 8px; font-size: 12px;"
+                  [class.pe-none]="page === currentPage()"
+                  (click)="page === currentPage() ? null : onPageChange(page)">
+                  {{ page }}
+                </a>
+              </li>
+            }
+          }
+
+          <!-- Next -->
+          <li class="paginate_button page-item me-2"
+            [class.disabled]="currentPage() === totalPages() || totalPages() === 0">
+            <a class="page-link"
+              [class.pe-none]="currentPage() === totalPages() || totalPages() === 0"
+              style="cursor: pointer; padding: 2px 8px; font-size: 12px;"
+              (click)="(currentPage() === totalPages() || totalPages() === 0) ? null : onPageChange(currentPage() + 1)">
+              Next
+            </a>
+          </li>
+
+        </ul>
+      </div>
+    </div>
+
+  </div>
+}

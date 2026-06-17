@@ -1,0 +1,232 @@
+.excel-document {
+  background: white;
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+}
+
+// Header Section
+.excel-header {
+  margin-bottom: 20px;
+
+  .header-table {
+    width: 100%;
+    border: 1px solid #000;
+    border-collapse: collapse;
+
+    td {
+      border: 1px solid #000;
+      padding: 5px 10px;
+    }
+
+    .logo-cell {
+      width: 500px;
+      text-align: center;
+      vertical-align: middle;
+
+      .logo-placeholder {
+        font-size: 20px;
+        font-weight: bold;
+        line-height: 1;
+      }
+    }
+
+    .company-info {
+      padding: 10px;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+  }
+}
+
+// Client Information Table
+.client-info-section {
+  margin-bottom: 15px;
+
+  .client-table {
+    width: 100%;
+    border: 1px solid #000;
+    border-collapse: collapse;
+
+    td {
+      border: 1px solid #000;
+      padding: 4px 8px;
+      font-size: 11px;
+    }
+
+    .label-cell {
+      background: #f0f0f0;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .value-cell {
+      background: white;
+    }
+  }
+}
+
+// Estimate Title
+.estimate-title {
+  background: #d3d3d3;
+  text-align: center;
+  padding: 8px;
+  font-weight: bold;
+  font-size: 13px;
+  border: 1px solid #000;
+  margin-bottom: 15px;
+}
+
+// ✅ NEW: Action Buttons
+.action-buttons {
+  padding: 10px 0;
+  margin-bottom: 10px;
+}
+
+// Data Table
+.data-table-section {
+  margin-bottom: 20px;
+
+  .data-table {
+    width: 100%;
+    border: 1px solid #000;
+    border-collapse: collapse;
+
+    th,
+    td {
+      border: 1px solid #000;
+      padding: 6px 8px;
+      font-size: 11px;
+    }
+
+    thead {
+      background: #d3d3d3;
+
+      th {
+        font-weight: bold;
+        text-align: center;
+        white-space: nowrap;
+      }
+    }
+
+    tbody {
+      tr {
+        &:hover {
+          background: #f9f9f9;
+        }
+
+        &.new-row {
+          background: #e7f3ff;
+
+          &:hover {
+            background: #d0e8ff;
+          }
+        }
+
+        // ✅ NEW: Calculating state
+        &.calculating {
+          background: #fff9e6;
+        }
+
+        td {
+          vertical-align: middle;
+
+          // ✅ NEW: Editable inputs
+          input.form-control {
+            padding: 4px 6px;
+            font-size: 11px;
+            background: transparent;
+
+            &:focus {
+              background: white;
+              border: 1px solid #0d6efd !important;
+              box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+              outline: none;
+            }
+
+            &:hover {
+              background: rgba(13, 110, 253, 0.05);
+            }
+          }
+        }
+
+        // ✅ NEW: Amount cell
+        .amount-cell {
+          background: #f0f0f0;
+          padding: 8px;
+
+          .calculating-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
+          }
+        }
+      }
+    }
+
+    tfoot {
+      .total-row {
+        background: #d3d3d3;
+        font-weight: bold;
+
+        td {
+          padding: 10px 8px;
+          font-size: 13px;
+        }
+
+        // ✅ NEW: Total amount styling
+        .total-amount {
+          color: #c00;
+          font-size: 14px;
+        }
+      }
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .text-right {
+      text-align: right;
+    }
+  }
+}
+
+.actions-cell {
+  vertical-align: middle !important;
+  
+  .btn {
+    padding: 2px 6px;
+    font-size: 12px;
+  }
+}
+
+.form-control.is-invalid {
+  border-color: #dc3545 !important;
+  
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+  }
+}
+
+// Print Styles
+@media print {
+  .excel-document {
+    box-shadow: none;
+    padding: 10mm;
+  }
+
+  // ✅ NEW: Hide action buttons in print
+  .action-buttons {
+    display: none;
+  }
+
+  // ✅ NEW: Hide info alert in print
+  .alert {
+    display: none;
+  }
+}

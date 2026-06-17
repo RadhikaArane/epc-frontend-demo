@@ -1,0 +1,267 @@
+<div class="content">
+    <!-- Breadcrumb -->
+    <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+        <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+            <div class="me-0 mb-2">
+                <app-breadcrumbs title="Run Jobs" [breadcrumbItems]="breadCrumbItems()"></app-breadcrumbs>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header Card -->
+    <div class="card mb-3">
+        <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
+            <h5 class="mb-0">Run Jobs</h5>
+        </div>
+    </div>
+
+    <!-- Main Panel -->
+    <div class="card shadow-sm border rounded-3 mb-3">
+        <div class="card-body">
+            <form [formGroup]="automationRunForm" class="row gy-3 align-items-end">
+                
+                <!-- State Select Dropdown -->
+                <div class="col-12 col-md-6 col-xl-4">
+                    <label for="stateSelect" class="form-label mb-1">
+                        Select State: <span class="text-danger">*</span>
+                    </label>
+                    <select 
+                        id="stateSelect" 
+                        class="form-select"
+                        formControlName="state"
+                        (change)="onStateChange($event)"
+                        [disabled]="isScrapingActive()">
+                        @for (portal of statePortals; track portal.apiValue) {
+                            <option [value]="portal.apiValue">
+                                {{ portal.displayName }}
+                            </option>
+                        }
+                    </select>
+                    
+                    <!-- Validation Error Message -->
+                    @if (showStateError() && automationRunForm.get('state')?.invalid) {
+                        <div class="text-danger small mt-1">
+                            <i class="bi bi-exclamation-circle me-1"></i>
+                            Please select a state.
+                        </div>
+                    }
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="col-12 col-md-6 col-xl-8">
+                    <div class="d-flex gap-2 align-items-center flex-wrap">
+                        <!-- Start Scraping Button -->
+                        <button 
+                            type="button" 
+                            class="btn btn-primary"
+                            (click)="startScraping()"
+                            [disabled]="isLoading() || isScrapingActive()"> 
+                            @if (isLoading()) {
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                Processing...
+                            } @else {
+                                <i class="bi bi-play-circle me-1"></i>
+                                Start Scraping
+                            }
+                        </button>
+                        
+                        <!-- Go Manually Button -->
+                        <button 
+                            type="button" 
+                            class="btn btn-outline-primary"
+                            (click)="openManual()"
+                            [disabled]="isLoading() || isScrapingActive()">
+                            <i class="bi bi-box-arrow-up-right me-1"></i>
+                            Go Manually
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Status Messages Panel -->
+    @if (isScrapingActive() || statusMessages().length > 0) {
+        <div class="card shadow-sm border rounded-3">
+            <div class="card-header bg-light">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h6 class="mb-0">
+                        <i class="bi bi-activity me-2"></i>
+                        Scraping Progress
+                    </h6>
+                    @if (isScrapingActive()) {
+                        <span class="badge bg-primary">
+                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            Active
+                        </span>
+                    } @else {
+                        <span class="badge bg-success">Completed</span>
+                    }
+                </div>
+            </div>
+            <div class="card-body">
+                @if (currentJobId()) {
+                    <div class="alert alert-info mb-3">
+                        <strong>Job ID:</strong> {{ currentJobId() }}
+                    </div>
+                }
+                
+                <div class="status-messages-container">
+                    @if (statusMessages().length === 0) {
+                        <div class="text-center text-muted py-3">
+                            <i class="bi bi-hourglass-split fs-3 d-block mb-2"></i>
+                            Waiting for status updates...
+                        </div>
+                    } @else {
+                        @for (status of statusMessages(); track status.timestamp) {
+                            <div class="status-message-item border-bottom pb-2 mb-2">
+                                <div class="d-flex align-items-start">
+                                    <i class="bi bi-check-circle text-success me-2 mt-1 flex-shrink-0"></i>
+                                    <div class="flex-grow-1">
+                                        <p class="mb-1 status-text">{{ status.message }}</p>
+                                        <small class="text-muted">
+                                            {{ status.timestamp | date:'medium' }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Captcha Modal -->
+@if (showCaptchaModal()) {
+    <div class="modal fade show" [style.display]="'block'" tabindex="-1" role="dialog" aria-labelledby="captchaModalLabel" aria-modal="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-warning bg-opacity-10">
+                    <h5 class="modal-title" id="captchaModalLabel">
+                        <i class="bi bi-shield-lock me-2"></i>
+                        Solve Captcha
+                    </h5>
+                    <button 
+                        type="button" 
+                        class="btn-close" 
+                        (click)="closeCaptchaModal()" 
+                        [disabled]="isCaptchaLoading()"
+                        aria-label="Close">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <!-- Left side - Captcha Image -->
+                        <div class="col-12 col-lg-6">
+                            <div class="captcha-image-section">
+                                <h6 class="mb-3">
+                                    <i class="bi bi-image me-2"></i>
+                                    Captcha Image
+                                </h6>
+                                <div class="captcha-image-wrapper">
+                                    @if (isCaptchaLoading()) {
+                                        <div class="captcha-loading">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading captcha...</span>
+                                            </div>
+                                            <p class="mt-2 text-muted mb-0">Loading captcha image...</p>
+                                        </div>
+                                    } @else if (captchaImageBase64()) {
+                                        <img 
+                                            [src]="getCaptchaImageSrc()" 
+                                            alt="Captcha Image" 
+                                            class="img-fluid border rounded shadow-sm captcha-image">
+                                    } @else {
+                                        <div class="alert alert-warning mb-0">
+                                            <i class="bi bi-exclamation-triangle me-2"></i>
+                                            No captcha image available
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right side - Status Messages with fixed height -->
+                        <div class="col-12 col-lg-6">
+                            <div class="status-section">
+                                <h6 class="mb-3">
+                                    <i class="bi bi-list-check me-2"></i>
+                                    Process Status
+                                </h6>
+                                <div class="process-status-container">
+                                    @if (statusMessages().length > 0) {
+                                        @for (status of statusMessages(); track $index) {
+                                            <div class="process-status-item">
+                                                <small class="text-muted d-block mb-1">
+                                                    <i class="bi bi-clock me-1"></i>
+                                                    {{ status.timestamp | date:'HH:mm:ss' }}
+                                                </small>
+                                                <p class="mb-0 small">{{ status.message }}</p>
+                                            </div>
+                                        }
+                                    } @else {
+                                        <div class="text-center text-muted py-3">
+                                            <i class="bi bi-hourglass-split fs-4 d-block mb-2"></i>
+                                            <p class="mb-0">No status messages yet...</p>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Captcha Input - Full width below -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Please enter the captcha text shown in the image above to continue the scraping process.
+                            </div>
+                            <label for="captchaInput" class="form-label fw-semibold">
+                                Enter Captcha Text
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                class="form-control form-control-lg text-center" 
+                                id="captchaInput" 
+                                [(ngModel)]="captchaInput"
+                                placeholder="Type the captcha here..."
+                                [disabled]="isCaptchaLoading()"
+                                (keyup.enter)="submitCaptcha()"
+                                autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button 
+                        type="button" 
+                        class="btn btn-secondary" 
+                        (click)="closeCaptchaModal()"
+                        [disabled]="isCaptchaLoading()">
+                        <i class="bi bi-x-circle me-1"></i>
+                        Cancel
+                    </button>
+                    <button 
+                        type="button" 
+                        class="btn btn-primary" 
+                        (click)="submitCaptcha()"
+                        [disabled]="isCaptchaLoading() || !captchaInput()">
+                        @if (isCaptchaLoading()) {
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            Submitting...
+                        } @else {
+                            <i class="bi bi-check-circle me-1"></i>
+                            Submit
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Backdrop -->
+    <div class="modal-backdrop fade show"></div>
+}

@@ -1,0 +1,51 @@
+<div class="content">
+
+   <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+        <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+            <div class="me-0 mb-0">
+                <app-breadcrumbs title="Unrecognised Invoices" [breadcrumbItems]="breadCrumbItems()"></app-breadcrumbs>
+            </div>
+        </div>
+    </div>
+
+  <div class="card mb-3">
+    <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
+      <h4 class="mb-0">Welcome, {{ userName() }}</h4>
+      <div class="d-flex align-items-center justify-content-end flex-wrap gap-2 ms-auto">
+        @if (showPan()) {
+    <button class="btn"
+      [ngClass]="activeTab() === 'pan' ? 'btn-dark' : 'btn-outline-primary'"
+      (click)="setActiveTab('pan')">
+      Pan India Summary
+    </button>
+  }
+  @if (showState()) {
+    <button class="btn"
+      [ngClass]="activeTab() === 'state' ? 'btn-dark' : 'btn-outline-primary'"
+      (click)="setActiveTab('state')">
+      State-wise Stage Summary
+    </button>
+  }
+  @if (showArea()) {
+    <button class="btn"
+      [ngClass]="activeTab() === 'area' ? 'btn-dark' : 'btn-outline-primary'"
+      (click)="setActiveTab('area')">
+      Area-wise Aging
+    </button>
+  }
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    @if (activeTab() === 'pan' && showPan()) {
+  <app-ui-pan-india-summary></app-ui-pan-india-summary>
+}
+@if (activeTab() === 'state' && showState()) {
+  <app-ui-state-wise-stage></app-ui-state-wise-stage>
+}
+@if (activeTab() === 'area' && showArea()) {
+  <app-ui-area-wise-aging></app-ui-area-wise-aging>
+}
+  </div>
+</div>

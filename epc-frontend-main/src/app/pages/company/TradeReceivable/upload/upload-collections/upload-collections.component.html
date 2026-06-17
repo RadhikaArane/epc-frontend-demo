@@ -1,0 +1,143 @@
+<div class="content container-fluid">
+
+    <!-- Breadcrumb -->
+    <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+        <div class="d-flex my-xl-auto right-content align-items-center flex-wrap w-100 justify-content-between gap-2">
+            <div class="me-0">
+                <app-breadcrumbs title="Upload Collections" [breadcrumbItems]="breadCrumbItems()">
+                </app-breadcrumbs>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div>
+        <div class="card border mb-3">
+            <div class="card-body">
+                <div class="row align-items-center g-2">
+                    <div class="col-12">
+                        <h3 class="mb-0 text-center text-md-start">Upload Collections</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="row">
+            <div class="col-12">
+
+                <div class="card-body">
+
+                    <!-- Collections Upload -->
+                    <div class="card p-2 card-footer bg-white shadow-sm">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold d-flex align-items-center mb-2">
+                                Collections Upload
+                                @if (collectionsUploading()) {
+                                <span class="badge bg-primary ms-2">
+                                    <span class="spinner-border spinner-border-sm me-1" role="status"
+                                        style="width: 12px; height: 12px;"></span>
+                                    Uploading...
+                                </span>
+                                }
+                            </label>
+
+                            <!-- Month and Year Selection -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Month <span class="text-danger">*</span></label>
+                                    <select class="form-select" [(ngModel)]="collectionsUploadMonth"
+                                        [disabled]="collectionsUploading()">
+                                        <option value="">Select Month</option>
+                                        @for (month of getAvailableMonths(collectionsUploadYear()); track month) {
+                                            <option [value]="month">{{ month }}</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Year <span class="text-danger">*</span></label>
+                                    <select class="form-select" [(ngModel)]="collectionsUploadYear" 
+                                        (ngModelChange)="onCollectionsYearChange($event)"
+                                        [disabled]="collectionsUploading()">
+                                        <option value="">Select Year</option>
+                                        @for (year of years; track year) {
+                                            <option [value]="year">{{ year }}</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- File Input -->
+                            <input type="file" class="form-control" #collectionsInput accept=".xls,.xlsx,.xlsb"
+                                (change)="onCollectionsSelect($event)" 
+                                [disabled]="collectionsUploading() || !collectionsUploadMonth() || !collectionsUploadYear()"/>
+                            <div class="form-text">
+                                Select Collections Excel file (Max: 50MB, Format: .xls, .xlsx, .xlsb)
+                            </div>
+
+                            <!-- Error Message -->
+                            @if (collectionsError()) {
+                            <div class="alert alert-danger mt-2 mb-0" role="alert">
+                                <i class="bi bi-exclamation-circle-fill me-2"></i>
+                                {{ collectionsError() }}
+                            </div>
+                            }
+
+                            <!-- Selected File Info -->
+                            @if (collectionsFile() && !collectionsError()) {
+                            <div class="alert alert-success mt-2 mb-0" role="alert">
+                                <i class="bi bi-check-circle-fill me-2"></i>
+                                Selected: {{ collectionsFile()!.name }} ({{ getFileSize(collectionsFile()) }} MB)
+                            </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Upload Summary -->
+                    @if (collectionsFile()) {
+                    <div class="alert alert-info mb-0" role="alert">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Selected file:</strong>
+                        <span class="ms-2">{{ collectionsFile()!.name }}</span>
+                    </div>
+                    }
+
+                </div>
+
+                <!-- Card footer with upload button -->
+                <div class="card p-2 card-footer bg-white shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            @if (!collectionsFile()) {
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Please select a file to upload
+                            </small>
+                            } @else if (collectionsUploading()) {
+                            <small class="text-primary">
+                                <span class="spinner-border spinner-border-sm me-1" role="status"
+                                    style="width: 14px; height: 14px;"></span>
+                                Uploading file...
+                            </small>
+                            }
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-primary" (click)="uploadCollections()"
+                                [disabled]="!collectionsFile() || collectionsUploading()">
+                                @if (collectionsUploading()) {
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                Uploading...
+                                } @else {
+                                <i class="bi bi-cloud-upload me-2"></i>
+                                Upload File
+                                }
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

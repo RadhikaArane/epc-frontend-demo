@@ -1,0 +1,145 @@
+<div class="content">
+
+  <!-- Title -->
+  <div class="card border mb-3" >
+    <div class="card-body d-flex align-items-center flex-wrap">
+      <h3 class="mb-0">SAP AR – Line Items</h3>
+    </div>
+  </div>
+
+  <!-- Card: Filter + Table -->
+  <div class="card shadow-sm">
+    <!-- Header + single filter (Customer) -->
+    <div class="card-header bg-white d-flex align-items-center flex-wrap gap-3" style="border-radius:12px 12px 0 0;">
+      <h5 class="mb-0 me-auto">Document Listing</h5>
+
+      <!-- Customer Filter -->
+      <div class="d-flex align-items-center gap-2">
+        <label class="mb-0 small text-muted">Customer</label>
+        <select class="form-select form-select-sm" style="min-width:220px;">
+          <option selected>All Customers</option>
+          <option>NVDA_Batrangi_1 Ch</option>
+          <option>Simariya OL-2</option>
+          <option>Green Valley Group</option>
+        </select>
+        <button class="btn btn-sm btn-primary">Apply</button>
+        <button class="btn btn-sm btn-outline-secondary">Reset</button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card-body p-3">
+      <div class="table-responsive" style="max-height:65vh; overflow:auto;">
+        <table class="table table-bordered table-hover align-middle mb-0 table-ultra-compact">
+          <thead class="thead-light" style="position:sticky; top:0; z-index:2;">
+            <tr>
+              <th>State</th>
+              <th>Customer</th>
+              <th>Name</th>
+              <th>DocumentNo</th>
+              <th>Pstng Date</th>
+              <th>Type</th>
+              <th>Inv. Ref.</th>
+              <th>Doc. Date</th>
+              <th>Doc. Date -</th>
+              <th>Net Due Dt</th>
+              <th>Assignment</th>
+              <th>CCAr</th>
+              <th>SG</th>
+              <th class="text-end">Amount in Doc. Curr.</th>
+              <th class="text-end">Amount in Local Crcy</th>
+              <th>Text</th>
+              <th>Clrng doc.</th>
+              <th>Clearing</th>
+              <th>Type</th>
+              <th>Reference</th>
+              <th>G/L Acct</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Gujarat</td>
+              <td><span class="badge text-bg-secondary">NVDA_Batrangi_1 Ch</span></td>
+              <td>Sunrise Agro</td>
+              <td>1900123456</td>
+              <td>2025-07-02</td>
+              <td>DR</td>
+              <td>INV-78421</td>
+              <td>2025-07-01</td>
+              <td>—</td>
+              <td>2025-07-31</td>
+              <td>SO-78421</td>
+              <td>CA01</td>
+              <td>SG1</td>
+              <td class="text-end">₹ 1,42,500.00</td>
+              <td class="text-end">₹ 1,42,500.00</td>
+              <td>Inspection pending</td>
+              <td>—</td>
+              <td><span class="badge text-bg-warning">Open</span></td>
+              <td>INV</td>
+              <td>RR-4592</td>
+              <td>120001</td>
+            </tr>
+
+            <tr>
+              <td>Madhya Pradesh</td>
+              <td><span class="badge text-bg-secondary">Simariya OL-2</span></td>
+              <td>Indore Irrigation</td>
+              <td>1900123578</td>
+              <td>2025-06-28</td>
+              <td>DR</td>
+              <td>INV-79210</td>
+              <td>2025-06-27</td>
+              <td>—</td>
+              <td>2025-07-27</td>
+              <td>SO-79210</td>
+              <td>CA02</td>
+              <td>SG2</td>
+              <td class="text-end">₹ 96,800.00</td>
+              <td class="text-end">₹ 96,800.00</td>
+              <td>Ready for billing</td>
+              <td>CL-7766</td>
+              <td><span class="badge text-bg-success">Cleared</span></td>
+              <td>CL</td>
+              <td>PAY/NEFT/001</td>
+              <td>120050</td>
+            </tr>
+
+            <tr>
+              <td>Telangana</td>
+              <td><span class="badge text-bg-secondary">Green Valley Group</span></td>
+              <td>Virat Services</td>
+              <td>1900123601</td>
+              <td>2025-07-05</td>
+              <td>DR</td>
+              <td>INV-80511</td>
+              <td>2025-07-04</td>
+              <td>—</td>
+              <td>2025-08-03</td>
+              <td>SO-80511</td>
+              <td>CA03</td>
+              <td>SG1</td>
+              <td class="text-end">₹ 2,08,300.00</td>
+              <td class="text-end">₹ 2,08,300.00</td>
+              <td>—</td>
+              <td>—</td>
+              <td><span class="badge text-bg-danger">Overdue</span></td>
+              <td>INV</td>
+              <td>—</td>
+              <td>120070</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Footer actions -->
+    <!-- <div class="card-footer bg-white d-flex justify-content-between align-items-center" style="border-radius:0 0 12px 12px;">
+      <small class="text-muted">Tip: Use the <strong>Customer</strong> filter above to narrow the list.</small>
+      <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-outline-success">Export Excel</button>
+        <button class="btn btn-sm btn-outline-danger">Export PDF</button>
+      </div>
+    </div> -->
+  </div>
+</div>

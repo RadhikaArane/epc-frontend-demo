@@ -1,0 +1,195 @@
+<div class="content container-fluid">
+  <div
+    class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3"
+  >
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+      <div class="me-0 mb-2">
+        <app-breadcrumbs
+          title="Side Menu Access"
+          [breadcrumbItems]="breadCrumbItems()"
+        ></app-breadcrumbs>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-white border-0 pb-0">
+      <h5 class="mb-0">Role Wise Side Menu Access</h5>
+    </div>
+
+    <div class="card-body">
+      <div class="row g-3 mb-4">
+        <!-- Project Type -->
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Project Type</label>
+          <select
+            class="form-select"
+            [value]="selectedProjectTypeId()"
+            (change)="onProjectTypeChange($event)"
+            disabled
+          >
+            <option value="">-- Select Project Type --</option>
+            @for (item of projectTypes(); track item.ProjectTypeId) {
+              <option [value]="item.ProjectTypeId"
+              [selected]="item.ProjectTypeId === +selectedProjectTypeId()">
+                {{ item.ProjectTypeName }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <!-- Role -->
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Role</label>
+          <select
+            class="form-select"
+            [value]="selectedRoleId()"
+            (change)="onRoleChange($event)"
+          >
+            <option value="">-- Select Role --</option>
+            @for (item of roles(); track item.RoleId) {
+              <option [value]="item.RoleId">
+                {{ item.RoleName }}
+              </option>
+            }
+          </select>
+        </div>
+      </div>
+
+      @if (isLoading()) {
+        <div class="text-center py-4">
+          <div class="spinner-border spinner-border-sm me-2"></div>
+          Loading...
+        </div>
+      }
+
+      @if (!isLoading() && selectedProjectTypeId() && selectedRoleId()) {
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 80px;">Expand</th>
+                <th>Main Menu</th>
+                <th style="width: 120px;" class="text-center">Access</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (menu of menus(); track menu.MenuItemId) {
+                <tr>
+                  <td class="text-center">
+                    @if (getSubMenusByMenuId(menu.MenuItemId).length > 0) {
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary"
+                        (click)="toggleExpand(menu.MenuItemId)"
+                      >
+                        {{ expandedMenuIds().includes(menu.MenuItemId) ? '-' : '+' }}
+                      </button>
+                    } @else {
+                      <span class="text-muted">-</span>
+                    }
+                  </td>
+
+                  <td>{{ menu.MenuValue }}</td>
+
+                  <td class="text-center">
+                    <div class="form-check form-switch d-flex justify-content-center mb-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        [checked]="menu.IsActive"
+                        (change)="onMenuToggle(menu, $event)"
+                      />
+                    </div>
+                  </td>
+                </tr>
+
+                @if (expandedMenuIds().includes(menu.MenuItemId)) {
+                  @for (subMenu of getSubMenusByMenuId(menu.MenuItemId); track subMenu.SubMenuItemId) {
+                    <tr class="table-secondary">
+                      <td></td>
+                      <td class="ps-4">
+                        <span class="me-2">↳</span>{{ subMenu.MenuValue }}
+                      </td>
+                      <td class="text-center">
+                        <div class="form-check form-switch d-flex justify-content-center mb-0">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            [checked]="subMenu.IsActive"
+                            (change)="onSubMenuToggle(subMenu, $event)"
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ── NEW: Child Route Access Section ── -->
+@if (isRouteLoading()) {
+  <div class="text-center py-3 mt-4">
+    <div class="spinner-border spinner-border-sm me-2"></div>
+    Loading route access...
+  </div>
+}
+
+@if (!isRouteLoading() && groupedRoutes().length > 0) {
+  <div class="mt-4">
+    <h6 class="fw-semibold mb-3">Tab Access Control</h6>
+
+    @for (group of groupedRoutes(); track group.parentKey) {
+      <div class="card border mb-3">
+        <div class="card-header bg-light py-2 d-flex align-items-center justify-content-between"
+             style="cursor:pointer;"
+             (click)="toggleParentExpand(group.parentKey)">
+          <span class="fw-semibold">{{ group.parent }}</span>
+          <span>{{ expandedParents().includes(group.parentKey) ? '−' : '+' }}</span>
+        </div>
+
+        @if (expandedParents().includes(group.parentKey)) {
+          <div class="card-body p-0">
+            <table class="table table-bordered align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Tab Name</th>
+                  <th style="width:120px;" class="text-center">Access</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of group.items; track item.RouteAccessItemId) {
+                  <tr>
+                    <td>{{ item.DisplayName }}</td>
+                    <td class="text-center">
+                      <div class="form-check form-switch d-flex justify-content-center mb-0">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          [checked]="item.IsActive"
+                          (change)="onRouteToggle(item, $event)"
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    }
+  </div>
+}
+      }
+
+      @if (!isLoading() && (!selectedProjectTypeId() || !selectedRoleId())) {
+        <div class="alert alert-info mb-0">
+          Please select both <strong>Project Type</strong> and <strong>Role</strong>.
+        </div>
+      }
+    </div>
+  </div>
+</div>

@@ -1,0 +1,123 @@
+<div class="login-container">
+   <div class="left-section">
+      <div class="decorative-elements">
+         <div class="circle circle-1"></div>
+         <div class="circle circle-2"></div>
+         <div class="circle circle-3"></div>
+      </div> 
+
+      <div class="hero-content">
+         <div class="logo-section">
+            <img src="assets/img/Mahindra_Project/Mahindra EPC - Vertical_New.png" alt="Mahindra EPC Logo" />
+         </div> 
+      </div>
+   </div>
+
+   <div class="right-section">
+      <app-toast></app-toast>
+      <div class="login-card">
+         <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+            <div class="card-header">
+               <span class="welcome-badge">WELCOME BACK</span>
+               <h2 class="card-title">Sign In</h2>
+               <p class="card-subtitle">Please enter your credentials to continue</p>
+            </div>
+
+            <div class="form-group-animated">
+               <label class="form-label">Email Address</label>
+               <div class="input-group">
+                  <input 
+                     type="text" 
+                     class="form-control" 
+                     formControlName="email" 
+                     name="email"
+                     placeholder="Enter your email or code" />
+                  <span class="input-group-text">
+                     <i class="ti ti-mail"></i>
+                  </span>
+               </div>
+               @if (loginForm.controls['email'].touched && loginForm.controls['email'].errors?.['required']) {
+                  <span class="text-danger">⚠ Please enter your email or code</span>
+               } @else if(loginForm.controls['email'].touched && loginForm.controls['email'].errors?.['emailOrCode']) {
+                  <span class="text-danger">⚠ Please enter a valid email or code</span>
+               }
+            </div>
+
+            <div class="form-group-animated">
+               <label class="form-label">Password</label>
+               <div class="input-group">
+                  <input 
+                     [type]="isPasswordVisible() ? 'text' : 'password'" 
+                     formControlName="password"
+                     class="form-control" 
+                     placeholder="Enter your password" />
+                  <span class="input-group-text" (click)="togglePassword()" style="cursor: pointer">
+                     <i class="ti" [ngClass]="isPasswordVisible() ? 'ti-eye' : 'ti-eye-off'"></i>
+                  </span>
+               </div>
+               @if (loginForm.controls['password'].touched && loginForm.controls['password'].errors?.['required']) {
+                  <span class="text-danger">⚠ Please enter your password</span>
+               }
+            </div>
+
+            <div class="form-options">
+               <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="rememberMe" />
+                  <label for="rememberMe" class="form-check-label">Remember Me</label>
+               </div>
+               <a routerLink="/forgotPassword" class="forgot-link">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="btn-primary" [disabled]="loginForm.invalid">
+               SIGN IN
+            </button>
+
+            <!-- <div class="or-divider" style="text-align: center; margin: 20px 0; position: relative;">
+               <span style="padding: 0 10px; position: relative; z-index: 1; color: #6c757d; font-size: 0.9rem;">OR</span>
+               <div style="position: absolute; top: 50%; left: 0; right: 0; border-top: 1px solid #dee2e6; z-index: 0;"></div>
+            </div>
+
+            @if (unrecognisedLoginStep() === 0) {
+               <button type="button" class="btn-outline" (click)="unrecognisedLoginStep.set(1)">
+                  Sign in Unrecognised user
+               </button>
+            }
+
+            @if (unrecognisedLoginStep() === 1) {
+               <div class="form-group-animated">
+                  <label class="form-label">Phone Number</label>
+                  <div class="input-group">
+                     <input type="text" class="form-control" [formControl]="phoneControl" placeholder="Enter 10-digit phone number" maxlength="10" />
+                     <span class="input-group-text"><i class="ti ti-phone"></i></span>
+                  </div>
+               </div>
+               <button type="button" class="btn-primary" style="margin-top: 15px;" [disabled]="phoneControl.invalid" (click)="requestOtp()">
+                  SEND OTP
+               </button>
+               <button type="button" style="width: 100%; background: none; border: none; color: #6c757d; cursor: pointer; margin-top: 10px; text-decoration: underline;" (click)="unrecognisedLoginStep.set(0)">
+                  Cancel
+               </button>
+            }
+
+            @if (unrecognisedLoginStep() === 2) {
+               <div class="form-group-animated">
+                  <label class="form-label">Enter OTP</label>
+                  <div class="input-group">
+                     <input type="text" class="form-control" [formControl]="otpControl" placeholder="Enter OTP (e.g. 1234)" maxlength="6" />
+                     <span class="input-group-text"><i class="ti ti-lock"></i></span>
+                  </div>
+               </div>
+               <button type="button" class="btn-primary" style="margin-top: 15px;" [disabled]="otpControl.invalid" (click)="verifyOtp()">
+                  VERIFY & SIGN IN
+               </button>
+               <button type="button" style="width: 100%; background: none; border: none; color: #6c757d; cursor: pointer; margin-top: 10px; text-decoration: underline;" (click)="unrecognisedLoginStep.set(0)">
+                  Cancel
+               </button>
+            } -->
+            <div class="footer-text">
+               <p>&copy; 2025 Mahindra EPC. All rights reserved.</p>
+            </div>
+         </form>
+      </div>
+   </div>
+</div>

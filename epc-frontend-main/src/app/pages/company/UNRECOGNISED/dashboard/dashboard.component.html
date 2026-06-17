@@ -1,0 +1,93 @@
+<div class="content">
+  <div class="border-0 shadow-sm bg-white" style="border-radius:12px; min-height: calc(100vh - 350px);">
+    <div class="card-body p-3 p-md-4">
+      
+      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap row-gap-2">
+        <h6 class="fw-bold mb-0">Dashboard State Summary</h6>
+        
+        <div class="d-flex align-items-center gap-3">
+          <div class="d-flex align-items-center gap-2">
+            <label for="selectState" class="form-label fw-semibold small mb-0" style="white-space: nowrap;">Select State : </label>
+            <select id="selectState" class="form-select form-select-sm" style="min-width: 160px;" (change)="onStateChange($event)" [value]="stateName()">
+              @for (state of stateOptions; track state.value) {
+                <option [value]="state.value">{{ state.label }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="d-flex align-items-center gap-2">
+            <label for="selectDate" class="form-label fw-semibold small mb-0" style="white-space: nowrap;">Select Date : </label>
+            <input type="date" id="selectDate" class="form-control form-control-sm" (change)="onDateChange($event)" [value]="selectedDate()" />
+          </div>
+        </div>
+      </div>
+      
+      @if (isLoading()) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-3 text-muted">Loading data...</p>
+        </div>
+      } 
+
+      @if (!isLoading() && !error()) {
+        
+        <div class="row">
+          <div class="col-12 col-xl-6 mb-4">
+            <div class="card shadow-sm border h-100" style="border-color: #dee2e6;"> 
+              <div class="card-header py-2 text-light fw-bold d-flex justify-content-between" style="font-size: 15px; border-bottom: none; background-color: #EC2542">
+                <span>Status of on Despatches</span>
+                <span>{{ selectedDate() ? (selectedDate() | date:'dd.MM.yyyy') : 'Date' }}</span>
+              </div>
+              <div class="card-body">
+                
+                @if (!barChartOptions.series?.length) {
+                  <div class="d-flex justify-content-center align-items-center" style="min-height: 350px;">
+                    <p class="text-muted mb-0">No data available</p>
+                  </div>
+                } @else {
+                  <apx-chart
+                    [series]="barChartOptions.series!"
+                    [chart]="barChartOptions.chart!"
+                    [dataLabels]="barChartOptions.dataLabels!"
+                    [plotOptions]="barChartOptions.plotOptions!"
+                    [xaxis]="barChartOptions.xaxis!"
+                    [stroke]="barChartOptions.stroke!"
+                    [legend]="barChartOptions.legend!"
+                  ></apx-chart>
+                }
+                
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-xl-6 mb-4">
+            <div class="card shadow-sm border h-100" style="border-color: #dee2e6;"> 
+              <div class="card-header py-2 text-light fw-bold d-flex justify-content-between" style="font-size: 15px; border-bottom: none; background-color: #EC2542;">
+                <span>Status of cases in pipeline</span> 
+                <span>{{ selectedDate() ? (selectedDate() | date:'dd.MM.yyyy') : 'Date' }}</span>
+              </div>
+              <div class="card-body d-flex justify-content-center align-items-center" style="min-height: 350px;">
+                
+                @if (!pieChartOptions.series?.length) {
+                  <p class="text-muted mb-0">No data available</p>
+                } @else {
+                  <apx-chart
+                    [series]="pieChartOptions.series!"
+                    [chart]="pieChartOptions.chart!"
+                    [labels]="pieChartOptions.labels"
+                    [legend]="pieChartOptions.legend!"
+                    [responsive]="pieChartOptions.responsive!"
+                  ></apx-chart>
+                }
+                
+              </div>
+            </div>
+          </div>
+        </div>
+
+      }
+    </div>
+  </div>
+</div>

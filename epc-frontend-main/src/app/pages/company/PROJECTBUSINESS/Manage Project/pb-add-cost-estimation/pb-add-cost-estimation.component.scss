@@ -1,0 +1,55 @@
+// ==================== Sub Head Row Animations ====================
+
+@keyframes subHeadEnter {
+  0% {
+    background-color: rgba(220, 53, 69, 0.2);
+    transform: translateX(-12px);
+    opacity: 0;
+  }
+  30% {
+    background-color: rgba(220, 53, 69, 0.12);
+    transform: translateX(-4px);
+    opacity: 0.8;
+  }
+  70% {
+    background-color: rgba(220, 53, 69, 0.06);
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    background-color: #fafbff;
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+tr.sub-head-row td {
+  background-color: #fafbff;
+  transition: background-color 0.3s ease;
+}
+
+tr.sub-head-row.sub-head-newly-added td {
+  animation: subHeadEnter 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+// ==================== Add Sub Head Button Hover ====================
+
+.sub-head-dropdown-container button:hover {
+  background: rgba(220, 53, 69, 0.08) !important;
+  border-color: #dc3545 !important;
+  transform: scale(1.02);
+}
+
+// ==================== Vendor Dropdown Container ====================
+
+.vendor-dropdown-container {
+  position: relative;
+}
+
+// ==================== Table Ultra Compact ====================
+
+.table-ultra-compact td,
+.table-ultra-compact th {
+  padding: 0.4rem 0.5rem !important;
+  font-size: 0.85rem;
+}

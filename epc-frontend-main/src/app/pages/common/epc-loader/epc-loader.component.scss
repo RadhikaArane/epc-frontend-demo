@@ -1,0 +1,100 @@
+$brand-red: #e61938;
+ 
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 32px 24px;
+//   background: #ffffff;
+  user-select: none;
+}
+
+// ── Logo — static, no effects ────────────────────────
+.logo-wrapper {
+  line-height: 0;
+}
+
+.logo-img {
+  display: block;
+  width: 400px;
+  height: auto;
+
+  @media (max-width: 480px) {
+    width: 220px;
+  }
+}
+ 
+.loading-track {
+  width: 320px;
+  height: 3px;
+  background: rgba($brand-red, 0.12);
+  border-radius: 99px;
+  overflow: hidden;
+
+  @media (max-width: 480px) {
+    width: 220px;
+  }
+}
+
+.loading-bar {
+  height: 100%;
+  width: 40%;
+  border-radius: 99px;
+  background: $brand-red;
+  animation: slideBar 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes slideBar {
+  0% {
+    transform: translateX(-100%);
+    width: 40%;
+  }
+  50% {
+    width: 70%;
+  }
+  100% {
+    transform: translateX(280%);
+    width: 40%;
+  }
+}
+
+// ── Dots ─────────────────────────────────────────────
+.loading-dots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  span {
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: $brand-red;
+    animation: bounce 1.4s ease-in-out infinite;
+
+    &:nth-child(1) {
+      animation-delay: 0s;
+    }
+    &:nth-child(2) {
+      animation-delay: 0.18s;
+    }
+    &:nth-child(3) {
+      animation-delay: 0.36s;
+    }
+  }
+}
+
+@keyframes bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.25;
+  }
+  30% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+}

@@ -1,0 +1,11 @@
+<div class="toast-container">
+  @for (toast of toasts; track toast.id) {
+    <div class="toast-notification alert alert-dismissible fade show shadow-lg d-flex align-items-center" 
+         [ngClass]="getAlertClass(toast.type)" 
+         role="alert">
+      <i class="bi flex-shrink-0 me-2" [ngClass]="getIconClass(toast.type)" style="font-size: 1.2rem;"></i>
+      <span class="flex-grow-1 fw-semibold">{{ toast.message }}</span>
+      <button type="button" class="btn-close" (click)="removeToast(toast.id)" aria-label="Close"></button>
+    </div>
+  }
+</div>

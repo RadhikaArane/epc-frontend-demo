@@ -1,0 +1,215 @@
+<div class="content container-fluid">
+
+    <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+        <div class="d-flex my-xl-auto right-content align-items-center flex-wrap w-100 justify-content-between gap-2">
+            <div class="me-0">
+                <app-breadcrumbs title="State Data Overview" [breadcrumbItems]="breadCrumbItems()">
+                </app-breadcrumbs>
+            </div>
+            <div>
+                <button class="btn btn-primary shadow-sm" type="button" style="border-radius: 8px;" (click)="onExportClick()">
+                    <i class="bi bi-file-earmark-arrow-down me-2"></i>
+                    Export
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="card border mb-3">
+            <div class="card-body">
+                <div class="row align-items-center g-2">
+                    <div class="col-12 col-md-6">
+                        <h3 class="mb-0 text-center text-md-start">Telangana List ({{this.scrappingDate() | date}})</h3>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="d-flex flex-column flex-sm-row justify-content-center justify-content-md-end gap-2">
+                            <button class="btn btn-primary" (click)="BacktoDashboard()">
+                                Back
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+
+                    <div class="card-header">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-12 col-md-6">
+                                <div class="dataTables_length">
+                                    <label class="d-inline-flex align-items-center mb-0">
+                                        <span class="me-1">Show</span>
+                                        <select class="form-select form-select-sm mx-1" style="width: auto;"
+                                            [value]="pageSize()" (change)="onPageSizeChange($event)"
+                                            [disabled]="isLoading()">
+                                            <option [value]="10">10</option>
+                                            <option [value]="25">25</option>
+                                            <option [value]="50">50</option>
+                                            <option [value]="100">100</option>
+                                        </select>
+                                        <span>entries</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-2">
+                        <div class="custom-datatable-filter">
+                            <div class="dataTables_wrapper dt-bootstrap5 no-footer">
+
+                                @if (isLoading()) {
+                                <div class="position-relative" style="min-height: 400px;">
+                                    <div class="position-absolute top-50 start-50 translate-middle">
+                                        <div class="text-center">
+                                            <div class="spinner-border text-primary" role="status"
+                                                style="width: 3rem; height: 3rem;">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <p class="mt-2 text-muted">Loading data...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                } @else {
+
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-bordered mb-0">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>Sr No</th>
+                                                <th>Farmer ID</th>
+                                                <th>Farmer Name</th>
+                                                <th>Father Name</th>
+                                                <th>Caste</th>
+                                                <th>Category</th>
+                                                <th>DPAP / Non DPAP</th>
+                                                <th>Aadhar No.</th>
+                                                <th>Mobile No.</th>
+                                                <th>District</th>
+                                                <th>Mandal</th>
+                                                <th>Gram Panchayat</th>
+                                                <th>Village</th>
+                                                <th>Survey No.</th>
+                                                <th>Crop Category</th>
+                                                <th>Crop Name</th>
+                                                <th>Spacing</th>
+                                                <th>Area (Ha)</th>
+                                                <th>MI System Type</th>
+                                                <th>System Cost</th>
+                                                <th>Subsidy Eligibility (%)</th>
+                                                <th>Subsidy Amount</th>
+                                                <th>10% Admin Sanction</th>
+                                                <th>VAT</th>
+                                                <th>TDS</th>
+                                                <th>Central Share</th>
+                                                <th>Additional State Share</th>
+                                                <th>State Share</th>
+                                                <th>Final Gross Amount</th>
+                                                <th>Farmer Contribution</th>
+                                                <th>MI Company Name</th>
+                                                <th>Status Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (overview().length > 0) {
+                                            @for (item of overview(); track $index) {
+                                            <tr>
+                                                <td>{{ getSerialNumber($index) }}</td>
+                                                <td>{{ item.FarmerID }}</td>
+                                                <td>{{ item['Farmer Name'] }}</td>
+                                                <td>{{ item['Father Name'] }}</td>
+                                                <td>{{ item.Caste }}</td>
+                                                <td>{{ item.Category }}</td>
+                                                <td>{{ item['DPAP / Non DPAP'] }}</td>
+                                                <td>{{ item['Aadhar No.'] }}</td>
+                                                <td>{{ item['Mobile No'] }}</td>
+                                                <td>{{ item.District }}</td>
+                                                <td>{{ item.Mandal }}</td>
+                                                <td>{{ item['Gram panchayat'] }}</td>
+                                                <td>{{ item.Village }}</td>
+                                                <td>{{ item['Survey No.'] }}</td>
+                                                <td>{{ item['Crop Category'] }}</td>
+                                                <td>{{ item['Crop Name'] }}</td>
+                                                <td>{{ item.Spacing }}</td>
+                                                <td>{{ item['Area (Ha)'] }}</td>
+                                                <td>{{ item['MI System Type'] }}</td>
+                                                <td class="text-end">{{ item['System Cost'] }}</td>
+                                                <td class="text-end">{{ item['Subsidy Eligibility (%)'] }}</td>
+                                                <td class="text-end">{{ item['Subsidy Amount'] }}</td>
+                                                <td class="text-end">{{ item['10% Admin Sanction'] }}</td>
+                                                <td class="text-end">{{ item.VAT }}</td>
+                                                <td class="text-end">{{ item.TDS }}</td>
+                                                <td class="text-end">{{ item['Central Share'] }}</td>
+                                                <td class="text-end">{{ item['Additional State Share'] }}</td>
+                                                <td class="text-end">{{ item['State Share'] }}</td>
+                                                <td class="text-end">{{ item['Final Gross Amount'] }}</td>
+                                                <td class="text-end">{{ item['Farmer Contribution'] }}</td>
+                                                <td>{{ item['MI Company Name'] }}</td>
+                                                <td>{{ item['Status Description'] }}</td>
+                                            </tr>
+                                            }
+                                            } @else {
+                                            <tr>
+                                                <td colspan="32" class="text-center py-4">No overview found</td>
+                                            </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                @if (totalRecords() > 0) {
+                                <div class="row mt-3 align-items-center">
+                                    <div class="col-12 col-md-5 mb-2 mb-md-0">
+                                        <div class="dataTables_info text-center text-md-start">
+                                            Showing {{ getStartRecord() }} to {{ getEndRecord() }} of {{ totalRecords() }} entries
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-7">
+                                        <div class="dataTables_paginate paging_simple_numbers d-flex justify-content-center justify-content-md-end">
+                                            <ul class="pagination mb-0">
+                                                <li class="paginate_button page-item" [class.disabled]="currentPage() === 1">
+                                                    <a class="page-link" [class.pe-none]="currentPage() === 1" style="cursor: pointer;"
+                                                        (click)="currentPage() === 1 ? null : onPageChange(currentPage() - 1)">
+                                                        Previous
+                                                    </a>
+                                                </li>
+
+                                                @for (page of getVisiblePages(); track $index) {
+                                                @if (page === -1) {
+                                                <li class="paginate_button page-item disabled">
+                                                    <span class="page-link">...</span>
+                                                </li>
+                                                } @else {
+                                                <li class="paginate_button page-item" [class.active]="page === currentPage()">
+                                                    <a class="page-link" style="cursor: pointer;" [class.pe-none]="page === currentPage()"
+                                                        (click)="page === currentPage() ? null : onPageChange(page)">
+                                                        {{ page }}
+                                                    </a>
+                                                </li>
+                                                }
+                                                }
+
+                                                <li class="paginate_button page-item" [class.disabled]="currentPage() === totalPages()">
+                                                    <a class="page-link" [class.pe-none]="currentPage() === totalPages()" style="cursor: pointer;"
+                                                        (click)="currentPage() === totalPages() ? null : onPageChange(currentPage() + 1)">
+                                                        Next
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                }
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                </div> </div>
+        </div>
+    </div>
+</div>

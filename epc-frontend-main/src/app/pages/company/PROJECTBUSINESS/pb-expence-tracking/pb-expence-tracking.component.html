@@ -1,0 +1,144 @@
+<div class="content">
+
+    <div class="card border">
+        <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-start">
+            <h3 class="mb-3 mb-md-0">Expense Tracking &amp; Financials</h3>
+        </div>
+    </div>
+
+    <!-- ========== FILTER & SEARCH ========== -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6 class="mb-3">Filter &amp; Search Historical Batches</h6>
+
+            <form class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Reporting Period (Month)</label>
+                    <div class="input-group">
+                        <input type="month" class="form-control"><!-- [(ngModel)]="period" -->
+                        <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Project</label>
+                    <select class="form-select">
+                        <option value="all" selected>All</option>
+                        <option>NVDA_Batrangi_1 Ch</option>
+                        <option>LIFT IRRIGATION OL-2 SIMARIYA</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Batch Status</label>
+                    <select class="form-select">
+                        <option value="all" selected>All</option>
+                        <option>Draft</option>
+                        <option>Corrected</option>
+                        <option>Finalized</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2 d-grid">
+                    <button class="btn btn-primary">Apply Filters</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========== HISTORICAL TIMELINE ========== -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6 class="mb-3">Historical SAP Expense Import Timeline</h6>
+
+            <div class="accordion" id="historyAccordion">
+
+                <!-- Item 1 -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="h1">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#c1">
+                            <strong class="me-2">July 2025</strong> — <span class="ms-1">53 Entries</span>
+                            <span class="badge bg-success ms-2">Finalized</span>
+                            <span class="text-muted ms-2">File: nvda_batrangi_invoices_jul25.xlsx</span>
+                        </button>
+                    </h2>
+                    <div id="c1" class="accordion-collapse collapse" data-bs-parent="#historyAccordion">
+                        <div class="accordion-body">
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-primary">View Entries</button>
+                                <button class="btn btn-sm btn-outline-danger">Request Correction/Rollback</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 2 -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="h2">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#c2">
+                            <strong class="me-2">June 2025</strong> — <span class="ms-1">47 Entries</span>
+                            <span class="badge bg-info text-dark ms-2">Corrected</span>
+                            <span class="text-muted ms-2">File: simariya_vendor_dump_jun25.xls</span>
+                        </button>
+                    </h2>
+                    <div id="c2" class="accordion-collapse collapse" data-bs-parent="#historyAccordion">
+                        <div class="accordion-body">
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-primary">View Entries</button>
+                                <button class="btn btn-sm btn-outline-danger">Request Correction/Rollback</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 3 (selected row look) -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="h3">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#c3"
+                            style="background:#e9f1ff;">
+                            <strong class="me-2">August 2025</strong> — <span class="ms-1">12 Entries</span>
+                            <span class="badge bg-secondary ms-2">Draft</span>
+                            <span class="text-muted ms-2">File: august_draft_import.xlsx</span>
+                        </button>
+                    </h2>
+                    <div id="c3" class="accordion-collapse collapse show" data-bs-parent="#historyAccordion">
+                        <div class="accordion-body">
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-primary">View Entries</button>
+                                <button class="btn btn-sm btn-outline-danger">Request Correction/Rollback</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- /accordion -->
+        </div>
+    </div>
+
+    <!-- ========== UPLOAD & VALIDATE ========== -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6 class="mb-3">Upload &amp; Validate Current SAP Dump</h6>
+
+            <form class="row g-3 align-items-end">
+                <div class="col-md-7">
+                    <label class="form-label">Select File(s)</label>
+                    <input type="file" class="form-control" multiple>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Reporting Period</label>
+                    <div class="input-group">
+                        <input type="month" class="form-control">
+                        <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                    </div>
+                </div>
+
+                <div class="col-md-2 d-grid">
+                    <button class="btn btn-primary">Upload &amp; Parse</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

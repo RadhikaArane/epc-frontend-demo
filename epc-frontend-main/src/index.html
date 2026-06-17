@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>MahindraEPC</title>
+  <!-- <base href="/browser/">  -->
+  <!-- <base href="/Frontend/">  -->
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+  <style>
+    html {
+      display: none;
+    }
+  </style>
+
+  <script>
+    try {
+      const allowedOrigins = [  
+        "http://localhost:3000/",
+        "http://localhost:4200"
+
+      ];
+      const currentOrigin = window.location.origin;
+
+      if (self === top) {
+        document.documentElement.style.display = 'block';
+      } else {
+        if (allowedOrigins.includes(currentOrigin)) {
+          top.location.replace("/login"); // Safe internal redirect
+        } else {
+          document.documentElement.innerHTML = '';
+          console.warn("Blocked untrusted iframe:", currentOrigin);
+        }
+      }
+    } catch (e) {
+      document.documentElement.style.display = 'block';
+      console.warn("Safe fallback from framebuster:", e);
+    }
+  </script>
+
+</head>
+
+<body>
+  <app-root></app-root>
+</body>
+
+</html>

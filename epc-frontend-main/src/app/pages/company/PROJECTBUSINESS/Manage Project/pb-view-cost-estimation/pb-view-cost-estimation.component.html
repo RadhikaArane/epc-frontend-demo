@@ -1,0 +1,383 @@
+<div class="container-fluid py-3">
+
+  <!-- Breadcrumb -->
+  <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap w-100">
+      <div class="me-0 mb-2">
+        <app-breadcrumbs title="View Cost Estimation" [breadcrumbItems]="breadCrumbItems()"></app-breadcrumbs>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoadingProject()) {
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body text-center py-5">
+      <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="text-muted mb-0">Loading project data...</p>
+    </div>
+  </div>
+  } @else {
+
+  <!-- Page Header -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div
+      class="card-body d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 py-3">
+      <div>
+        <h4 class="mb-1">View Cost Estimation</h4>
+        <p class="text-muted small mb-0">{{ projectDetails()?.ProjectName }}</p>
+      </div>
+      <button class="btn btn-outline-secondary" (click)="onCancel()">
+        <i class="bi bi-arrow-left"></i> Back to List
+      </button>
+    </div>
+  </div>
+
+  <!-- Project Details -->
+  @if (projectDetails()) {
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-3 p-md-4">
+      <h5 class="fw-bold mb-4 pb-3" style="border-bottom: 2px solid #e9ecef;">
+        <i class="bi bi-info-circle text-primary"></i> Project Information
+      </h5>
+
+      <!-- Row 1 -->
+      <div class="row g-3 mb-3">
+        <div class="col-12 col-md-4">
+          <label class="form-label fw-semibold">Project Name</label>
+          <input type="text" class="form-control bg-light" [value]="projectDetails()?.ProjectName || '-'" readonly>
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="form-label fw-semibold">WBS No</label>
+          <input type="text" class="form-control bg-light" [value]="projectDetails()?.WbsNo || '-'" readonly>
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="form-label fw-semibold">Chak No</label>
+          <input type="text" class="form-control bg-light" [value]="projectDetails()?.ChakNo || '-'" readonly>
+        </div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="row g-3 mb-3">
+        <div class="col-12 col-md-4">
+          <label class="form-label fw-semibold">Nodal Agency</label>
+          <input type="text" class="form-control bg-light" [value]="projectDetails()?.NodalAgencyName || '-'" readonly>
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="form-label fw-semibold">Project Incharge</label>
+          <input type="text" class="form-control bg-light" [value]="projectDetails()?.ProjectIncharge || '-'" readonly>
+        </div>
+        <!-- <div class="col-12 col-md-4">
+          <label class="form-label fw-semibold">CCA (Ha)</label>
+          <input type="text" class="form-control bg-light" [value]="projectDetails()?.CCA_Ha || 0" readonly>
+        </div> -->
+      </div>
+
+      <!-- Row 3 - Dates -->
+      <div class="row g-3 mb-3">
+        <div class="col-12 col-md-3">
+          <label class="form-label fw-semibold">Agreement Date</label>
+          <input type="text" class="form-control bg-light"
+            [value]="projectDetails()?.AgreementDate ? (projectDetails()!.AgreementDate | date:'dd MMM yyyy') : '-'"
+            readonly>
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label fw-semibold">Project Start Date</label>
+          <input type="text" class="form-control bg-light"
+            [value]="projectDetails()?.ProjectStartDate ? (projectDetails()!.ProjectStartDate | date:'dd MMM yyyy') : '-'"
+            readonly>
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label fw-semibold">End Date</label>
+          <input type="text" class="form-control bg-light"
+            [value]="projectDetails()?.EndDate ? (projectDetails()!.EndDate | date:'dd MMM yyyy') : '-'" readonly>
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label fw-semibold">Expected Completion Date</label>
+          <input type="text" class="form-control bg-light"
+            [value]="projectDetails()?.ExpectedCompletionDate ? (projectDetails()!.ExpectedCompletionDate | date:'dd MMM yyyy') : '-'"
+            readonly>
+        </div>
+      </div>
+
+      <!-- Row 4 - Sale Values -->
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
+          <label class="form-label fw-semibold">Total Sale Value (Excl GST)</label>
+          <div class="input-group">
+            <span class="input-group-text bg-light">₹</span>
+            <input type="text" class="form-control bg-light text-end"
+              [value]="projectDetails()?.TotalSaleValueExclGst | currency:'INR':'symbol':'1.2-2':'en-IN'" readonly>
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label fw-semibold">Total Sale Value (Incl GST)</label>
+          <div class="input-group">
+            <span class="input-group-text bg-light">₹</span>
+            <input type="text" class="form-control bg-light text-end"
+              [value]="projectDetails()?.TotalSaleValueInclGst | currency:'INR':'symbol':'1.2-2':'en-IN'" readonly>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Cost Estimation Details -->
+  <div class=" border-0 mt-5 mb-0">
+    <div class=" p-0 p-md-0">
+
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4 pb-3"
+        style="border-bottom: 2px solid #e9ecef;">
+        <div>
+          <h5 class="fw-bold mb-1">Cost Estimation Details</h5>
+          <!-- <p class="text-muted small mb-0">View cost items with vendors and revision history</p> -->
+        </div>
+      </div>
+
+      <!-- Cost Items -->
+      @if (costHeadItems().length > 0) {
+      @for (item of costHeadItems(); track item.CostHeadId; let i = $index) {
+      <div class="card border mb-3">
+        <div class="card-body">
+
+          <!-- Cost Head Header -->
+          <div class="row g-3 mb-3">
+            <div class="col-12 col-md-4">
+              <label class="form-label fw-semibold">Cost Item</label>
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary">{{ i + 1 }}</span>
+                <input type="text" class="form-control bg-light fw-bold" [value]="item.CostHeadName" readonly>
+              </div>
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label fw-semibold">Cost Basis</label>
+              <input type="text" class="form-control bg-light" [value]="item.CostBasis || '-'" readonly>
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label fw-semibold">Current Amount (₹)</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light">₹</span>
+                <input type="text" class="form-control bg-light text-end fw-bold"
+                  [value]="item.Amount | currency:'INR':'symbol':'1.2-2':'en-IN'" readonly>
+              </div>
+            </div>
+          </div>
+
+          <!-- Revisions Table (Replace the entire revisions section) -->
+          @if (item.revisions && item.revisions.length > 0) {
+          <div class="mb-3">
+            <label class="form-label fw-semibold d-flex align-items-center gap-2 mb-3">
+              <i class="bi bi-clock-history text-info"></i>
+              Revision History
+              <span class="badge bg-info">{{ item.revisions.length }} Revision(s)</span>
+            </label>
+
+            <!-- Table Container with Horizontal Scroll -->
+            <div class="table-responsive" style="border: 1px solid #dee2e6; border-radius: 8px; background: #f8f9fa;">
+              <table class="table table-bordered mb-0" style="min-width: 600px;">
+                <thead class="table-light">
+                  <tr>
+                    <th class="fw-semibold"
+                      style="width: 150px; position: sticky; left: 0; background: #f8f9fa; z-index: 10;">
+                      Details
+                    </th>
+                    @for (revision of item.revisions; track revision.historyId) {
+                    <th class="text-center" style="min-width: 180px;">
+                      <div class="d-flex flex-column align-items-center gap-1">
+                        <span class="badge bg-primary px-3 py-1">
+                          Revision {{ revision.revisionNumber }}
+                        </span>
+                        <small class="text-muted">{{ revision.periodMonthDisplay }}</small>
+                      </div>
+                    </th>
+                    }
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Amount Row -->
+                  <tr>
+                    <td class="fw-semibold bg-light" style="position: sticky; left: 0; z-index: 9;">
+                      Amount
+                    </td>
+                    @for (revision of item.revisions; track revision.historyId) {
+                    <td class="text-center fw-bold text-success">
+                      {{ revision.amount | currency:'INR':'symbol':'1.2-2':'en-IN' }}
+                    </td>
+                    }
+                  </tr>
+
+                  <!-- Running Total Row -->
+                  <!-- <tr>
+                    <td class="fw-semibold bg-light" style="position: sticky; left: 0; z-index: 9;">
+                  Running Total
+                    </td>
+                    @for (revision of item.revisions; track revision.historyId) {
+                    <td class="text-center fw-bold text-warning">
+                      {{ revision.runningTotal | currency:'INR':'symbol':'1.2-2':'en-IN' }}
+                    </td>
+                    }
+                  </tr> -->
+
+                  <!-- Period Row -->
+                  <!-- <tr>
+                    <td class="fw-semibold bg-light" style="position: sticky; left: 0; z-index: 9;">
+                      <i class="bi bi-calendar3 text-info"></i> Period
+                    </td>
+                    @for (revision of item.revisions; track revision.historyId) {
+                    <td class="text-center">
+                      {{ revision.periodMonthDisplay }}
+                    </td>
+                    }
+                  </tr> -->
+
+                  <!-- Date Row -->
+                  <!-- <tr>
+                    <td class="fw-semibold bg-light" style="position: sticky; left: 0; z-index: 9;">
+                      <i class="bi bi-clock text-primary"></i> Date
+                    </td>
+                    @for (revision of item.revisions; track revision.historyId) {
+                    <td class="text-center">
+                      <small>{{ revision.createdOnUtc | date:'dd MMM yyyy' }}</small><br>
+                      <small class="text-muted">{{ revision.createdOnUtc | date:'hh:mm a' }}</small>
+                    </td>
+                    }
+                  </tr> -->
+
+                  <!-- Source Row -->
+                  <!-- <tr>
+                    <td class="fw-semibold bg-light" style="position: sticky; left: 0; z-index: 9;">
+                      <i class="bi bi-box-arrow-in-right text-secondary"></i> Source
+                    </td>
+                    @for (revision of item.revisions; track revision.historyId) {
+                    <td class="text-center">
+                      <span class="badge bg-secondary">{{ revision.source }}</span>
+                    </td>
+                    }
+                  </tr> -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Scroll Hint -->
+            @if (item.revisions.length > 3) {
+            <div class="text-center mt-2">
+              <small class="text-muted">
+                <i class="bi bi-arrow-left-right"></i> Scroll horizontally to view all revisions
+              </small>
+            </div>
+            }
+          </div>
+          } @else if (item.isLoadingRevisions) {
+          <div class="mb-3">
+            <div class="d-flex align-items-center gap-2 p-3 bg-light rounded">
+              <span class="spinner-border spinner-border-sm text-info"></span>
+              <small class="text-muted">Loading revision history...</small>
+            </div>
+          </div>
+          } @else {
+          <div class="mb-3">
+            <div class="alert alert-info border-0 mb-0 py-2">
+              <small><i class="bi bi-info-circle"></i> No revision history available for this cost item</small>
+            </div>
+          </div>
+          }
+
+          <!-- Vendors Section -->
+          @if (item.vendors && item.vendors.length > 0) {
+          <div class="border-top pt-3">
+            <h6 class="fw-semibold mb-3">
+              <i class="bi bi-people-fill text-primary"></i> Vendors & Attachments
+            </h6>
+
+            @if (item.isLoadingVendors) {
+            <div class="text-center py-3">
+              <span class="spinner-border spinner-border-sm text-primary"></span>
+              <small class="text-muted d-block mt-2">Loading vendors...</small>
+            </div>
+            } @else {
+
+            <div class="row g-3">
+              @for (vendor of item.vendors; track vendor.VendorId) {
+              <div class="col-12 col-md-6">
+                <div class="card border-0 shadow-sm">
+                  <div class="card-body p-3">
+                    <div class="d-flex align-items-start gap-2 mb-2">
+                      <div
+                        class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                        style="width: 36px; height: 36px;">
+                        <i class="bi bi-person-fill"></i>
+                      </div>
+                      <div class="flex-grow-1">
+                        <h6 class="mb-0 fw-bold">{{ vendor.Name }}</h6>
+                        <small class="text-muted">Vendor</small>
+                      </div>
+                    </div>
+
+                    <!-- Attachments -->
+                    @if (vendor.isLoadingAttachments) {
+                    <div class="text-center py-2">
+                      <span class="spinner-border spinner-border-sm text-primary"></span>
+                      <small class="text-muted d-block">Loading attachments...</small>
+                    </div>
+                    } @else if (vendor.attachments && vendor.attachments.length > 0) {
+                    <div class="mt-2">
+                      <small class="text-muted fw-semibold d-block mb-2">
+                        <i class="bi bi-paperclip"></i> Attachments:
+                      </small>
+                      @for (attachment of vendor.attachments; track attachment.AttachmentId) {
+                      <div class="d-flex align-items-center gap-2 bg-light p-2 rounded mb-1">
+                        <i class="bi bi-file-earmark-text text-primary"></i>
+                        <span class="flex-grow-1 text-truncate small" [title]="attachment.FileNameOriginal">
+                          {{ attachment.FileNameOriginal }}
+                        </span>
+                        <span class="badge bg-secondary">
+                          {{ formatFileSize(attachment.FileSizeBytes) }}
+                        </span>
+                        <button type="button" class="btn btn-sm btn-outline-primary p-1"
+                          style="width: 24px; height: 24px;" [title]="'Download ' + attachment.FileNameOriginal"
+                          (click)="downloadAttachment(attachment.AttachmentId, vendor.ProjectCostHeadVendorId, attachment.FileNameOriginal)">
+                          <i class="bi bi-download" style="font-size: 0.75rem;"></i>
+                        </button>
+                      </div>
+                      }
+                    </div>
+                    } @else {
+                    <small class="text-muted">No attachments</small>
+                    }
+                  </div>
+                </div>
+              </div>
+              }
+            </div>
+
+            }
+          </div>
+          } @else if (!item.isLoadingVendors) {
+          <div class="alert alert-info border-0 mb-0">
+            <i class="bi bi-info-circle"></i> No vendors assigned to this cost item
+          </div>
+          }
+
+        </div>
+      </div>
+      }
+      } @else {
+      <div class="text-center py-5">
+        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+          style="width: 80px; height: 80px;">
+          <i class="bi bi-inbox text-muted" style="font-size: 2.5rem;"></i>
+        </div>
+        <h6 class="text-muted fw-semibold">No Cost Items Found</h6>
+        <p class="text-muted small mb-0">This project doesn't have any cost items</p>
+      </div>
+      }
+
+    </div>
+  </div>
+
+  }
+</div>

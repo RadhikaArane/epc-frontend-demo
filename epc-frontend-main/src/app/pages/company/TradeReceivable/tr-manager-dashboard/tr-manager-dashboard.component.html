@@ -1,0 +1,749 @@
+<div class="content" style="background-color: #f8f9fa">
+  <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+      <div class="me-0 mb-2">
+        <app-breadcrumbs title="Dashboard" [breadcrumbItems]="breadCrumbItems()"></app-breadcrumbs>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Global Filters Card: Welcome + State + Month-Year + Currency -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body d-flex align-items-center justify-content-between flex-wrap" style="gap: 1rem">
+
+      <!-- Left: Welcome -->
+      <!-- 
+      <div class="d-flex align-items-center">
+        <span class="avatar avatar-xl flex-shrink-0">
+          <img [src]="'assets/img/Mahindra_Project/User-img/user-img.jpg'" alt="Profile"
+            class="img-fluid rounded-circle" />
+        </span>
+        <div class="ms-3">
+          <h3 class="mb-0">Welcome, {{ userName() }}</h3>
+        </div>
+      </div>
+      -->
+      
+      <!-- Placeholder div to keep the space and ensure flexbox justify-content-between still works -->
+      <div></div>
+
+      <!-- Right: All Global Filters in one row -->
+      <div class="d-flex align-items-center flex-wrap ms-auto" style="gap: 20px">
+
+        <!-- State Filter -->
+        <div class="d-flex flex-column align-items-start" style="gap: 4px">
+          <label class="text-muted fw-500" style="font-size: 12px; letter-spacing: 0.3px">STATE</label>
+          <select class="form-select form-select-sm" [(ngModel)]="selectedState" (ngModelChange)="onFilterChange()"
+            style="
+              width: 180px;
+              border: 2px solid #dc3545;
+              color: #dc3545;
+              font-weight: 600;
+              border-radius: 6px;
+            ">
+            @for (st of allStates; track st) {
+            <option [value]="st">{{ st }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Month-Year Filter -->
+        <div class="d-flex flex-column align-items-start" style="gap: 4px">
+          <label class="text-muted fw-500" style="font-size: 12px; letter-spacing: 0.3px">MONTH - YEAR</label>
+          <input type="month" class="form-control form-control-sm" [value]="selectedMonthYear()"
+            (change)="onGlobalMonthYearChange($event)" style="
+              width: 180px;
+              border: 2px solid #dc3545;
+              color: #dc3545;
+              font-weight: 600;
+              border-radius: 6px;
+            " />
+        </div>
+
+        <!-- Currency Filter -->
+        <div class="d-flex flex-column align-items-start" style="gap: 4px">
+          <label class="text-muted fw-500" style="font-size: 12px; letter-spacing: 0.3px">CURRENCY</label>
+          <select class="form-select form-select-sm" [(ngModel)]="currencyUnit" (ngModelChange)="onFilterChange()"
+            style="
+              width: 130px;
+              border: 2px solid #dc3545;
+              color: #dc3545;
+              font-weight: 600;
+              border-radius: 6px;
+            ">
+            <option value="Lakhs">₹ Lakhs</option>
+            <option value="Crores">₹ Crores</option>
+          </select>
+        </div>
+
+        <!-- Generate Report -->
+         <div class="d-flex flex-column align-items-start ms-2" style="gap: 4px">
+          <label class="text-muted fw-500 invisible" style="font-size: 12px; letter-spacing: 0.3px">SPACER</label>
+          <button type="button" class="btn btn-danger text-white fw-semibold shadow-sm" 
+                  style="border-radius: 6px; padding: 4px 20px; border: 2px solid #dc3545;" 
+                  (click)="openGenerateReportModal('global')" title="Generate Receivables Report">
+            <i class="fas fa-file-invoice me-2"></i> Generate Report
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- ════════════════════════════════ SALES SECTION ════════════════════════════════ -->
+    <div class="col-xxl-6 col-xl-6 col-lg-6 d-flex">
+      <div class="card shadow-sm border-0 w-100" style="border-radius: 12px">
+
+        <!-- Header: Title + Spinner only (filters removed — use global filters above) -->
+        <div class="card-header bg-white d-flex justify-content-between align-items-center" style="
+            border-bottom: 2px solid #dc3545;
+            border-radius: 12px 12px 0 0;
+            padding: 1.25rem;
+          ">
+          <div class="d-flex align-items-center gap-2">
+            <i class="fas fa-chart-line text-danger fs-5"></i>
+            <h5 class="mb-0 fw-bold">SALES</h5>
+          </div>
+          @if (isSalesLoading()) {
+          <div class="d-flex align-items-center gap-2">
+            <span class="spinner-border spinner-border-sm text-danger" role="status"></span>
+            <small class="text-muted">Loading...</small>
+          </div>
+          }
+        </div>
+
+        <div class="card-body p-4">
+
+          <!-- Recognised Sales -->
+          <div class="mb-5">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <span class="badge bg-success text-white px-3 py-2">
+                <i class="fas fa-check-circle me-1"></i>Recognised
+              </span>
+              <small class="text-muted fw-medium">FTM {{ selectedMonthYear() | date:'MMMM' }}</small>
+            </div>
+            @if (salesRecognised()) {
+            <div class="row g-3">
+              <div class="col-sm-3 col-6">
+                <div class="p-2 border-0 rounded-3 text-center"
+                  style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white;">
+                  <div class="small fw-medium opacity-75">PM</div>
+                  <div class="fs-12 fw-bold">{{ salesRecognised()?.PM }}</div>
+                </div>
+              </div>
+              <div class="col-sm-3 col-6">
+                <div class="p-2 border-0 rounded-3 text-center"
+                  style="background: linear-gradient(135deg, #28a745 0%, #218838 100%); color: white;">
+                  <div class="small fw-medium opacity-75">OM</div>
+                  <div class="fs-12 fw-bold">{{ salesRecognised()?.OM }}</div>
+                </div>
+              </div>
+              <div class="col-sm-3 col-6">
+                <div class="p-2 border-0 rounded-3 text-center"
+                  style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: white;">
+                  <div class="small fw-medium opacity-75">PB</div>
+                  <div class="fs-12 fw-bold">{{ salesRecognised()?.PB }}</div>
+                </div>
+              </div>
+              <div class="col-sm-3 col-6">
+                <div class="p-2 border-0 rounded-3 text-center"
+                  style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); color: white;">
+                  <div class="small fw-medium opacity-75">Inst/Others</div>
+                  <div class="fs-12 fw-bold">{{ salesRecognised()?.InstOthers }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-end mt-2">
+              <span class="badge text-white px-3 py-2"
+                style="background: linear-gradient(135deg, #198754 0%, #157347 100%); font-size: 13px;">
+                <i class="fas fa-sigma me-1"></i>
+                Subtotal: {{ sumSalesRow(salesRecognised()) }}
+              </span>
+            </div>
+            }
+          </div>
+
+          <!-- Unrecognised Sales -->
+          <div class="mb-5">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <span class="badge bg-warning text-dark px-3 py-2">
+                <i class="fas fa-exclamation-circle me-1"></i>Unrecognised
+              </span>
+              <small class="text-muted fw-medium">FTM {{ selectedMonthYear() | date:'MMMM' }}</small>
+            </div>
+            @if (salesUnrecognised()) {
+            <div class="row g-3">
+              <div class="col-sm-3 col-6">
+                <div class="p-2 border-0 rounded-3 text-center"
+                  style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white;">
+                  <div class="small fw-medium opacity-75">PM</div>
+                  <div class="fs-12 fw-bold">{{ salesUnrecognised()?.PM }}</div>
+                </div>
+              </div>
+              <div class="col-sm-3 col-6">
+                <div class="p-2 border-0 rounded-3 text-center"
+                  style="background: linear-gradient(135deg, #28a745 0%, #218838 100%); color: white;">
+                  <div class="small fw-medium opacity-75">OM</div>
+                  <div class="fs-12 fw-bold">{{ salesUnrecognised()?.OM }}</div>
+                </div>
+              </div>
+              <div class="col-sm-3 col-6">
+                <div class="p-2 border-0 rounded-3 text-center"
+                  style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: white;">
+                  <div class="small fw-medium opacity-75">PB</div>
+                  <div class="fs-12 fw-bold">{{ salesUnrecognised()?.PB }}</div>
+                </div>
+              </div>
+              <div class="col-sm-3 col-6">
+                <div class="p-2 border-0 rounded-3 text-center"
+                  style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); color: white;">
+                  <div class="small fw-medium opacity-75">Inst/Others</div>
+                  <div class="fs-12 fw-bold">{{ salesUnrecognised()?.InstOthers }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-end mt-2">
+              <span class="badge text-dark px-3 py-2"
+                style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); font-size: 13px;">
+                <i class="fas fa-sigma me-1"></i>
+                Subtotal: {{ sumSalesRow(salesUnrecognised()) }}
+              </span>
+            </div>
+            }
+          </div>
+
+          <!-- Total Sales -->
+          <div class="mb-3">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <span class="badge text-white px-3 py-2"
+                style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
+                <i class="fas fa-calculator me-1"></i>Total
+              </span>
+              <small class="text-muted fw-medium">{{ salesAsOn() }}</small>
+            </div>
+            @if (salesTotal()) {
+            <div class="row g-3 mb-4">
+              <div class="col-sm-3 col-6">
+                <div class="p-2 border-0 rounded-3 text-center"
+                  style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; box-shadow: 0 2px 8px rgba(220, 53, 69, 0.2);">
+                  <div class="small fw-medium opacity-75 mb-1">PM</div>
+                  <div class="fs-12 fw-bold">{{ salesTotal()?.PM }}</div>
+                </div>
+              </div>
+              <div class="col-sm-3 col-6">
+                <div class="p-2 border-0 rounded-3 text-center"
+                  style="background: linear-gradient(135deg, #28a745 0%, #218838 100%); color: white; box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);">
+                  <div class="small fw-medium opacity-75 mb-1">OM</div>
+                  <div class="fs-12 fw-bold">{{ salesTotal()?.OM }}</div>
+                </div>
+              </div>
+              <div class="col-sm-3 col-6">
+                <div class="p-2 border-0 rounded-3 text-center"
+                  style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: white; box-shadow: 0 2px 8px rgba(255, 193, 7, 0.2);">
+                  <div class="small fw-medium opacity-75 mb-1">PB</div>
+                  <div class="fs-12 fw-bold">{{ salesTotal()?.PB }}</div>
+                </div>
+              </div>
+              <div class="col-sm-3 col-6">
+                <div class="p-2 border-0 rounded-3 text-center"
+                  style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); color: white; box-shadow: 0 2px 8px rgba(108, 117, 125, 0.2);">
+                  <div class="small fw-medium opacity-75 mb-1">Inst/Others</div>
+                  <div class="fs-12 fw-bold">{{ salesTotal()?.InstOthers }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-end mt-2 mb-3">
+              <span class="badge text-white px-3 py-2"
+                style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); font-size: 13px; box-shadow: 0 2px 8px rgba(220,53,69,0.3);">
+                <i class="fas fa-calculator me-1"></i>
+                Grand Subtotal: {{ sumSalesRow(salesTotal()) }}
+              </span>
+            </div>
+            }
+
+            <!-- Sales Distribution Chart -->
+            <div class="mt-4">
+              <div class="text-center p-3" style="background: #ffffff; border-radius: 12px; border: 1px solid #f0f0f0;">
+                <h6 class="text-center mb-3 text-muted">Sales Distribution</h6>
+                @if (unrecognisedChartOptions()) {
+                <apx-chart [series]="unrecognisedChartOptions()!.series" [chart]="unrecognisedChartOptions()!.chart"
+                  [labels]="unrecognisedChartOptions()!.labels" [colors]="unrecognisedChartOptions()!.colors"
+                  [legend]="unrecognisedChartOptions()!.legend" [dataLabels]="unrecognisedChartOptions()!.dataLabels"
+                  [tooltip]="unrecognisedChartOptions()!.tooltip" [responsive]="unrecognisedChartOptions()!.responsive">
+                </apx-chart>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════ RECEIVABLES SECTION ════════════════════════════════ -->
+    <div class="col-xxl-6 col-xl-6 col-lg-6 d-flex">
+
+      @if (isReportGenerated()) {
+
+      <div class="card shadow-sm border-0 w-100" style="border-radius: 12px">
+
+        <!-- Header: RECEIVABLES title (left) | PORTAL STATUS DATE filters (right) — single line -->
+        <div class="card-header bg-white" style="border-bottom: 2px solid #dc3545; border-radius: 12px 12px 0 0; padding: 0.85rem 1.25rem;">
+            <div class="d-flex align-items-center justify-content-between flex-wrap" style="gap: 0.75rem">
+
+            <!-- Left: Title + Icon -->
+            <div class="d-flex align-items-center flex-shrink-0" style="gap: 0.5rem">
+                <i class="fas fa-money-bill-wave text-danger" style="font-size: 1.1rem"></i>
+                <h5 class="mb-0 fw-bold">RECEIVABLES</h5>
+            </div>
+
+            <!-- Right: PORTAL STATUS DATE filters — wraps on small screens -->
+            <div class="d-flex align-items-center flex-wrap" style="gap: 0.5rem">
+
+              <!-- Label -->
+              <span class="fw-semibold text-muted"
+                style="font-size: 0.78rem; letter-spacing: 0.4px; white-space: nowrap">
+                PORTAL STATUS DATE:
+              </span>
+
+              <!-- Portal Month-Year input -->
+              <input id="portalMonthYear" type="month" class="form-control form-control-sm"
+                  style="width: 155px; min-width: 120px; border: 2px solid #dc3545; color: #dc3545; font-weight: 600; border-radius: 6px;"
+                  [value]="selectedPortalMonthYear()" (change)="onPortalMonthYearChange($event)"
+                  [disabled]="isLoading()" />
+
+              <!-- Date Dropdown -->
+              <select class="form-select form-select-sm" (change)="onDateChange($event)"
+                  [disabled]="isLoading() || receivablePortalDates().length === 0"
+                  style="width: 135px; min-width: 110px; border: 2px solid #dc3545; color: #dc3545; font-weight: 600; border-radius: 6px;">
+                  
+                  <option value="" disabled [selected]="!selectedDate()">Select Date</option>
+                  
+                  @for (d of receivablePortalDates(); track d) {
+                    <option [value]="d" [selected]="d === selectedDate()">{{ formatDateForUI(d) }}</option>
+                  }
+                </select>
+
+              <!-- Spinner -->
+              @if (isLoading()) {
+              <span class="spinner-border spinner-border-sm text-danger flex-shrink-0" role="status"></span>
+              }
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        @if (isLoading()) {
+          <div class="card-body p-5 text-center">
+            <div class="spinner-border text-danger" role="status" style="width: 3rem; height: 3rem">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 text-muted fw-medium">Loading receivables data...</p>
+          </div>
+          }
+        <!-- Data Display -->
+        @if (!isLoading() && receivablesData()) {
+        <div class="card-body p-4">
+
+          <!-- PM row: always visible -->
+          <div class="p-3 rounded-3 mb-3"
+            style="background: #fff5f5; border-left: 4px solid #dc3545; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <div class="d-flex w-100 align-items-center" style="gap: 12px; flex-wrap: wrap">
+
+              <!-- PM Label -->
+              <span class="fw-bold text-danger" style="min-width: 40px">PM</span>
+
+              <!-- 2x2 buckets -->
+              <div class="flex-grow-1">
+                <div class="p-2 bg-white border rounded-3" style="border: 2px dashed #ffc5c5 !important">
+                  <div class="d-grid" style="grid-template-columns: repeat(2, minmax(110px, 1fr)); gap: 8px;">
+                    <span class="badge bg-white border text-dark px-2 py-2" style="font-size: 12px">
+                      <span class="text-muted me-1">FP</span>
+                      <strong class="text-danger">{{ receivablesData()!.Pm.Fp | currency: "INR" : "" : "1.2-2"
+                        }}</strong>
+                    </span>
+                    <span class="badge bg-white border text-dark px-2 py-2" style="font-size: 12px">
+                      <span class="text-muted me-1">Insp done</span>
+                      <strong class="text-danger">{{ receivablesData()!.Pm.InspDone | currency: "INR" : "" : "1.2-2"
+                        }}</strong>
+                    </span>
+                    <span class="badge bg-white border text-dark px-2 py-2" style="font-size: 12px">
+                      <span class="text-muted me-1">Insp&lt;90</span>
+                      <strong class="text-danger">{{ receivablesData()!.Pm.InspLt90 | currency: "INR" : "" : "1.2-2"
+                        }}</strong>
+                    </span>
+                    <span class="badge bg-white border text-dark px-2 py-2" style="font-size: 12px">
+                      <span class="text-muted me-1">Insp&gt;90</span>
+                      <strong class="text-danger">{{ receivablesData()!.Pm.InspGt90 | currency: "INR" : "" : "1.2-2"
+                        }}</strong>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ✅ SUBTOTAL badge — same style as OM -->
+              <span class="badge text-white px-3 py-2"
+                style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
+                SUBTOTAL: {{ receivablesData()!.Pm.Total | currency: "INR" : "" : "1.2-2" }}
+              </span>
+
+            </div>
+          </div>
+
+          <!-- OM row: always visible -->
+          <div class="d-flex align-items-center justify-content-between p-3 rounded-3 mb-3"
+            style="background: #f0fff4; border-left: 4px solid #28a745; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <span class="fw-bold text-success">OM</span>
+            <div class="d-flex gap-2 flex-wrap align-items-center">
+              <span class="small d-inline-block text-center" style="min-width: 120px">
+                <span class="text-danger fw-medium">OD</span>
+                <strong class="d-block">{{ receivablesData()!.Om.Overdue | currency: "INR" : "" : "1.2-2"
+                  }}</strong>
+              </span>
+              <span class="small d-inline-block text-center" style="min-width: 120px">
+                <span class="text-success fw-medium">ND</span>
+                <strong class="d-block">{{ receivablesData()!.Om.NotDue | currency: "INR" : "" : "1.2-2"
+                  }}</strong>
+              </span>
+              <span class="badge text-dark px-3 py-2"
+                style="background: linear-gradient(135deg, #3ae717 0%, #19b401 100%);">
+                SUBTOTAL: {{ receivablesData()!.Om.Total | currency: "INR" : "" : "1.2-2" }}
+              </span>
+            </div>
+          </div>
+
+          <!-- PB row: show when ALL states selected -->
+          @if (selectedState() == 'All') {
+          <div class="d-flex align-items-center justify-content-between p-3 rounded-3 mb-3"
+            style="background: #fff9e6; border-left: 4px solid #ffc107; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <span class="fw-bold" style="color: #d97706">PB</span>
+            <div class="d-flex gap-2 flex-wrap align-items-center">
+              <span class="small d-inline-block text-center" style="min-width: 120px">
+                <span class="text-danger fw-medium">OD</span>
+                <strong class="d-block">{{ receivablesData()!.Pb.Overdue | currency: "INR" : "" : "1.2-2"
+                  }}</strong>
+              </span>
+              <span class="small d-inline-block text-center" style="min-width: 120px">
+                <span class="text-success fw-medium">ND</span>
+                <strong class="d-block">{{ receivablesData()!.Pb.NotDue | currency: "INR" : "" : "1.2-2"
+                  }}</strong>
+              </span>
+              <span class="badge text-dark px-3 py-2"
+                style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);">
+                SUBTOTAL: {{ receivablesData()!.Pb.Total | currency: "INR" : "" : "1.2-2" }}
+              </span>
+            </div>
+          </div>
+          }
+
+          <!-- Inst/Others row: show when ALL states selected -->
+          @if (selectedState() == 'All') {
+          <div class="d-flex align-items-center justify-content-between p-3 rounded-3 mb-3"
+            style="background: #f8f9fa; border-left: 4px solid #6c757d; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <span class="fw-bold text-secondary">Inst/Others</span>
+            <div class="d-flex gap-2 flex-wrap align-items-center">
+              <span class="small d-inline-block text-center" style="min-width: 120px">
+                <span class="text-danger fw-medium">OD</span>
+                <strong class="d-block">{{ receivablesData()!.InstOthers.Overdue | currency: "INR" : "" : "1.2-2"
+                  }}</strong>
+              </span>
+              <span class="small d-inline-block text-center" style="min-width: 120px">
+                <span class="text-success fw-medium">ND</span>
+                <strong class="d-block">{{ receivablesData()!.InstOthers.NotDue | currency: "INR" : "" : "1.2-2"
+                  }}</strong>
+              </span>
+              <span class="badge text-white px-3 py-2"
+                style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);">
+                SUBTOTAL: {{ receivablesData()!.InstOthers.Total | currency: "INR" : "" : "1.2-2" }}
+              </span>
+            </div>
+          </div>
+          }
+
+          <!-- Info badge when All is selected -->
+          <!-- @if (selectedState() === 'All') {
+          <div class="alert alert-info d-flex align-items-center py-2 px-3 mb-3"
+            style="font-size: 13px; border-radius: 8px;">
+            <i class="fas fa-info-circle me-2"></i>
+            Select a specific state to view PB &amp; Inst/Others breakdowns.
+          </div>
+          } -->
+
+          <!-- Chart + Grand Total -->
+          <div class="row g-3 align-items-stretch">
+            <div class="col-lg-7 col-md-6">
+              <div class="p-3 h-100" style="background: #ffffff; border-radius: 12px; border: 1px solid #f0f0f0;">
+                <h6 class="text-center mb-3 text-muted">Distribution Overview</h6>
+                @if (receivablesChartOptions()) {
+                <apx-chart [series]="receivablesChartOptions()!.series" [chart]="receivablesChartOptions()!.chart"
+                  [labels]="receivablesChartOptions()!.labels" [colors]="receivablesChartOptions()!.colors"
+                  [legend]="receivablesChartOptions()!.legend" [dataLabels]="receivablesChartOptions()!.dataLabels"
+                  [tooltip]="receivablesChartOptions()!.tooltip" [plotOptions]="receivablesChartOptions()!.plotOptions"
+                  [responsive]="receivablesChartOptions()!.responsive">
+                </apx-chart>
+                }
+              </div>
+            </div>
+            <div class="col-lg-5 col-md-6">
+              <div class="p-4 rounded-3 h-100 d-flex flex-column justify-content-center align-items-center"
+                style="background: linear-gradient(135deg, #fff5f5 0%, #fff 100%); border: 1px solid #f5c2c7; border-radius: 12px;">
+                <i class="fas fa-calculator fs-1 text-danger opacity-75 mb-3"></i>
+                <div class="fw-bold text-dark mb-2" style="font-size: 1rem; letter-spacing: 0.5px">GRAND TOTAL</div>
+                <div class="fw-bold text-danger" style="font-size: 22px; line-height: 1.2">
+                  {{ receivablesGrandTotal() | currency: "INR" : "" : "1.2-2" }}
+                </div>
+                <div class="text-muted mt-1" style="font-size: 0.8rem">
+                  <!-- was: 'All' ? 'PM + OM' : 'PM + OM + PB + Inst/Others' -->
+                  {{ selectedState() === 'All' ? 'PM + OM + PB + Inst/Others' : 'PM + OM' }}
+                </div>
+                <div class="text-muted" style="font-size: 0.75rem">{{ currencyUnit() }}</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        }
+        <!-- After the existing @if (!isLoading() && receivablesData()) block, add: -->
+        @if (!isLoading() && !receivablesData()) {
+        <div class="card-body p-5 d-flex flex-column align-items-center justify-content-center text-center" style="min-height: 350px;">
+          <div class="mb-3 p-3 rounded-circle" style="background-color: #f8f9fa;">
+            <i class="fas fa-folder-open fs-1 text-secondary opacity-75"></i>
+          </div>
+          <h5 class="fw-bold text-dark mb-2">No Data for Selected Date</h5>
+          <p class="text-muted small mb-4" style="max-width: 320px;">
+            We couldn't find receivables data for <strong>{{ selectedDate() ? formatDateForUI(selectedDate()) : 'this period' }}</strong>. 
+            Try selecting a different date, or generate the report.
+          </p>
+          <button type="button" class="btn btn-outline-danger px-4 shadow-sm" style="border-radius: 8px;" (click)="openGenerateReportModal('receivables')">
+            <i class="fas fa-sync-alt me-2"></i> Generate Report
+          </button>
+        </div>
+        }
+      </div>
+
+      } @else {
+
+        <div class="card shadow-sm border-0 w-100 d-flex flex-column align-items-center justify-content-center" style="border-radius: 12px; background: #ffffff; border: 2px dashed #dc3545 !important; min-height: 450px;">
+          <div class="text-center p-4">
+            <div class="mb-3">
+              <i class="fas fa-lock fs-1 text-danger opacity-75"></i>
+            </div>
+            <h5 class="fw-bold text-dark mb-2">Receivables Data Locked</h5>
+            <p class="text-muted small mb-4">
+              Some files are missing or registration corrections are pending for <strong>{{ selectedMonthYear() | date:'MMMM, yyyy' }}</strong>.<br>
+              The data will automatically unlock once all uploads are complete.
+            </p>
+            
+            <!-- <button class="btn btn-outline-danger shadow-sm" (click)="openGenerateReportModal('global')" style="border-radius: 6px;">
+              <i class="fas fa-clipboard-list me-2"></i> View Missing Files
+            </button> -->
+          </div>
+        </div>
+
+      }
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════ COLLECTIONS SECTION ════════════════════════════════ -->
+  <div class="row g-4 mt-0">
+    <div class="col-xxl-12">
+      <div class="card shadow-sm border-0" style="border-radius: 12px">
+
+        <!-- Header: Title + Currency badge only (year removed — derived from global Month-Year) -->
+        <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap" style="
+            border-bottom: 2px solid #dc3545;
+            border-radius: 12px 12px 0 0;
+            padding: 1.25rem;
+            gap: 1rem;
+          ">
+          <div class="d-flex align-items-center gap-2">
+            <i class="fas fa-coins text-danger fs-5"></i>
+            <h5 class="mb-0 fw-bold">COLLECTIONS</h5>
+            <span class="badge bg-light text-muted border ms-2" style="font-size: 12px">FY {{ selectedYear() }}</span>
+          </div>
+          <span class="badge bg-light text-dark border px-3 py-2">Rs {{ currencyUnit() }}</span>
+        </div>
+
+        <!-- Loading State -->
+        @if (isCollectionsLoading()) {
+        <div class="card-body p-5 text-center">
+          <div class="spinner-border text-danger" role="status" style="width: 3rem; height: 3rem">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-3 text-muted fw-medium">Loading collections data...</p>
+        </div>
+        }
+
+        <!-- Body -->
+        @if (!isCollectionsLoading() && collectionsData().length > 0) {
+        <div class="card-body p-4">
+          <div class="row g-4 align-items-stretch">
+
+            <div class="col-lg-9">
+              <div class="table-responsive" style="border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+
+                <table class="table table-hover table-striped table-bordered align-middle mb-0"
+                  style="width: 100%; table-layout: fixed; margin-bottom: 0;">
+
+                  <thead class="thead-light"
+                    style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; display: table; width: 100%; table-layout: fixed;">
+                    <tr>
+                      <th class="fw-bold border-0 py-3">Month</th>
+                      <th class="fw-bold border-0 py-3 text-center">PM</th>
+                      <th class="fw-bold border-0 py-3 text-center">OM</th>
+                      <th class="fw-bold border-0 py-3 text-center">PB</th>
+                      <th class="fw-bold border-0 py-3 text-center">Inst/Others</th>
+                    </tr>
+                  </thead>
+
+                  <tbody style="display: block; max-height: 288px; overflow-y: auto; overflow-x: hidden; width: 100%;">
+                    @for (collection of collectionsData(); track collection.MonthName) {
+                    <tr style="display: table; width: 100%; table-layout: fixed; border-bottom: 1px solid #f0f0f0;">
+                      <td class="fw-medium" style="padding-top: 12px; padding-bottom: 12px;">{{ collection.MonthName }}
+                      </td>
+                      <td class="text-center" style="padding-top: 12px; padding-bottom: 12px;">
+                        <span class="fs-12 text-black px-3 py-2">{{ collection.PM.toFixed(2) }}</span>
+                      </td>
+                      <td class="text-center" style="padding-top: 12px; padding-bottom: 12px;">
+                        <span class="fs-12 text-black px-3 py-2">{{ collection.OM.toFixed(2) }}</span>
+                      </td>
+                      <td class="text-center" style="padding-top: 12px; padding-bottom: 12px;">
+                        <span class="fs-12 text-black px-3 py-2">{{ collection.PB.toFixed(2) }}</span>
+                      </td>
+                      <td class="text-center" style="padding-top: 12px; padding-bottom: 12px;">
+                        <span class="fs-12 text-black px-3 py-2">{{ collection.InstOthers.toFixed(2) }}</span>
+                      </td>
+                    </tr>
+                    }
+                  </tbody>
+
+                  @if (totalCollectionsData()) {
+                  <tfoot
+                    style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: #fff; display: table; width: 100%; table-layout: fixed;">
+                    <tr>
+                      <th class="border-0 py-3 fw-bold">Total</th>
+                      <th class="border-0 py-3 text-center fw-bold">{{ pmCollectionTotal().toFixed(2) }}</th>
+                      <th class="border-0 py-3 text-center fw-bold">{{ omCollectionTotal().toFixed(2) }}</th>
+                      <th class="border-0 py-3 text-center fw-bold">{{ pbCollectionTotal().toFixed(2) }}</th>
+                      <th class="border-0 py-3 text-center fw-bold">{{ instCollectionTotal().toFixed(2) }}</th>
+                    </tr>
+                  </tfoot>
+                  }
+                </table>
+              </div>
+            </div>
+
+            <!-- PIE -->
+            <div class="col-lg-3">
+              <div class="h-100 d-flex flex-column justify-content-center align-items-center p-3"
+                style="background: #ffffff; border-radius: 12px; border: 1px solid #f0f0f0; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                <h6 class="text-center mb-3 text-muted">Collections Distribution</h6>
+                @if (collectionsChartOptions()) {
+                <apx-chart [series]="collectionsChartOptions()!.series" [chart]="collectionsChartOptions()!.chart"
+                  [labels]="collectionsChartOptions()!.labels" [colors]="collectionsChartOptions()!.colors"
+                  [legend]="collectionsChartOptions()!.legend" [dataLabels]="collectionsChartOptions()!.dataLabels"
+                  [tooltip]="collectionsChartOptions()!.tooltip" [plotOptions]="collectionsChartOptions()!.plotOptions"
+                  [responsive]="collectionsChartOptions()!.responsive">
+                </apx-chart>
+                }
+              </div>
+            </div>
+          </div>
+          <!-- 
+          <div class="d-flex justify-content-between align-items-center mt-4">
+            <a class="btn btn-outline-danger btn-sm" href="javascript:void(0)">
+              <i class="fas fa-calendar-day me-1"></i>Today's Collections
+            </a>
+          </div> -->
+        </div>
+        }
+
+        @if (!isCollectionsLoading() && collectionsData().length === 0) {
+        <div class="card-body p-5 text-center">
+          <i class="fas fa-inbox fs-1 text-muted mb-3"></i>
+          <p class="text-muted">No collections data available for FY {{ selectedYear() }}</p>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- Generate Model -->
+<div class="modal fade" #generateReportModal tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+      
+      <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+        <h4 class="modal-title fw-bold text-dark d-flex align-items-center">
+          Report Pre-Flight Check
+        </h4>
+        <button type="button" class="btn-close" (click)="closeGenerateModal()"></button>
+      </div>
+
+      <div class="modal-body px-4 py-3">
+        @if(isUploadStatusLoading()) {
+          <div class="text-center py-5">
+            <div class="spinner-border text-danger" role="status"></div>
+            <p class="text-muted mt-3 fw-medium">Verifying system data...</p>
+          </div>
+        } @else if(uploadStatus()) {
+          
+          <div class="p-3 mb-4 rounded-3" style="background-color: #f8f9fa; border: 1px solid #e9ecef;">
+            <h6 class="mb-1 fw-bold text-muted" style="font-size: 12px; text-transform: uppercase;">Selected Month-Year</h6>
+            <div class="fw-bold text-dark fs-10">{{ uploadStatus()?.Month }} {{ uploadStatus()?.Year }}</div>
+          </div>
+
+          <h6 class="fw-bold text-muted mb-3" style="font-size: 12px; letter-spacing: 0.8px; text-transform: uppercase;">Required Files Status</h6>
+          
+          <div class="d-flex flex-column gap-3 mb-4 px-1">
+            @for (item of reportChecklist; track item.key) {
+            <div class="d-flex align-items-center">
+              <input type="checkbox" class="form-check-input mt-0 me-3 shadow-none" 
+                     style="width: 1.25rem; height: 1.25rem; cursor: pointer; border-color: #ccc;" 
+                     [checked]="getChecklistValue(item.key)"
+                     (change)="toggleChecklistValue(item.key, $event)">
+                     
+              <span class="fw-medium text-dark">
+                {{ item.label }} 
+                <span [ngClass]="getChecklistValue(item.key) ? 'text-success' : 'text-danger'">
+                  {{ getChecklistValue(item.key) ? item.trueText : item.falseText }}
+                </span>
+              </span>
+            </div>
+            }
+          </div>
+
+          <hr class="my-3 text-muted">
+
+          <div class="d-flex justify-content-between align-items-center px-1">
+            <span class="fw-bold" [ngClass]="uploadStatus()?.MissingCount === 0 ? 'text-success' : 'text-danger'">
+              Missing Records Count:
+            </span>
+            <span class="badge fs-10 rounded-pill px-4" [ngClass]="uploadStatus()?.MissingCount === 0 ? 'bg-success' : 'bg-danger'">
+              {{ uploadStatus()?.MissingCount }}
+            </span>
+          </div>
+
+        } @else {
+          <div class="text-center py-4 text-danger fw-medium">
+            Failed to fetch system status.
+          </div>
+        }
+      </div>
+
+      <div class="modal-footer bg-light border-top-0 px-4 py-3 d-flex justify-content-between">
+        <button type="button" class="btn btn-light border bg-white shadow-sm fw-medium px-4" (click)="closeGenerateModal()">Cancel</button>
+        <button type="button" class="btn btn-danger px-4 shadow-sm" (click)="confirmGenerateReport()" [disabled]="isUploadStatusLoading() || !uploadStatus()">
+          Generate Report
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

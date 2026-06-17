@@ -1,0 +1,327 @@
+<div class="content container-fluid">
+
+  <!-- Breadcrumb -->
+  <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap w-100 justify-content-between gap-2">
+      <div class="me-0">
+        <app-breadcrumbs title="User Master" [breadcrumbItems]="breadCrumbItems()">
+        </app-breadcrumbs>
+      </div>
+      <div>
+        <button class="btn btn-primary shadow-sm" type="button" style="border-radius: 8px;">
+          <i class="bi bi-file-earmark-arrow-down me-2"></i>
+          Export
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top bar -->
+  <div class="card border mb-3">
+    <div class="card-body">
+      <div class="row align-items-center g-2">
+        <div class="col-12 col-md-6">
+          <h3 class="mb-0 text-center text-md-start">User List</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User List Section -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+
+        <!-- Card header: page size -->
+        <div class="card-header">
+          <div class="row g-2 align-items-center">
+            <!-- Page size selector -->
+            <div class="col-12 col-md-6">
+              <div class="dataTables_length">
+                <label class="d-inline-flex align-items-center mb-0">
+                  <span class="me-1">Show</span>
+                  <select class="form-select form-select-sm mx-1" style="width: auto;" [value]="pageSize()"
+                    (change)="onPageSizeChange($event)" [disabled]="isLoading()">
+                    <option [value]="10">10</option>
+                    <option [value]="25">25</option>
+                    <option [value]="50">50</option>
+                    <option [value]="100">100</option>
+                  </select>
+                  <span>entries</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card body -->
+        <div class="card-body p-2">
+          <div class="custom-datatable-filter">
+            <div class="dataTables_wrapper dt-bootstrap5 no-footer">
+
+              <!-- Loading Overlay -->
+              @if (isLoading()) {
+              <div class="position-relative" style="min-height: 400px;">
+                <div class="position-absolute top-50 start-50 translate-middle">
+                  <div class="text-center">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Loading Users...</p>
+                  </div>
+                </div>
+              </div>
+              } @else {
+
+              <!-- Table -->
+              <div class="table-responsive">
+                <table class="table table-striped table-bordered mb-0 table-ultra-compact">
+                  <thead class="thead-light text-center">
+                    <tr>
+                      <!-- <th>Sr No</th> -->
+                      <th>Employee ID</th>
+                      <th>User Name</th>
+                      <th>Email</th>
+                      <th>Mobile</th>
+                      <th>Designation</th>
+                      <th>Role</th>
+                      <th>Dealer Code</th>
+                      <th>Active Status</th>
+                      <th>Lock Status</th>
+                      <th>Created On</th>
+                      <th>Created By</th>
+                      <th>Modified On</th>
+                      <th>Modified By</th>
+                      <th>Locations</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-end">
+                    @if (allUsers().length > 0) {
+                    @for (user of allUsers(); track user.UserPK) {
+                    <!-- Main User Row -->
+                    <tr>
+                      <!-- <td>{{ getSerialNumber($index) }}</td> -->
+                      <td>{{ user.EmployeeId || '-' }}</td>
+                      <td>{{ user.UserName }}</td>
+                      <td [class.text-center]="!user.Email">{{ user.Email || '-' }}</td>
+                      <td [class.text-center]="!user.Mobile">{{ user.Mobile }}</td>
+                      <td>{{ user.Designation }}</td>
+                      <td>{{ user.RoleId }}</td>
+                      <td>{{ user.DealerCode }}</td>
+                      <td class="text-center">
+                        <span class="badge" [ngClass]="user.ActiveStatus === 1 ? 'bg-success' : 'bg-danger'">
+                          {{ user.ActiveStatus === 1 ? 'Active' : 'Inactive' }}
+                        </span>
+                      </td>
+                      <td class="text-center">
+                        <span class="badge" [ngClass]="user.LockStatus === 0 ? 'bg-success' : 'bg-warning'">
+                          {{ user.LockStatus === 0 ? 'Unlocked' : 'Locked' }}
+                        </span>
+                      </td>
+                      <td>{{ user?.CreatedOn ? ( user.CreatedOn | date: 'dd-MM-yyyy' ) : '-' }}</td>
+                      <td [class.text-center]="!user.CreatedBy">{{ user.CreatedBy ? user.CreatedBy : '-' }}</td>
+                      <td>{{ user.ModifiedOn ? ( user.ModifiedOn | date: 'dd-MM-yyyy' ) : '-' }}</td>
+                      <td [class.text-center]="!user.ModifiedBy">{{ user.ModifiedBy ? user.ModifiedBy : '-' }}</td>
+                      <td class="text-center">
+                        <button class="btn btn-sm btn-outline-primary" (click)="toggleUserExpansion(user.UserPK)"
+                          [disabled]="!user.Locations || user.Locations.length === 0">
+                          <i class="bi"
+                            [ngClass]="isUserExpanded(user.UserPK) ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                          <span class="ms-1">{{ user.Locations?.length || 0 }}</span>
+                        </button>
+                      </td>
+                    </tr>
+
+                    <!-- Expanded Locations Row -->
+                    @if (isUserExpanded(user.UserPK) && user.Locations && user.Locations.length > 0) {
+                    <tr>
+                      <td colspan="15" style="background-color: #f8f9fa; padding: 20px;">
+                        <div class="locations-container">
+                          <!-- Locations Header -->
+                          <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0 fw-bold text-primary">
+                              <i class="bi bi-geo-alt-fill me-2"></i>User Locations
+                            </h6>
+                            <small class="text-muted">
+                              Showing {{ getLocationDisplayRange(user.UserPK, user.Locations.length) }}
+                            </small>
+                          </div>
+
+                          <!-- Slider Container -->
+                          <div class="location-slider-wrapper">
+                            <!-- Previous Button -->
+                            <button class="slider-nav-btn slider-nav-prev" (click)="slidePrev(user.UserPK)"
+                              [disabled]="!canSlidePrev(user.UserPK)"
+                              [style.opacity]="canSlidePrev(user.UserPK) ? '1' : '0.3'">
+                              <i class="bi bi-chevron-left"></i>
+                            </button>
+
+                            <!-- Locations Cards -->
+                            <div class="locations-slider">
+                              @for (location of getVisibleLocations(user.Locations, user.UserPK); track
+                              location.LocationPK) {
+                              <div class="location-card">
+                                <div class="location-card-header">
+                                  <i class="bi bi-pin-map-fill"></i>
+                                  <span class="location-id">Location #{{ location.LocationPK }}</span>
+                                </div>
+                                <div class="location-card-body">
+                                  <!-- First Row: Zone, Region, Area -->
+                                  <div class="location-row">
+                                    <div class="location-col">
+                                      <i class="bi bi-globe2"></i>
+                                      <div class="location-content">
+                                        <small class="text-muted">Zone</small>
+                                        <div class="fw-semibold">{{ location.ZoneName || '-' }}</div>
+                                      </div>
+                                    </div>
+                                    <div class="location-col">
+                                      <i class="bi bi-map"></i>
+                                      <div class="location-content">
+                                        <small class="text-muted">Region</small>
+                                        <div class="fw-semibold">{{ location.RegionName || '-' }}</div>
+                                      </div>
+                                    </div>
+                                    <div class="location-col">
+                                      <i class="bi bi-geo"></i>
+                                      <div class="location-content">
+                                        <small class="text-muted">Area</small>
+                                        <div class="fw-semibold">{{ location.AreaName || '-' }}</div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <!-- Second Row: State, District, Sub-District -->
+                                  <div class="location-row">
+                                    <div class="location-col">
+                                      <i class="bi bi-building"></i>
+                                      <div class="location-content">
+                                        <small class="text-muted">State</small>
+                                        <div class="fw-semibold">{{ location.StateName || '-' }}</div>
+                                      </div>
+                                    </div>
+                                    <div class="location-col">
+                                      <i class="bi bi-signpost-2"></i>
+                                      <div class="location-content">
+                                        <small class="text-muted">District</small>
+                                        <div class="fw-semibold">{{ location.DistrictName || '-' }}</div>
+                                      </div>
+                                    </div>
+                                    <div class="location-col">
+                                      <i class="bi bi-signpost"></i>
+                                      <div class="location-content">
+                                        <small class="text-muted">Sub-District</small>
+                                        <div class="fw-semibold">{{ location.SubDistName || '-' }}</div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <!-- Third Row: Village (if exists) -->
+                                  @if (location.Village) {
+                                  <div class="location-row location-row-single">
+                                    <div class="location-col location-col-full">
+                                      <i class="bi bi-house"></i>
+                                      <div class="location-content">
+                                        <small class="text-muted">Village</small>
+                                        <div class="fw-semibold">{{ location.Village }}</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  }
+
+                                  <!-- Location User ID -->
+                                  @if (location.LocationUserId) {
+                                  <div class="location-row location-row-single mt-2">
+                                    <div class="location-col location-col-full">
+                                      <i class="bi bi-person-badge"></i>
+                                      <div class="location-content">
+                                        <small class="text-muted">Location User ID</small>
+                                        <div class="fw-semibold">{{ location.LocationUserId }}</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  }
+                                </div>
+                              </div>
+                              }
+                            </div>
+
+                            <!-- Next Button -->
+                            <button class="slider-nav-btn slider-nav-next"
+                              (click)="slideNext(user.UserPK, user.Locations)"
+                              [disabled]="!canSlideNext(user.UserPK, user.Locations)"
+                              [style.opacity]="canSlideNext(user.UserPK, user.Locations) ? '1' : '0.3'">
+                              <i class="bi bi-chevron-right"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    }
+                    }
+                    } @else {
+                    <tr>
+                      <td colspan="15" class="text-center py-4">No Users found</td>
+                    </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Pagination Controls -->
+              @if (totalRecords() > 0) {
+              <div class="row mt-3 align-items-center">
+                <div class="col-12 col-md-5 mb-2 mb-md-0">
+                  <div class="dataTables_info text-center text-md-start">
+                    Showing {{ getStartRecord() }} to {{ getEndRecord() }} of {{ totalRecords() }} entries
+                  </div>
+                </div>
+                <div class="col-12 col-md-7">
+                  <div
+                    class="dataTables_paginate paging_simple_numbers d-flex justify-content-center justify-content-md-end">
+                    <ul class="pagination mb-0">
+                      <!-- Previous Button -->
+                      <li class="paginate_button page-item" [class.disabled]="currentPage() === 1">
+                        <a class="page-link" [class.pe-none]="currentPage() === 1" style="cursor: pointer;"
+                          (click)="currentPage() === 1 ? null : onPageChange(currentPage() - 1)">
+                          Previous
+                        </a>
+                      </li>
+
+                      <!-- Page Numbers with Ellipsis -->
+                      @for (page of getVisiblePages(); track $index) {
+                      @if (page === -1 || page === -2) {
+                      <li class="paginate_button page-item disabled">
+                        <span class="page-link">...</span>
+                      </li>
+                      } @else {
+                      <li class="paginate_button page-item" [class.active]="page === currentPage()">
+                        <a class="page-link" style="cursor: pointer;" [class.pe-none]="page === currentPage()"
+                          (click)="page === currentPage() ? null : onPageChange(page)">
+                          {{ page }}
+                        </a>
+                      </li>
+                      }
+                      }
+
+                      <!-- Next Button -->
+                      <li class="paginate_button page-item" [class.disabled]="currentPage() === totalPages()">
+                        <a class="page-link" [class.pe-none]="currentPage() === totalPages()" style="cursor: pointer;"
+                          (click)="currentPage() === totalPages() ? null : onPageChange(currentPage() + 1)">
+                          Next
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              }
+              }
+            </div>
+          </div>
+        </div>
+
+      </div> <!-- /card -->
+    </div>
+  </div>
+</div>

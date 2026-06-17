@@ -1,0 +1,511 @@
+<div class="content container-fluid">
+
+  <!-- Breadcrumb -->
+  <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap w-100 justify-content-between gap-2">
+      <div class="me-0 mb-2">
+        <app-breadcrumbs title="Cost Estimation / Incurred" [breadcrumbItems]="breadCrumbItems()">
+        </app-breadcrumbs>
+      </div>
+
+      @if (isDownloading()==true) {
+      <button class="btn btn-primary shadow-sm">
+        Exporting
+      </button>
+      } @else {
+      <button class="btn btn-primary shadow-sm" (click)="exportProjectSummaryAudit()">
+        Export Project Summary Audit
+      </button>
+      }
+
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+
+        <!-- ==================== CARD HEADER: Filters ==================== -->
+        <div class="card-header bg-white border-bottom">
+          <div class="row g-2 align-items-end">
+
+            <!-- Month Filter -->
+            <div class="col-6 col-md-3 col-lg-2">
+              <label class="form-label mb-1 fw-semibold small text-muted">Month</label>
+              <select class="form-select form-select-sm" [value]="selectedMonth()"
+                (change)="selectedMonth.set(+$any($event.target).value); onFilterChange()" [disabled]="isLoading()">
+                @for (m of months; track m.value) {
+                <option [value]="m.value">{{ m.label }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Year Filter -->
+            <div class="col-6 col-md-3 col-lg-2">
+              <label class="form-label mb-1 fw-semibold small text-muted">Year</label>
+              <select class="form-select form-select-sm" [value]="selectedYear()"
+                (change)="selectedYear.set(+$any($event.target).value); onFilterChange()" [disabled]="isLoading()">
+                @for (y of years; track y) {
+                <option [value]="y">{{ y }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Filter info -->
+            <!-- <div class="col-12 col-md-6 col-lg-8 d-flex align-items-end">
+              @if (!isLoading() && hasData()) {
+              <span class="text-muted small ms-1">
+                <i class="bi bi-calendar3 me-1"></i>
+                Showing data for <strong>{{ selectedMonthLabel() }} {{ selectedYear() }}</strong>
+                &nbsp;·&nbsp; {{ nodalAgencies().length }} agencies
+              </span>
+              }
+            </div> -->
+
+          </div>
+        </div>
+
+        <!-- ==================== CARD BODY ==================== -->
+        <div class="card-body p-2">
+
+          <!-- Loading -->
+          @if (isLoading()) {
+          <div class="position-relative" style="min-height: 400px;">
+            <div class="position-absolute top-50 start-50 translate-middle text-center">
+              <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+              <p class="mt-2 text-muted">Loading project data...</p>
+            </div>
+          </div>
+
+          } @else if (!hasData()) {
+          <div class="text-center py-5">
+            <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+            <p class="text-muted mt-2">No data found for {{ selectedMonthLabel() }} {{ selectedYear() }}</p>
+          </div>
+
+          } @else {
+
+          <!-- ==================== TABLE ==================== -->
+          <div class="table-responsive" style="overflow-x: auto; max-height: 75vh; overflow-y: auto;">
+            <table class="table table-bordered mb-0 table-ultra-compact"
+              style="min-width: 2800px; font-size: 12px; border-collapse: collapse;">
+
+              <!-- ====== THEAD ====== -->
+              <!-- ====== THEAD ====== -->
+              <thead class="thead-light" style="position: sticky; top: 0; z-index: 20;">
+                <tr>
+                  <!-- ✅ Sticky identity columns -->
+                  <th
+                    style="min-width: 140px; position: sticky; left: 0; z-index: 30; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">
+                    Nodal Agency
+                  </th>
+                  <th
+                    style="min-width: 80px; position: sticky; left: 140px; z-index: 30; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">
+                    State
+                  </th>
+                  <th
+                    style="min-width: 50px; position: sticky; left: 220px; z-index: 30; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">
+                    Sr No
+                  </th>
+                  <th
+                    style="min-width: 100px; position: sticky; left: 270px; z-index: 30; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">
+                    Chak Group
+                  </th>
+                  <th
+                    style="min-width: 110px; position: sticky; left: 370px; z-index: 30; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">
+                    Customer Code
+                  </th>
+                  <th
+                    style="min-width: 200px; position: sticky; left: 480px; z-index: 30; padding: 8px 10px; white-space: nowrap; vertical-align: middle; border-right: 3px solid #a00d1f;">
+                    Project Name
+                  </th>
+
+                  <!-- Scrollable columns -->
+                  <th style="min-width: 130px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">WBS
+                    Number</th>
+                  <th style="min-width: 100px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">
+                    Agreement Date</th>
+                  <th style="min-width: 100px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">Start
+                    Date</th>
+                  <th style="min-width: 100px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">Exp
+                    Completion</th>
+                  <th style="min-width: 110px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">
+                    Extension Letter</th>
+                  <th style="min-width: 70px;  padding: 8px 10px; white-space: nowrap; vertical-align: middle;">GST %
+                  </th>
+                  <!-- ✅ Moved up: Margin FTM % -->
+                  <th style="min-width: 110px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">Margin
+                    FTM %</th>
+                  <!-- ✅ Moved up: Cost to Completion -->
+                  <th style="min-width: 140px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">Cost to
+                    Completion</th>
+                  <!-- ✅ Moved down: % Completion -->
+                  <th style="min-width: 80px;  padding: 8px 10px; white-space: nowrap; vertical-align: middle;">%
+                    Completion</th>
+                  <th style="min-width: 130px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">Total
+                    Gross Value</th>
+                  <th style="min-width: 130px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">Total
+                    Basic Value</th>
+                  <th style="min-width: 130px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">O&amp;M
+                    Amount</th>
+                  <th style="min-width: 130px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">Basic
+                    Revenue Amt</th>
+                  <th style="min-width: 140px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">YTD
+                    Basic Revenue</th>
+                  <th style="min-width: 130px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">YTD
+                    Collection</th>
+                  <th style="min-width: 130px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">Basic
+                    Value Collection</th>
+                  <th style="min-width: 110px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">
+                    Retention</th>
+                  <th style="min-width: 130px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">YTD
+                    Billed Revenue</th>
+                  <th style="min-width: 130px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">Basic
+                    Bill Billed</th>
+                  <th style="min-width: 130px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">Advance
+                    (Customer)</th>
+                  <!-- <th style="min-width: 110px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">RR Bills
+                    Raise</th> -->
+                  <th style="min-width: 110px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">Debtors
+                  </th>
+                  <th style="min-width: 140px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">
+                    Contracts Asset/Liab</th>
+                  <th style="min-width: 120px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">Type
+                  </th>
+                  <th style="min-width: 130px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">Check
+                    For UBR</th>
+                  <th style="min-width: 130px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">FTM
+                    Entry</th>
+                  <th style="min-width: 130px; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">Add FTM
+                    Doc.No.</th>
+                </tr>
+              </thead>
+
+              <!-- ====== TBODY ====== -->
+              <tbody>
+                @for (agency of nodalAgencies(); track agency.NodalAgencyId; let aIdx = $index) {
+
+                @for (project of agency.Projects; track project.ProjectId; let pIdx = $index) {
+                <tr>
+
+                  <!-- Sticky: Agency Name -->
+                  @if (pIdx === 0) {
+                  <td [attr.rowspan]="agencyRowspan(agency)" style="position: sticky; left: 0; z-index: 10;
+          background: #fff3f3; font-weight: 700; color: #c8102e;
+          border-right: 3px solid #dc3545; vertical-align: top;
+          padding: 8px 10px; min-width: 140px;">
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                      <span>{{ agency.NodalAgencyName }}</span>
+                      <span class="badge" style="background: #dc3545; color: #fff; font-size: 10px;
+              padding: 2px 6px; border-radius: 10px; width: fit-content;">
+                        {{ agency.Totals.TotalProjects }} projects
+                      </span>
+                    </div>
+                  </td>
+                  <!-- Sticky: State -->
+                  <td [attr.rowspan]="agencyRowspan(agency)" style="position: sticky; left: 140px; z-index: 10;
+          background: #fff3f3; font-weight: 600; color: #555;
+          border-right: 2px solid #dee2e6; vertical-align: top;
+          padding: 8px 10px; min-width: 80px; white-space: nowrap;">
+                    {{ agency.StateName }}
+                  </td>
+                  }
+
+                  <!-- Sticky: Sr No -->
+                  <td style="text-align: center; padding: 5px 8px; color: #555;
+          position: sticky; left: 220px; z-index: 5; min-width: 50px;"
+                    [style.background]="pIdx % 2 === 0 ? '#fff' : '#fafafa'">
+                    {{ project.SrNo }}
+                  </td>
+                  <!-- Sticky: Chak Group -->
+                  <td style="padding: 5px 10px; font-weight: 500; color: #000;
+          position: sticky; left: 270px; z-index: 5; min-width: 100px;"
+                    [style.background]="pIdx % 2 === 0 ? '#fff' : '#fafafa'">
+                    {{ project.ChaksGroup || '-' }}
+                  </td>
+                  <!-- Sticky: Customer Code -->
+                  <td style="padding: 5px 10px; color: #000; font-family: monospace; font-size: 11px;
+          position: sticky; left: 370px; z-index: 5; min-width: 110px;"
+                    [style.background]="pIdx % 2 === 0 ? '#fff' : '#fafafa'">
+                    {{ project.CustomerCode || '-' }}
+                  </td>
+                  <!-- Sticky: Project Name -->
+                  <td style="padding: 5px 10px; font-weight: 600; color: #1e3a5f; min-width: 200px;
+          position: sticky; left: 480px; z-index: 5; border-right: 3px solid #dee2e6;"
+                    [style.background]="pIdx % 2 === 0 ? '#fff' : '#fafafa'">
+                    {{ project.ProjectName }}
+                  </td>
+
+                  <!-- Scrollable columns -->
+                  <td style="padding: 5px 10px; color: #555; font-size: 11px;">{{ project.WBSNumber || '-' }}</td>
+                  <td style="padding: 5px 10px; color: #000; white-space: nowrap;">{{ fmtDate(project.AgreementDate) }}
+                  </td>
+                  <td style="padding: 5px 10px; color: #000; white-space: nowrap;">{{ fmtDate(project.ProjectStartDate)
+                    }}</td>
+                  <td style="padding: 5px 10px; color: #000; white-space: nowrap;">{{ fmtDate(project.ExpCompletionDate)
+                    }}</td>
+                  <td style="padding: 5px 10px; color: #000; white-space: nowrap;">{{
+                    fmtDate(project.ExtensionLetterDate) }}</td>
+                  <td style="text-align: right; padding: 5px 10px; color: #000;">{{ fmtPct(project.GSTRate * 100) }}
+                  </td>
+                  <!-- ✅ Margin FTM % — moved up -->
+                  <td style="text-align: right; padding: 5px 10px;" [class]="marginClass(project.MarginFTM)">{{
+                    fmtPct(project.MarginFTM) }}</td>
+                  <!-- ✅ Cost to Completion — moved up -->
+                  <td style="text-align: right; padding: 5px 10px; color: #000;">{{ fmt(project.ProjectCostToCompletion)
+                    }}</td>
+                  <!-- ✅ % Completion — moved down -->
+                  <td style="text-align: right; padding: 5px 10px; color: #000;">{{ fmtPct(project.PercentCompletion) }}
+                  </td>
+                  <td style="text-align: right; padding: 5px 10px; color: #000;">{{ fmt(project.TotalGrossValue) }}</td>
+                  <td style="text-align: right; padding: 5px 10px; color: #000; font-weight: 600;">{{
+                    fmt(project.TotalBasicValue) }}</td>
+                  <td style="text-align: right; padding: 5px 10px; color: #000;">{{ fmt(project.OAndMAmount) }}</td>
+                  <td style="text-align: right; padding: 5px 10px; color: #000; font-weight: 600;">{{
+                    fmt(project.BasicRevenueAmount) }}</td>
+                  <td style="text-align: right; padding: 5px 10px; color: #000;">{{
+                    fmt(project.YTDBasicRevenueRecognition) }}</td>
+                  <td style="text-align: right; padding: 5px 10px; color: #000;">{{ fmt(project.YTDCollectionAsOn) }}
+                  </td>
+                  <td style="text-align: right; padding: 5px 10px; color: #000;">{{ fmt(project.BasicValueCollection) }}
+                  </td>
+                  <td style="text-align: right; padding: 5px 10px; color: #000;">{{ fmt(project.Retention) }}</td>
+                  <td style="text-align: right; padding: 5px 10px; color: #000;">{{ fmt(project.YTDBilledRevenueAsOn) }}
+                  </td>
+                  <td style="text-align: right; padding: 5px 10px; color: #000;">{{ fmt(project.BasicBillAmountBilled)
+                    }}</td>
+                  <td style="text-align: right; padding: 5px 10px; color: #000;">{{ fmt(project.AdvanceFromCustomer) }}
+                  </td>
+                  <!-- <td style="text-align: right; padding: 5px 10px; color: #000;">{{ fmt(project.RRBillsRaise) }}</td> -->
+                  <td style="text-align: right; padding: 5px 10px; color: #000;">{{ fmt(project.Debtors) }}</td>
+                  <td style="text-align: right; padding: 5px 10px; color: #000;">{{
+                    fmt(project.ContractsAssetsLiability) }}</td>
+                  <td style="padding: 5px 10px; font-size: 11px; color: #555;">
+                    <span class="badge" style="background: #e8f4fd; color: #1a6080; border: 1px solid #b8dcef;
+            padding: 3px 8px; border-radius: 10px; font-weight: 500;">
+                      {{ project.Type || '-' }}
+                    </span>
+                  </td>
+                  <td style="text-align: right; padding: 5px 10px; color: #000; font-weight: 600;">{{
+                    fmt(project.CheckFor_UBR) }}</td>
+                  @if (project.IsRecognized == true ) {
+                    <td
+                    style="min-width: 130px; background: #f8f9fa; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">
+                    <button class="btn btn-sm btn-outline-success"
+                      style="font-size: 11px; padding: 3px 8px; white-space: nowrap;"
+                      (click)="openExportModal(project)">
+                      <i class="bi bi-file-earmark-excel me-1"></i>FTM Entry
+                    </button>
+                  </td>
+                  } @else {
+                     <td
+                    style="min-width: 130px; background: #f8f9fa; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">
+                    <label class="text-black"
+                      style="font-size: 11px; padding: 3px 8px; white-space: nowrap;" >
+                      Not Recognised Yet
+                    </label>
+                  </td>
+                  }
+                  
+                  <td
+                    style="min-width: 130px; background: #f8f9fa; padding: 8px 10px; white-space: nowrap; vertical-align: middle;">
+                    <button class="btn btn-sm btn-outline-success"
+                      style="font-size: 11px; padding: 3px 8px; white-space: nowrap;"
+                      (click)="openFtmDocModal(project)">
+                      <i class="bi bi-file-earmark-excel me-1"></i>Add Doc.No
+                    </button>
+                  </td>
+
+                </tr>
+                }
+
+                <!-- ====== AGENCY TOTALS ROW ====== -->
+                <tr style="background: #f0f4ff; border-top: 2px solid #c8d8f0; border-bottom: 2px solid #c8d8f0;">
+                  <!-- Sticky total label: Sr No + Chak Group + Customer Code + Project Name = 4 cols -->
+                  <td colspan="4" style="padding: 5px 10px; font-weight: 700; color: #1e3a5f;
+          font-size: 11px; border-left: 3px solid #4a7ba7;
+          position: sticky; left: 220px; z-index: 5; background: #f0f4ff;
+          border-right: 3px solid #dee2e6;">
+                    TOTAL — {{ agency.NodalAgencyName }}
+                    <span class="text-muted fw-normal ms-1">({{ agency.Totals.TotalProjects }} projects)</span>
+                  </td>
+
+                  <!-- Blank: WBS, AgreementDate, StartDate, ExpCompletion, ExtensionLetter, GST%, MarginFTM% = 7 cols -->
+                  <td colspan="7" style="background: #f0f4ff;"></td>
+
+                  <!-- ✅ Cost to Completion total (now in this position) -->
+                  <td style="text-align: right; padding: 5px 10px; font-weight: 700; color: #1e3a5f;">
+                    {{ fmt(agency.Totals.ProjectCostToCompletion) }}
+                  </td>
+
+                  <!-- Blank: % Completion -->
+                  <td style="background: #f0f4ff;"></td>
+
+                  <td style="text-align: right; padding: 5px 10px; font-weight: 700; color: #1e3a5f;">{{
+                    fmt(agency.Totals.TotalGrossValue) }}</td>
+                  <td style="text-align: right; padding: 5px 10px; font-weight: 700; color: #1e3a5f;">{{
+                    fmt(agency.Totals.TotalBasicValue) }}</td>
+                  <td style="text-align: right; padding: 5px 10px; font-weight: 700; color: #1e3a5f;">{{
+                    fmt(agency.Totals.OAndMAmount) }}</td>
+                  <td style="text-align: right; padding: 5px 10px; font-weight: 700; color: #1e3a5f;">{{
+                    fmt(agency.Totals.BasicRevenueAmount) }}</td>
+                  <td style="text-align: right; padding: 5px 10px; font-weight: 700; color: #1e3a5f;">{{
+                    fmt(agency.Totals.YTDBasicRevenueRecognition) }}</td>
+                  <td style="text-align: right; padding: 5px 10px; font-weight: 700; color: #1e3a5f;">{{
+                    fmt(agency.Totals.YTDCollectionAsOn) }}</td>
+                  <td style="text-align: right; padding: 5px 10px; font-weight: 700; color: #1e3a5f;">{{
+                    fmt(agency.Totals.BasicValueCollection) }}</td>
+                  <td style="text-align: right; padding: 5px 10px; font-weight: 700; color: #1e3a5f;">{{
+                    fmt(agency.Totals.Retention) }}</td>
+                  <td style="text-align: right; padding: 5px 10px; font-weight: 700; color: #1e3a5f;">{{
+                    fmt(agency.Totals.YTDBilledRevenueAsOn) }}</td>
+                  <td style="text-align: right; padding: 5px 10px; font-weight: 700; color: #1e3a5f;">{{
+                    fmt(agency.Totals.BasicBillAmountBilled) }}</td>
+                  <td style="text-align: right; padding: 5px 10px; font-weight: 700; color: #1e3a5f;">{{
+                    fmt(agency.Totals.AdvanceFromCustomer) }}</td>
+                  <!-- <td style="text-align: right; padding: 5px 10px; font-weight: 700; color: #1e3a5f;">{{
+                    fmt(agency.Totals.RRBillsRaise) }}</td> -->
+                  <td style="text-align: right; padding: 5px 10px; font-weight: 700; color: #1e3a5f;">{{
+                    fmt(agency.Totals.Debtors) }}</td>
+                  <td style="text-align: right; padding: 5px 10px; font-weight: 700; color: #1e3a5f;">{{
+                    fmt(agency.Totals.ContractsAssetsLiability) }}</td>
+                  <!-- Blank: Type -->
+                  <td style="background: #f0f4ff;"></td>
+                  <td style="text-align: right; padding: 5px 10px; font-weight: 700; color: #1e3a5f;">{{
+                    fmt(agency.Totals.CheckFor_UBR) }}</td>
+                  <!-- Blank: FTM Entry, Add Doc No -->
+                  <td style="background: #f0f4ff;"></td>
+                  <td style="background: #f0f4ff;"></td>
+                </tr>
+
+                <!-- Spacer row between agencies -->
+                @if (aIdx < nodalAgencies().length - 1) { <tr style="height: 6px; background: #e9ecef;">
+                  <td colspan="100" style="padding: 0; border: none; background: #e9ecef;"></td>
+                  </tr>
+                  }
+
+                  }
+              </tbody>
+            </table>
+          </div>
+
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== FTM Export Modal ==================== -->
+<div class="modal fade" #ExportFTMModal>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title mb-0">
+          <i class="bi bi-file-earmark-excel me-2"></i>Export FTM Entry
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeExportModal()"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- Project info -->
+        <div class="alert alert-info py-2 mb-3" style="font-size: 13px;">
+          <i class="bi bi-folder2-open me-1"></i>
+          <strong>{{ exportProjectName() }}</strong>
+        </div>
+
+        <!-- Selected filter info -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Selected Period</label>
+          <div class="input-group input-group-sm">
+            <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+            <input type="text" class="form-control" readonly [value]="selectedMonthLabel() + ' ' + selectedYear()"
+              style="background: #f8f9fa; font-weight: 600;">
+          </div>
+
+        </div>
+
+        @if (exportError()) {
+        <div class="alert alert-danger py-2" style="font-size: 13px;">
+          <i class="bi bi-exclamation-triangle me-1"></i>{{ exportError() }}
+        </div>
+        }
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary me-2" (click)="closeExportModal()"
+          [disabled]="isExporting()">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-success" (click)="exportFTMEntry()" [disabled]="isExporting()">
+          @if (isExporting()) {
+          <span class="spinner-border spinner-border-sm me-2" role="status"></span>Exporting...
+          } @else {
+          <i class="bi bi-download me-1"></i>Export Excel
+          }
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== Add Doc No Modal ==================== -->
+<div class="modal fade" #DocNoModal>
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+    <div class="modal-content">
+
+      <div class="modal-header" style="padding: 12px 16px;">
+        <h5 class="modal-title mb-0" style="font-size: 15px;">
+          <i class="bi bi-file-earmark-text me-2"></i>Add Document Number
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeDocNoModal()"></button>
+      </div>
+
+      <div class="modal-body p-3">
+
+        <!-- Project info pill -->
+        <div class="alert alert-secondary py-2 mb-3" style="font-size: 12px; border-radius: 8px;">
+          <i class="bi bi-folder2-open me-1"></i>
+          <strong>{{ docNoProjectName() }}</strong>
+          <span class="ms-2 text-muted">| {{ selectedMonthLabel() }} {{ selectedYear() }}</span>
+        </div>
+
+        <!-- Input -->
+        <div class="mb-2">
+          <label class="form-label fw-semibold mb-1" style="font-size: 13px;">Document Number</label>
+          <input type="text" class="form-control form-control-sm" placeholder="Enter document number..."
+            [value]="docNoInput()" (input)="docNoInput.set($any($event.target).value)" [disabled]="isSavingDocNo()"
+            style="border-radius: 6px;" />
+        </div>
+
+        @if (docNoError()) {
+        <div class="text-danger" style="font-size: 12px;">
+          <i class="bi bi-exclamation-circle me-1"></i>{{ docNoError() }}
+        </div>
+        }
+
+      </div>
+
+      <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeDocNoModal()"
+          [disabled]="isSavingDocNo()">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-sm btn-primary" (click)="saveDocNumber()" [disabled]="isSavingDocNo()">
+          @if (isSavingDocNo()) {
+          <span class="spinner-border spinner-border-sm me-1"></span>Saving...
+          } @else {
+          <i class="bi bi-check2 me-1"></i>Save
+          }
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

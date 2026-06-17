@@ -1,0 +1,43 @@
+<!-- confirmation-dialog.component.html -->
+@if (dialogData()) {
+<div class="dialog-overlay" (click)="onNoClick()">
+  <div class="dialog-card" [ngClass]="getMessageClass()" (click)="$event.stopPropagation()">
+    <button class="dialog-close" (click)="onNoClick()">
+      <i class="bi bi-x"></i>
+    </button>
+    
+    <div class="dialog-icon-wrapper">
+      <div class="dialog-icon" [ngClass]="getMessageClass()">
+        <i [class]="getIcon()"></i>
+      </div>
+    </div>
+
+    <div class="dialog-content">
+      <h4 class="dialog-title">{{ dialogData()!.title }}</h4>
+      <p class="dialog-message">{{ dialogData()!.message }}</p>
+
+      @if (dialogData()!.autoClose && countdown() > 0) {
+        <div class="auto-close-info">
+          <i class="bi bi-clock me-1"></i>
+          <small>Closing in {{ countdown() }}s...</small>
+        </div>
+      }
+    </div>
+
+    <div class="dialog-actions">
+      @if (dialogData()!.type === 'error' || dialogData()!.type === 'success' || dialogData()!.type === 'warning') {
+        <button class="btn btn-dialog btn-ok" (click)="onNoClick()">
+          <i class="bi bi-check-circle me-2"></i>OK
+        </button>
+      } @else if (dialogData()!.type === 'confirm') {
+        <button class="btn btn-dialog btn-no" (click)="onNoClick()">
+          <i class="bi bi-x-circle me-2"></i>No
+        </button>
+        <button class="btn btn-dialog btn-yes" (click)="onYesClick()">
+          <i class="bi bi-check-circle me-2"></i>Yes
+        </button>
+      }
+    </div>
+  </div>
+</div>
+}

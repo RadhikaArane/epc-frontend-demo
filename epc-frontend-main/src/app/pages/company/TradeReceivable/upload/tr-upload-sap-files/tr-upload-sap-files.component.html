@@ -1,0 +1,420 @@
+<div class="content container-fluid">
+
+  <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap w-100 justify-content-between gap-2">
+      <div class="me-0">
+        <app-breadcrumbs title="Upload SAP Files" [breadcrumbItems]="breadCrumbItems()"></app-breadcrumbs>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card border mb-3">
+      <div class="card-body">
+        <div class="row align-items-center g-2">
+          <div class="col-12 col-md-6">
+            <h3 class="mb-0 text-center text-md-start">Upload SAP Files</h3>
+          </div>
+          <div class="col-12 col-md-6 text-center text-md-end">
+            <button type="button" class="btn btn-success" (click)="openDownloadModal()">
+              <i class="bi bi-download me-2"></i> Download Receivable Sheet
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <div class="card-body">
+
+          <div class="card p-2 card-footer bg-white shadow-sm mb-3">
+            <div class="mb-3">
+              <label class="form-label fw-semibold d-flex align-items-center mb-2">
+                FBL5N Upload
+                @if (fbl5nUploading()) { <span class="badge bg-primary ms-2"><span class="spinner-border spinner-border-sm me-1" role="status" style="width: 12px; height: 12px;"></span>Uploading...</span> }
+              </label>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Month <span class="text-danger">*</span></label>
+                  <select class="form-select" [(ngModel)]="FBL5NUploadMonth" [disabled]="fbl5nUploading()">
+                    <option value="">Select Month</option>
+                    @for (month of getAvailableMonths(FBL5NUploadYear()); track month) { <option [value]="month">{{ month }}</option> }
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Year <span class="text-danger">*</span></label>
+                  <select class="form-select" [(ngModel)]="FBL5NUploadYear" (ngModelChange)="onFBL5NYearChange($event)" [disabled]="fbl5nUploading()">
+                    <option value="">Select Year</option>
+                    @for (year of years; track year) { <option [value]="year">{{ year }}</option> }
+                  </select>
+                </div>
+              </div>
+              <input type="file" class="form-control" #fbl5nInput accept=".xls,.xlsx,.xlsb" (change)="onFbl5nSelect($event)" [disabled]="fbl5nUploading() || !FBL5NUploadMonth() || !FBL5NUploadYear()" />
+              <div class="form-text">Select FBL5N Excel file (Max: 50MB)</div>
+              @if (fbl5nError()) { <div class="alert alert-danger mt-2 mb-0" role="alert"><i class="bi bi-exclamation-circle-fill me-2"></i>{{ fbl5nError() }}</div> }
+              @if (fbl5nFile() && !fbl5nError()) { <div class="alert alert-success mt-2 mb-0" role="alert"><i class="bi bi-check-circle-fill me-2"></i>Selected: {{ fbl5nFile()!.name }} ({{ getFileSize(fbl5nFile()) }} MB)</div> }
+            </div>
+          </div>
+
+          <div class="card p-3 card-footer bg-white shadow-sm mb-3">
+            <div class="row g-4">
+
+              <div class="col-lg-6 border-end">
+                <div class="mb-0">
+                  <label class="form-label fw-semibold d-flex align-items-center mb-2">
+                    Export All Sheets
+                    @if (allSheetsDownloading()) { <span class="badge bg-primary ms-2"><span class="spinner-border spinner-border-sm me-1" role="status" style="width: 12px; height: 12px;"></span>Downloading...</span> }
+                  </label>
+
+                  <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Month <span class="text-danger">*</span></label>
+                      <select class="form-select" [(ngModel)]="AllSheetsExportMonth" [disabled]="allSheetsDownloading()">
+                        <option value="">Select Month</option>
+                        @for (month of getAvailableMonths(AllSheetsExportYear()); track month) { <option [value]="month">{{ month }}</option> }
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Year <span class="text-danger">*</span></label>
+                      <select class="form-select" [(ngModel)]="AllSheetsExportYear" (ngModelChange)="onAllSheetsExportYearChange($event)" [disabled]="allSheetsDownloading()">
+                        <option value="">Select Year</option>
+                        @for (year of years; track year) { <option [value]="year">{{ year }}</option> }
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div class="d-flex justify-content-left">
+                    <button type="button" class="btn btn-danger w-30 fw-medium shadow-sm mb-3" 
+                            (click)="onDownloadAllSheetsClick()" 
+                            [disabled]="allSheetsDownloading() || !AllSheetsExportMonth() || !AllSheetsExportYear()">
+                      @if (allSheetsDownloading()) {
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span> Downloading...
+                      } @else {
+                        <i class="bi bi-file-earmark-excel me-2"></i> Export
+                      }
+                    </button>
+                  </div>
+
+                  @if (allSheetsExportError()) { <div class="alert alert-danger mt-3 mb-0" role="alert"><i class="bi bi-exclamation-circle-fill me-2"></i>{{ allSheetsExportError() }}</div> }
+                </div>
+              </div>
+
+              <div class="col-lg-6">
+                <div class="mb-0">
+                  <label class="form-label fw-semibold d-flex align-items-center mb-2">
+                    Upload All Sheets
+                    @if (allSheetsUploading()) { <span class="badge bg-primary ms-2"><span class="spinner-border spinner-border-sm me-1" role="status" style="width: 12px; height: 12px;"></span>Uploading...</span> }
+                  </label>
+
+                  <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Month <span class="text-danger">*</span></label>
+                      <select class="form-select" [(ngModel)]="AllSheetsUploadMonth" [disabled]="allSheetsUploading()">
+                        <option value="">Select Month</option>
+                        @for (month of getAvailableMonths(AllSheetsUploadYear()); track month) { <option [value]="month">{{ month }}</option> }
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Year <span class="text-danger">*</span></label>
+                      <select class="form-select" [(ngModel)]="AllSheetsUploadYear" (ngModelChange)="onAllSheetsUploadYearChange($event)" [disabled]="allSheetsUploading()">
+                        <option value="">Select Year</option>
+                        @for (year of years; track year) { <option [value]="year">{{ year }}</option> }
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <input type="file" class="form-control" #allSheetsInput accept=".xls,.xlsx,.xlsb" (change)="onAllSheetsSelect($event)" [disabled]="allSheetsUploading() || !AllSheetsUploadMonth() || !AllSheetsUploadYear()" />
+                  <div class="form-text">Select Excel file to upload (Max: 50MB)</div>
+                  
+                  @if (allSheetsUploadError()) { <div class="alert alert-danger mt-2 mb-0" role="alert"><i class="bi bi-exclamation-circle-fill me-2"></i>{{ allSheetsUploadError() }}</div> }
+                  @if (allSheetsFile() && !allSheetsUploadError()) { <div class="alert alert-success mt-2 mb-0" role="alert"><i class="bi bi-check-circle-fill me-2"></i>Selected: {{ allSheetsFile()!.name }} ({{ getFileSize(allSheetsFile()) }} MB)</div> }
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="card p-2 card-footer bg-white shadow-sm mb-3">
+            <div class="mb-3">
+              <label class="form-label fw-semibold d-flex align-items-center mb-2">
+                Customer Master
+                @if (customerUploading()) { <span class="badge bg-primary ms-2"><span class="spinner-border spinner-border-sm me-1" role="status" style="width: 12px; height: 12px;"></span>Uploading...</span> }
+              </label>
+              <input type="file" class="form-control" #customerInput accept=".xls,.xlsx,.xlsb" (change)="onCustomerSelect($event)" [disabled]="customerUploading()" />
+              <div class="form-text">Select Customer Master Excel file (Max: 50MB)</div>
+              @if (customerError()) { <div class="alert alert-danger mt-2 mb-0" role="alert"><i class="bi bi-exclamation-circle-fill me-2"></i>{{ customerError() }}</div> }
+              @if (customerFile() && !customerError()) { <div class="alert alert-success mt-2 mb-0" role="alert"><i class="bi bi-check-circle-fill me-2"></i>Selected: {{ customerFile()!.name }} ({{ getFileSize(customerFile()) }} MB)</div> }
+            </div>
+          </div>
+
+          <div class="card p-2 card-footer bg-white shadow-sm mb-3">
+            <div class="mb-3">
+              <label class="form-label fw-semibold d-flex align-items-center mb-2">
+                Project Business Upload
+                @if (projectBusinessUploading()) { <span class="badge bg-primary ms-2"><span class="spinner-border spinner-border-sm me-1" role="status" style="width: 12px; height: 12px;"></span>Uploading...</span> }
+              </label>
+              <input type="file" class="form-control" #projectBusinessInput accept=".xls,.xlsx,.xlsb" (change)="onProjectBusinessSelect($event)" [disabled]="projectBusinessUploading()" />
+              <div class="form-text">Select Project Business Excel file (Max: 50MB)</div>
+              @if (projectBusinessError()) { <div class="alert alert-danger mt-2 mb-0" role="alert"><i class="bi bi-exclamation-circle-fill me-2"></i>{{ projectBusinessError() }}</div> }
+              @if (projectBusinessFile() && !projectBusinessError()) { <div class="alert alert-success mt-2 mb-0" role="alert"><i class="bi bi-check-circle-fill me-2"></i>Selected: {{ projectBusinessFile()!.name }} ({{ getFileSize(projectBusinessFile()) }} MB)</div> }
+            </div>
+          </div>
+
+          <div class="card p-2 card-footer bg-white shadow-sm mb-3">
+            <div class="mb-3">
+              <label class="form-label fw-semibold d-flex align-items-center mb-2">
+                Debit Sheet Management
+                @if (debitUploading()) { <span class="badge bg-primary ms-2"><span class="spinner-border spinner-border-sm me-1" role="status" style="width: 12px; height: 12px;"></span>Uploading...</span> }
+              </label>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Month <span class="text-danger">*</span></label>
+                  <select class="form-select" [(ngModel)]="DebitMonth" [disabled]="debitUploading() || debitDownloading()">
+                    <option value="">Select Month</option>
+                    @for (month of getAvailableMonths(DebitYear()); track month) { <option [value]="month">{{ month }}</option> }
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Year <span class="text-danger">*</span></label>
+                  <select class="form-select" [(ngModel)]="DebitYear" (ngModelChange)="onDebitYearChange($event)" [disabled]="debitUploading() || debitDownloading()">
+                    <option value="">Select Year</option>
+                    @for (year of years; track year) { <option [value]="year">{{ year }}</option> }
+                  </select>
+                </div>
+              </div>
+
+              <div class="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom pb-3">
+                <button type="button" class="btn btn-outline-success btn-sm" (click)="downloadDebitSheetFile()" [disabled]="!DebitMonth() || !DebitYear() || debitDownloading() || debitUploading()">
+                  @if (debitDownloading()) { <span class="spinner-border spinner-border-sm me-1" role="status"></span> Downloading... } @else { <i class="bi bi-download me-1"></i> Download Existing Debit Sheet }
+                </button>
+              </div>
+
+              <label class="form-label fw-semibold">Upload New Debit Sheet <span class="text-danger">*</span></label>
+              <input type="file" class="form-control" #debitInput accept=".xls,.xlsx,.xlsb" (change)="onDebitSelect($event)" [disabled]="debitUploading() || debitDownloading() || !DebitMonth() || !DebitYear()" />
+              <div class="form-text">Select Debit Excel file (Max: 50MB)</div>
+              @if (debitError()) { <div class="alert alert-danger mt-2 mb-0" role="alert"><i class="bi bi-exclamation-circle-fill me-2"></i>{{ debitError() }}</div> }
+              @if (debitFile() && !debitError()) { <div class="alert alert-success mt-2 mb-0" role="alert"><i class="bi bi-check-circle-fill me-2"></i>Selected: {{ debitFile()!.name }} ({{ getFileSize(debitFile()) }} MB)</div> }
+            </div>
+          </div>
+
+          <div class="card p-2 card-footer bg-white shadow-sm mb-3">
+            <div class="mb-3">
+              <label class="form-label fw-semibold d-flex align-items-center mb-2">
+                Unbooked Collections Upload
+                @if (unbookedUploading()) { <span class="badge bg-primary ms-2"><span class="spinner-border spinner-border-sm me-1" role="status" style="width: 12px; height: 12px;"></span>Uploading...</span> }
+              </label>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Month <span class="text-danger">*</span></label>
+                  <select class="form-select" [(ngModel)]="UnbookedMonth" [disabled]="unbookedUploading()">
+                    <option value="">Select Month</option>
+                    @for (month of getAvailableMonths(UnbookedYear()); track month) { <option [value]="month">{{ month }}</option> }
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Year <span class="text-danger">*</span></label>
+                  <select class="form-select" [(ngModel)]="UnbookedYear" (ngModelChange)="onUnbookedYearChange($event)" [disabled]="unbookedUploading()">
+                    <option value="">Select Year</option>
+                    @for (year of years; track year) { <option [value]="year">{{ year }}</option> }
+                  </select>
+                </div>
+              </div>
+              <input type="file" class="form-control" #unbookedInput accept=".xls,.xlsx,.xlsb" (change)="onUnbookedSelect($event)" [disabled]="unbookedUploading() || !UnbookedMonth() || !UnbookedYear()" />
+              <div class="form-text">Select Unbooked Collections Excel file (Max: 50MB)</div>
+              @if (unbookedError()) { <div class="alert alert-danger mt-2 mb-0" role="alert"><i class="bi bi-exclamation-circle-fill me-2"></i>{{ unbookedError() }}</div> }
+              @if (unbookedFile() && !unbookedError()) { <div class="alert alert-success mt-2 mb-0" role="alert"><i class="bi bi-check-circle-fill me-2"></i>Selected: {{ unbookedFile()!.name }} ({{ getFileSize(unbookedFile()) }} MB)</div> }
+            </div>
+          </div>
+
+          <div class="card p-3 card-footer bg-white shadow-sm mb-3">
+            <div class="row g-4">
+
+              <div class="col-lg-6 border-end">
+                <div class="mb-0">
+                  <label class="form-label fw-semibold d-flex align-items-center mb-2">
+                    PDD Data Upload
+                    @if (pddUploading()) { <span class="badge bg-primary ms-2"><span class="spinner-border spinner-border-sm me-1" role="status" style="width: 12px; height: 12px;"></span>Uploading...</span> }
+                  </label>
+
+                  <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Month <span class="text-danger">*</span></label>
+                      <select class="form-select" [(ngModel)]="PddMonth" [disabled]="pddUploading()">
+                        <option value="">Select Month</option>
+                        @for (month of getAvailableMonths(PddYear()); track month) { <option [value]="month">{{ month }}</option> }
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Year <span class="text-danger">*</span></label>
+                      <select class="form-select" [(ngModel)]="PddYear" (ngModelChange)="onPddYearChange($event)" [disabled]="pddUploading()">
+                        <option value="">Select Year</option>
+                        @for (year of years; track year) { <option [value]="year">{{ year }}</option> }
+                      </select>
+                    </div>
+                  </div>
+                  <input type="file" class="form-control" #pddInput accept=".xls,.xlsx,.xlsb" (change)="onPddSelect($event)" [disabled]="pddUploading() || !PddMonth() || !PddYear()" />
+                  <div class="form-text">Select PDD Data Excel file (Max: 50MB)</div>
+                  @if (pddError()) { <div class="alert alert-danger mt-2 mb-0" role="alert"><i class="bi bi-exclamation-circle-fill me-2"></i>{{ pddError() }}</div> }
+                  @if (pddFile() && !pddError()) { <div class="alert alert-success mt-2 mb-0" role="alert"><i class="bi bi-check-circle-fill me-2"></i>Selected: {{ pddFile()!.name }} ({{ getFileSize(pddFile()) }} MB)</div> }
+                </div>
+              </div>
+
+              <div class="col-lg-6">
+                <div class="mb-0">
+                  <label class="form-label fw-semibold d-flex align-items-center mb-2">
+                    Removal of PDD Data
+                    @if (pddRemovalUploading()) { <span class="badge bg-primary ms-2"><span class="spinner-border spinner-border-sm me-1" role="status" style="width: 12px; height: 12px;"></span>Uploading...</span> }
+                  </label>
+
+                  <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Month <span class="text-danger">*</span></label>
+                      <select class="form-select" [(ngModel)]="PddRemovalMonth" [disabled]="pddRemovalUploading()">
+                        <option value="">Select Month</option>
+                        @for (month of getAvailableMonths(PddRemovalYear()); track month) { <option [value]="month">{{ month }}</option> }
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Year <span class="text-danger">*</span></label>
+                      <select class="form-select" [(ngModel)]="PddRemovalYear" (ngModelChange)="onPddRemovalYearChange($event)" [disabled]="pddRemovalUploading()">
+                        <option value="">Select Year</option>
+                        @for (year of years; track year) { <option [value]="year">{{ year }}</option> }
+                      </select>
+                    </div>
+                  </div>
+                  <input type="file" class="form-control" #pddRemovalInput accept=".xls,.xlsx,.xlsb" (change)="onPddRemovalSelect($event)" [disabled]="pddRemovalUploading() || !PddRemovalMonth() || !PddRemovalYear()" />
+                  <div class="form-text">Select PDD Removal Excel file (Max: 50MB)</div>
+                  
+                  @if (pddRemovalError()) { <div class="alert alert-danger mt-2 mb-0" role="alert"><i class="bi bi-exclamation-circle-fill me-2"></i>{{ pddRemovalError() }}</div> }
+                  @if (pddRemovalFile() && !pddRemovalError()) { <div class="alert alert-success mt-2 mb-0" role="alert"><i class="bi bi-check-circle-fill me-2"></i>Selected: {{ pddRemovalFile()!.name }} ({{ getFileSize(pddRemovalFile()) }} MB)</div> }
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="card p-3 card-footer bg-white shadow-sm border-0 mb-3" style="border-radius: 12px;">
+            <div class="mb-0">
+              <label class="form-label fw-semibold d-flex align-items-center mb-2">Missing Category & Registration Corrections</label>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Month <span class="text-danger">*</span></label>
+                  <select class="form-select" [(ngModel)]="MissingMonth" (change)="onMissingDateChange()" [disabled]="missingFetchingCount() || missingDownloading() || missingUploading()">
+                    <option value="">Select Month</option>
+                    @for (month of getAvailableMonths(MissingYear()); track month) { <option [value]="month">{{ month }}</option> }
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Year <span class="text-danger">*</span></label>
+                  <select class="form-select" [(ngModel)]="MissingYear" (ngModelChange)="onMissingYearChange($event)" [disabled]="missingFetchingCount() || missingDownloading() || missingUploading()">
+                    <option value="">Select Year</option>
+                    @for (year of years; track year) { <option [value]="year">{{ year }}</option> }
+                  </select>
+                </div>
+              </div>
+
+              <div class="d-flex align-items-center mb-3 pb-3 border-bottom flex-wrap gap-2">
+                <button type="button" class="btn btn-outline-primary btn-sm me-3" (click)="fetchMissingCount()" [disabled]="!MissingMonth() || !MissingYear() || missingFetchingCount() || missingDownloading() || missingUploading()">
+                  @if (missingFetchingCount()) { <span class="spinner-border spinner-border-sm me-1" role="status"></span> Checking... } @else { <i class="bi bi-search me-1"></i> Check Missing Count }
+                </button>
+                @if (missingCount() !== null) { <span class="badge" [ngClass]="missingCount()! > 0 ? 'bg-danger' : 'bg-success'">Total Missing: {{ missingCount() }}</span> }
+                
+                <button type="button" class="btn btn-outline-success btn-sm ms-auto" (click)="downloadMissingData()" [disabled]="!MissingMonth() || !MissingYear() || missingFetchingCount() || missingDownloading() || missingUploading()">
+                  @if (missingDownloading()) { <span class="spinner-border spinner-border-sm me-1" role="status"></span> Downloading... } @else { <i class="bi bi-download me-1"></i> Download Data }
+                </button>
+              </div>
+              
+              @if (missingCountError()) { <div class="text-danger small mb-2"><i class="bi bi-exclamation-circle-fill me-1"></i>{{ missingCountError() }}</div> }
+
+              <label class="form-label fw-semibold">Upload Corrected Registrations <span class="text-danger">*</span></label>
+              <input type="file" class="form-control" #missingInput accept=".xls,.xlsx,.xlsb" (change)="onMissingSelect($event)" [disabled]="missingUploading() || missingFetchingCount() || missingDownloading() || !MissingMonth() || !MissingYear()" />
+              <div class="form-text">Select Corrected Excel file (Max: 50MB)</div>
+
+              @if (missingError()) { <div class="alert alert-danger mt-2 mb-0" role="alert"><i class="bi bi-exclamation-circle-fill me-2"></i>{{ missingError() }}</div> }
+              @if (missingFile() && !missingError()) { <div class="alert alert-success mt-2 mb-0" role="alert"><i class="bi bi-check-circle-fill me-2"></i>Selected: {{ missingFile()!.name }} ({{ getFileSize(missingFile()) }} MB)</div> }
+            </div>
+          </div>
+
+          @if (hasAnyFileSelected()) {
+          <div class="alert alert-info mb-0" role="alert">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>Selected files ({{ getSelectedFilesCount() }}):</strong>
+            <span class="ms-2">{{ getSelectedFilesList() }}</span>
+          </div>
+          }
+
+        </div>
+
+        <div class="card p-2 card-footer bg-white shadow-sm">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+              @if (!hasAnyFileSelected()) {
+              <small class="text-muted"><i class="bi bi-info-circle me-1"></i>Please select at least one file to upload</small>
+              } @else if (isAnyUploading()) {
+              <small class="text-primary"><span class="spinner-border spinner-border-sm me-1" role="status" style="width: 14px; height: 14px;"></span>Uploading files...</small>
+              }
+            </div>
+            <div>
+              <button type="button" class="btn btn-primary" (click)="uploadAllSelectedFiles()" [disabled]="!hasAnyFileSelected() || isAnyUploading()">
+                @if (isAnyUploading()) {
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>Uploading...
+                } @else {
+                <i class="bi bi-cloud-upload me-2"></i>Upload Selected Files
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" #downloadModal>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Download Receivable Sheet</h5>
+        <button type="button" class="btn-close" (click)="closeDownloadModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <div class="row g-2">
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Month <span class="text-danger">*</span></label>
+              <select class="form-select" (change)="selectedMonth.set($any($event.target).value); onDownloadMonthOrYearChange()">
+                <option value="">Select Month</option>
+                @for (month of getAvailableMonths(selectedYear()); track month) { <option [value]="month" [selected]="selectedMonth() === month">{{ month }}</option> }
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Year <span class="text-danger">*</span></label>
+              <select class="form-select" (change)="selectedYear.set($any($event.target).value); onDownloadMonthOrYearChange()">
+                <option value="">Select Year</option>
+                @for (year of years; track year) { <option [value]="year">{{ year }}</option> }
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">As Of Date <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" [value]="selectedAsOfDate()" (change)="onDateChange($event)" [max]="getDownloadAsOfDateMax()" />
+            </div>
+          </div>
+          <div class="form-text">Select Month &amp; Year first — As Of Date will auto-fill to 1st of next month.</div>
+        </div>
+        @if (downloadError()) { <div class="alert alert-danger mb-0" role="alert"><i class="bi bi-exclamation-circle-fill me-2"></i>{{ downloadError() }}</div> }
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary me-2" (click)="closeDownloadModal()" [disabled]="isDownloading()">Cancel</button>
+        <button type="button" class="btn btn-success" (click)="downloadReceivableSheet()" [disabled]="!selectedAsOfDate() || !selectedMonth() || !selectedYear() || isDownloading()">
+          @if (isDownloading()) { <span class="spinner-border spinner-border-sm me-2" role="status"></span>Downloading... } @else { <i class="bi bi-download me-2"></i>Download }
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

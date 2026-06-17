@@ -1,0 +1,133 @@
+<div class="content container-fluid">
+   <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+      <div class="d-flex my-xl-auto right-content align-items-center flex-wrap w-100">
+         <div class="me-0">
+            <app-breadcrumbs title="Entries" [breadcrumbItems]="breadCrumbItems()">
+            </app-breadcrumbs>
+         </div>
+      </div>
+   </div>
+
+   <div>
+      <!-- Header Card with Doc Info and Month Filter -->
+
+      <!-- Loading Indicator -->
+      @if (loading()) {
+      <div class="card">
+         <div class="card-body text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+               <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 text-muted">Loading entries data...</p>
+         </div>
+      </div>
+      }
+
+      <!-- Table Card -->
+      @if (!loading()) {
+      <div class="card">
+         <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+               <h5 class="mb-0 text-truncate">Entries {{ selectedMonth() }} {{ selectedYear() }}</h5>
+               @if (docNo()) {
+               <span class="badge bg-primary">Doc No: {{ docNo() }}</span>
+               }
+               @if (docType()) {
+               <span class="badge bg-info">Type: {{ docType() }}</span>
+               }
+            </div>
+
+            <!-- Filter on the far right -->
+            <!-- <div class="d-flex align-items-center"> 
+                    <label for="entriesMonth" class="small text-muted mb-0 me-2">Month–Year</label>
+                    <input 
+                        id="entriesMonth" 
+                        type="month" 
+                        class="form-control form-control-sm" 
+                        style="min-width: 170px;"
+                        [value]="selectedMonthYear()"
+                        (change)="onMonthYearChange($event)">
+                </div> -->
+            <div class="col-12 col-md-6">
+               <div class="d-flex align-items-center justify-content-md-end">
+                  <label for="monthYearFilter" class="small text-muted mb-0 me-2">Month–Year</label>
+                  <input id="monthYearFilter" type="month" class="form-control form-control-sm"
+                     style="min-width: 170px; max-width: 200px;" [value]="selectedMonthYear()"
+                     (change)="onMonthYearChange($event)"/> 
+               </div>
+            </div>
+         </div>
+         <div class="border-0" style="border-radius:12px;">
+            <div class="card-body p-3">
+               <div class="table-responsive" style="max-height:65vh; overflow:auto;">
+                  <table class="table  table-bordered table-hover align-middle mb-0 table-ultra-compact">
+                     <thead class="thead-light" style="position:sticky; top:0; z-index:2;">
+                        <tr>
+                           <th class="text-center">Sr. No</th>
+                           <th class="text-center">GL Code</th>
+                           <th class="text-center">GL Desc</th>
+                           <th class="text-center">Cust/Vendor Code</th>
+                           <th class="text-center">Pst Ky</th>
+                           <th class="text-center">Dr</th>
+                           <th class="text-center">Cr</th>
+                           <th class="text-center">Remarks</th>
+                        </tr>
+                     </thead>
+
+                     <tbody>
+                        @if (groupedEntries().length === 0) {
+                        <tr>
+                           <td colspan="8" class="text-center py-4 text-muted">
+                              No entries found for {{ selectedMonth() }} {{ selectedYear() }}
+                           </td>
+                        </tr>
+                        }
+
+                        @for (group of groupedEntries(); track group.srNo) {
+                        @for (entry of group.entries; track $index) {
+                        <tr>
+                           <!-- Sr. No - Only show in first row of group with rowspan -->
+                           @if (isFirstInGroup(entry, group.entries)) {
+                           <td class="text-center fw-bold align-middle" [attr.rowspan]="getRowSpan(group.entries)"
+                              style="background-color: #f8f9fa;">
+                              {{ group.srNo }}
+                           </td>
+                           }
+
+                           <td class="text-center">{{ entry.GLCode || '-' }}</td>
+                           <td>{{ entry.GLDesc || '-' }}</td>
+                           <td class="text-center">{{ entry.CustVendorCode || '-' }}</td>
+                           <td class="text-center">{{ entry.PstKy || '-' }}</td>
+                           <td class="text-end">{{ formatAmount(entry.Dr) }}</td>
+                           <td class="text-end">{{ formatAmount(entry.Cr) }}</td>
+                           <td>{{ entry.Remarks || '-' }}</td>
+                        </tr>
+                        }
+
+                        <!-- Empty separator row between groups -->
+                        @if ($index < groupedEntries().length - 1) { <tr class="separator-row">
+                           <td colspan="8" style="height: 5px; background-color: #e9ecef; padding: 0;"></td>
+                           </tr>
+                           }
+                           }
+
+                           <!-- Total Row -->
+                           @if (groupedEntries().length > 0) {
+                           <tr class="table-secondary fw-bold">
+                              <td colspan="5" class="text-end">Total</td>
+                              
+                              <td class="text-end">{{ formatAmount(totalDr()) }}</td>
+                              <td class="text-end">{{ formatAmount(totalCr()) }}</td>
+                              
+                              <td></td>
+                           </tr>
+                           }
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+      </div>
+      }
+   </div>
+</div>

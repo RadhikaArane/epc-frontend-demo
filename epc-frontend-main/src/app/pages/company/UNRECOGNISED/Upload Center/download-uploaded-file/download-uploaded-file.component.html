@@ -1,0 +1,175 @@
+<div class="content container-fluid">
+  <div
+    class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3"
+  >
+    <div
+      class="d-flex my-xl-auto right-content align-items-center flex-wrap w-100 justify-content-between gap-2"
+    >
+      <div class="me-0">
+        <app-breadcrumbs
+          title="Upload Files"
+          [breadcrumbItems]="breadCrumbItems()"
+        ></app-breadcrumbs>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ SalesFTM Card -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-header fw-bold bg-white">SalesFTM</div>
+        <div class="card-body">
+          <div class="d-flex gap-2 align-items-center flex-wrap">
+
+            <input
+              type="month"
+              class="form-control"
+              style="max-width: 180px"
+              [value]="selectedSalesMonth()"
+              (change)="onSalesMonthChange($event)"
+              [disabled]="isLoadingSalesDates()"
+              title="Filter by Month/Year"
+            />
+
+            <select
+              class="form-select"
+              style="min-width: 220px; max-width: 250px"
+              [disabled]="isLoadingSalesDates() || filteredSalesDates().length === 0"
+              [value]="selectedSalesDate()"
+              (change)="selectedSalesDate.set($any($event.target).value)"
+            >
+              <option value="" disabled>
+                {{ filteredSalesDates().length === 0 ? 'No dates found' : 'Select Date' }}
+              </option>
+
+              @for (d of filteredSalesDates(); track $index) {
+                <option [value]="d">{{ d }}</option>
+              }
+            </select>
+
+            <button
+              class="btn btn-primary"
+              (click)="downloadSalesFTM()"
+              [disabled]="!selectedSalesDate() || isDownloadingSales()"
+            >
+              @if (isDownloadingSales()) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                Downloading...
+              } @else {
+                Download
+              }
+            </button>
+          </div>
+
+          @if (isLoadingSalesDates()) {
+            <div class="small text-muted mt-2">
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Loading dates...
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Consignment Card -->
+  <div class="row mt-3">
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-header fw-bold bg-white">Consignment</div>
+        <div class="card-body">
+          <div class="d-flex gap-2 align-items-center flex-wrap">
+
+            <input
+              type="month"
+              class="form-control"
+              style="max-width: 180px"
+              [value]="selectedConsMonth()"
+              (change)="onConsMonthChange($event)"
+              [disabled]="isLoadingConsDates()"
+              title="Filter by Month/Year"
+            />
+            
+            <select
+              class="form-select"
+              style="min-width: 220px; max-width: 250px"
+              [disabled]="isLoadingConsDates() || filteredConsDates().length === 0"
+              [value]="selectedConsDate()"
+              (change)="selectedConsDate.set($any($event.target).value)"
+            >
+              <option value="" disabled>
+                {{ filteredConsDates().length === 0 ? 'No dates found' : 'Select Date' }}
+              </option>
+
+              @for (d of filteredConsDates(); track $index) {
+                <option [value]="d">{{ d }}</option>
+              }
+            </select>
+
+            <button
+              class="btn btn-primary"
+              (click)="downloadConsignment()"
+              [disabled]="!selectedConsDate() || isDownloadingCons()"
+            >
+              @if (isDownloadingCons()) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                Downloading...
+              } @else {
+                Download
+              }
+            </button>
+          </div>
+
+          @if (isLoadingConsDates()) {
+            <div class="small text-muted mt-2">
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Loading dates...
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Not Considered Card -->
+<div class="row mt-3">
+  <div class="col-12">
+    <div class="card shadow-sm border-0">
+      <div class="card-header fw-bold bg-white">
+        Latest Not Considered
+      </div>
+
+      <div class="card-body">
+
+        <!-- Date Filter -->
+        <div class="mb-3">
+          <input
+            type="date"
+            class="form-control"
+            style="max-width:220px"
+            [value]="selectedNotConsideredDate()"
+            (change)="selectedNotConsideredDate.set($any($event.target).value)"
+            [disabled]="isDownloadingNotConsidered()"
+          />
+        </div>
+
+        <!-- Download Button -->
+        <button
+          class="btn btn-primary"
+          style="max-width:220px"
+          (click)="downloadNotConsidered()"
+          [disabled]="!selectedNotConsideredDate() || isDownloadingNotConsidered()"
+        >
+          @if (isDownloadingNotConsidered()) {
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Downloading...
+          } @else {
+            Download
+          }
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>

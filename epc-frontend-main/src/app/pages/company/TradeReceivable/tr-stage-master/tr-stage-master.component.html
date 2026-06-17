@@ -1,0 +1,265 @@
+<div class="content" style="background-color: #f8f9fa">
+
+  <!-- Breadcrumb -->
+  <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+      <div class="me-0 mb-2">
+        <app-breadcrumbs title="Stage Master" [breadcrumbItems]="breadCrumbItems()"></app-breadcrumbs>
+      </div>
+    </div>
+
+    <!-- <div class="d-flex align-items-center mb-2">
+      <button type="button" class="btn btn-danger shadow-sm" (click)="onExportExcelClick()" title="Export data to Excel">
+        <i class="bi bi-file-earmark-excel me-2"></i>Export Excel
+      </button>
+    </div> -->
+  </div>
+
+  <!-- Error -->
+  @if (pageError()) {
+  <div class="alert alert-danger">
+    <i class="bi bi-exclamation-circle-fill me-2"></i>{{ pageError() }}
+  </div>
+  }
+
+  <div class="card">
+
+    <!-- Card Header: State filter + Search + Add button -->
+    <div class="card-header bg-white py-2">
+      <div class="d-flex align-items-center justify-content-between gap-2" style="flex-wrap: nowrap;">
+
+        <!-- Left: State + Search + Badge — all in one line, no wrap -->
+        <div class="d-flex align-items-center gap-2" style="flex-wrap: nowrap; min-width: 0; flex: 1;">
+
+          <!-- State label -->
+          <label class="form-label mb-0 fw-semibold text-muted small text-nowrap">State</label>
+
+          <!-- State dropdown -->
+          <div class="d-flex align-items-center gap-2 flex-shrink-0"></div>
+            <select class="form-select form-select-sm flex-shrink-0" style="width: 200px;"
+              [disabled]="isLoadingStates() || isLoadingRows()" [value]="selectedState()" (change)="onStateChange($event)"
+              title="Select a state to view its portal statuses">
+              @if (isLoadingStates()) {
+              <option value="">Loading states...</option>
+              } @else {
+              @for (st of states(); track st) {
+              <option [value]="st">{{ st }}</option>
+              }
+              }
+            </select>
+
+            <!-- <button type="button" class="btn btn-sm btn-outline-primary shadow-sm flex-shrink-0" 
+                    (click)="onAddStateClick()" [disabled]="isLoadingStates()" title="Add a new state">
+              <i class="bi bi-plus-lg">Add State</i>
+            </button> -->
+
+          <!-- Loading spinner -->
+          @if (isLoadingRows()) {
+          <span class="spinner-border spinner-border-sm text-primary flex-shrink-0" role="status"></span>
+          }
+
+          <!-- Search box -->
+          @if (!isLoadingRows() && selectedState() && rows().length > 0) {
+          <div class="input-group input-group-sm flex-shrink-0" style="width: 280px;">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="bi bi-search text-muted" style="font-size: 12px;"></i>
+            </span>
+            <input type="text" class="form-control border-start-0 ps-0" placeholder="Search portal status..."
+              [value]="searchQuery()" (input)="onSearchInput($event)" [disabled]="isAddMode()"
+              title="Filter rows by portal status name" />
+            @if (searchQuery()) {
+            <button class="btn btn-outline-secondary" type="button" (click)="searchQuery.set('')" title="Clear search">
+              <i class="bi bi-x" style="font-size: 12px;"></i>
+            </button>
+            }
+          </div>
+          }
+
+          <!-- Entry count badge -->
+          @if (!isLoadingRows() && selectedState()) {
+          <span class="badge bg-light text-muted border text-nowrap flex-shrink-0" style="font-size: 11px;">
+            {{ filteredRows().length }}{{ searchQuery() ? ' / ' + rows().length : '' }}
+            entr{{ filteredRows().length === 1 ? 'y' : 'ies' }}
+          </span>
+          }
+
+        </div>
+
+        <!-- Right: Cancel + Add/Save buttons -->
+        <div class="d-flex align-items-center gap-2 flex-shrink-0">
+          @if (isAddMode() && !isAdding()) {
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelAddMode()"
+            title="Discard new entry">
+            <i class="bi bi-x-circle me-1"></i>Cancel
+          </button>
+          }
+          <button type="button" class="btn btn-sm btn-primary" (click)="onAddTopClick()"
+            [disabled]="!selectedState() || isLoadingRows() || isLoadingStates() || isAdding()"
+            title="{{ isAddMode() ? 'Save the new portal status entry' : 'Add a new portal status for this state' }}">
+            @if (isAdding()) {
+            <span class="spinner-border spinner-border-sm me-1" role="status"></span>Saving...
+            } @else {
+            <i class="bi bi-{{ isAddMode() ? 'check-circle' : 'plus-circle' }} me-1"></i>
+            {{ isAddMode() ? 'Save' : 'Add New' }}
+            }
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Card Body -->
+    <div class="card-body p-0">
+
+      @if (isLoadingRows()) {
+      <div class="text-center py-5 text-muted">
+        <div class="spinner-border text-primary mb-2" role="status" style="width: 2rem; height: 2rem"></div>
+        <p class="mb-0 small">Loading portal statuses for {{ selectedState() }}...</p>
+      </div>
+
+      } @else if (!selectedState()) {
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-funnel" style="font-size: 2.5rem; color: #ccc"></i>
+        <p class="mt-2 mb-0">Select a state above to view portal statuses.</p>
+      </div>
+
+      } @else if (rows().length === 0) {
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-inbox" style="font-size: 2.5rem; color: #ccc"></i>
+        <p class="mt-2 mb-0">No portal statuses found for <strong>{{ selectedState() }}</strong>.</p>
+        <p class="small">Click <strong>Add New</strong> to create one.</p>
+      </div>
+
+      } @else if (filteredRows().length === 0 && searchQuery()) {
+      <!-- Search returned no results -->
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-search" style="font-size: 2.5rem; color: #ccc"></i>
+        <p class="mt-2 mb-0">No portal status matches <strong>"{{ searchQuery() }}"</strong>.</p>
+        <p class="small"><button class="btn btn-link btn-sm p-0" (click)="searchQuery.set('')">Clear search</button> to
+          see all entries.</p>
+      </div>
+
+      } @else {
+
+      <!-- Fixed-height scrollable table wrapper -->
+      <div style="height: calc(100vh - 280px); min-height: 400px; overflow-y: auto; overflow-x: hidden;">
+        <table class="table table-bordered table-hover align-middle mb-0 table-ultra-compact p-1"
+          style="font-size: 13px;">
+
+          <!-- Sticky thead inside the scroll container -->
+          <thead class="thead-light" style="position: sticky; top: 0; z-index: 2; background-color: #f8f9fa;">
+            <tr>
+              <th style="width: 50px;" class="text-center">Sr No.</th>
+              <th style="min-width: 150px; max-width: 300px; width: 300px; white-space: normal; word-break: break-word;"
+                title="The portal status label used in the system" class="text-center">Portal Status</th>
+              <th style="width: 220px;" title="The category this portal status belongs to" class="text-center">Category</th>
+              <th style="min-width: 120px; max-width: 120px; width: auto; white-space: normal; word-break: break-word;" 
+                  class="text-center" 
+                  title="The steps involved for this portal status">
+                  Steps
+              </th>
+              <th style="width: 180px;" class="text-center" title="Edit or delete this entry" class="text-center">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (row of filteredRows(); track row.id; let i = $index) {
+            <tr [class.table-warning]="row.isNew" 
+                [class.table-active]="row.isEditing && !row.isNew"
+                [class.opacity-50]="!row.IsActive"
+                [class.bg-light]="!row.IsActive">
+                
+              <td class="text-center text-muted">
+                @if (row.isNew) {
+                <i class="bi bi-asterisk text-warning" title="New unsaved entry" style="font-size: 10px"></i>
+                } @else {
+                {{ i + 1 }}
+                }
+              </td>
+
+              <td style="min-width: 150px; max-width: 300px; width: 300px; white-space: normal; word-break: break-word;">
+                @if (row.isEditing) {
+                  <input class="form-control form-control-sm" [value]="row.PortalStatus"
+                    (input)="onPortalStatusInput(row.id, $event)" placeholder="Enter portal status label" />
+                } @else {
+                  @if (searchQuery()) {
+                    <span [innerHTML]="row.PortalStatus | slice:0:0" style="display:none;"></span>
+                    <span [class.text-decoration-line-through]="!row.IsActive">{{ row.PortalStatus }}</span>
+                  } @else {
+                    <span [class.text-decoration-line-through]="!row.IsActive">{{ row.PortalStatus }}</span>
+                  }
+                  @if (!row.IsActive) {
+                    <span class="badge bg-danger ms-2" style="font-size: 9px;">Deleted</span>
+                  }
+                }
+              </td>
+
+              <td class="text-center" style="width: 130px; min-width: 130px; max-width: 130px;">
+                @if (row.isEditing) {
+                  <select class="form-select form-select-sm text-center px-1" (change)="onCategoryChange(row.id, $event)">
+                    <option value="">— Select —</option>
+                    @for (cat of categories(); track cat) {
+                      <option [value]="cat" [selected]="cat === row.Category">{{ cat }}</option>
+                    }
+                  </select>
+                } @else {
+                  @if (row.Category) {
+                    <span class="badge" style="border: 0.1px solid #000; color: #000; background-color: #fff; box-shadow: 2px 2px 0px #7d7d7d; font-weight: 600; font-size: 11px; padding: 4px 8px; border-radius: 4px;">
+                      {{ row.Category }}
+                    </span>
+                  } @else {
+                    <span class="text-muted small">—</span>
+                  }
+                }
+              </td>
+
+              <td class="text-center" style="width: 120px; min-width: 120px; max-width: 120px;">
+                @if (row.isEditing) {
+                  <input class="form-control form-control-sm text-center px-1" [value]="row.Steps"
+                    (input)="onStepsInput(row.id, $event)" placeholder="Steps" />
+                } @else {
+                  <span [title]="row.Steps" [class.d-block]="!row.Steps">
+                    {{ row.Steps || '-' }}
+                  </span>
+                }
+              </td>
+
+              <td class="text-center">
+                <div class="d-flex align-items-center justify-content-center gap-2">
+                  @if (row.isEditing) {
+                    <button type="button" class="btn btn-sm btn-success px-3" (click)="onUpdateSave(row.id)"
+                      [disabled]="savingRowId() === row.id || isAdding()">
+                      @if (savingRowId() === row.id) { <span class="spinner-border spinner-border-sm me-1"></span>Saving... } 
+                      @else { <i class="bi bi-check-lg me-1"></i>Save }
+                    </button>
+                    @if (!row.isNew) {
+                      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelEdit(row.id)"
+                        [disabled]="savingRowId() === row.id"><i class="bi bi-x-lg me-1"></i>Cancel</button>
+                    }
+                  } @else {
+                    <button type="button" class="btn btn-sm btn-outline-primary" (click)="onUpdateSave(row.id)"
+                      [disabled]="deletingRowId() === row.id || isAdding() || isAddMode() || !row.IsActive">
+                      <i class="bi bi-pencil me-1"></i>Edit
+                    </button>
+
+                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="onDelete(row.id)"
+                      [disabled]="deletingRowId() === row.id || isAdding() || isAddMode() || !row.IsActive">
+                      @if (deletingRowId() === row.id) { <span class="spinner-border spinner-border-sm me-1"></span> } 
+                      @else { <i class="bi bi-trash me-1"></i> }
+                      Delete
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+            }
+          </tbody>
+
+        </table>
+      </div>
+
+      }
+    </div>
+
+  </div>
+</div>

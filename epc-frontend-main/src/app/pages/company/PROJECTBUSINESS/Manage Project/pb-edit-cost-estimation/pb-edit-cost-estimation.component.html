@@ -1,0 +1,624 @@
+<div class="container-fluid py-3">
+
+  <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap w-100">
+      <div class="me-0 mb-2">
+        <app-breadcrumbs title="Edit Project Cost Estimation" [breadcrumbItems]="breadCrumbItems()"></app-breadcrumbs>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoadingProject()) {
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body text-center py-5">
+      <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="text-muted mb-0">Loading project data...</p>
+    </div>
+  </div>
+  } @else {
+
+  <!-- Page Header -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div
+      class="card-body d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 py-3">
+      <div>
+        <h4 class="mb-1">Edit Cost Estimation</h4>
+        <p class="text-muted small mb-0">{{ projectDetails()?.ProjectName }}</p>
+      </div>
+      <button class="btn btn-outline-secondary" (click)="onCancel()">
+        <i class="bi bi-arrow-left"></i> Back to List
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- Project Details Form (separate update) -->
+  <!-- ============================================================ -->
+  <form [formGroup]="editProjectForm" (ngSubmit)="onProjectSubmit()">
+
+    <!-- Basic Project Information -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body p-3 p-md-4">
+        <div
+          class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 pb-3"
+          style="border-bottom: 2px solid #e9ecef;">
+          <h5 class="fw-bold mb-2 mb-md-0">
+            <i class="bi bi-info-circle text-primary"></i> Project Information
+          </h5>
+          <button type="button" class="btn btn-primary" (click)="updateProjectOnly()"
+            [disabled]="isSubmittingProject()">
+            @if (isSubmittingProject()) {
+            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+            Updating...
+            } @else {
+            <i class="bi bi-check-circle-fill me-1"></i> Update Project Info
+            }
+          </button>
+        </div>
+
+        <!-- Row 1 -->
+        <div class="row g-3 mb-3">
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold">Project Name</label>
+            <input type="text" class="form-control bg-light" formControlName="projectName" readonly>
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold">WBS No</label>
+            <input type="text" class="form-control bg-light" formControlName="wbsNo" readonly>
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold">Chak No</label>
+            <input type="text" class="form-control bg-light" formControlName="chakNo" readonly>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-12 col-md-3">
+            <label class="form-label fw-semibold">Nodal Agency</label>
+            <input type="text" class="form-control bg-light" formControlName="nodalAgencyName" readonly>
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label fw-semibold">Project Incharge</label>
+            <input type="text" class="form-control bg-light" formControlName="projectIncharge" readonly>
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label fw-semibold">Agreement Date <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" formControlName="agreementDate"
+              [class.is-invalid]="isFieldInvalid('agreementDate')">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('agreementDate')">
+              {{ getFieldError('agreementDate') }}
+            </div>
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label fw-semibold">Project Start Date <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" formControlName="projectStartDate"
+              [class.is-invalid]="isFieldInvalid('projectStartDate')">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('projectStartDate')">
+              {{ getFieldError('projectStartDate') }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="row g-3 mb-3">
+          <div class="col-12 col-md-4 col-lg-3">
+            <label class="form-label fw-semibold">Project Area(Ha)<span class="text-danger">*</span></label>
+            <input type="number" class="form-control" formControlName="projectArea" step="0.01" placeholder="e.g. 12.50"
+              (input)="onSaleValue()" [class.is-invalid]="isFieldInvalid('projectArea')">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('projectArea')">
+              {{ getFieldError('projectArea') }}
+            </div>
+          </div>
+          <div class="col-12 col-md-4 col-lg-3">
+            <label class="form-label fw-semibold">Hector Rate<span class="text-danger">*</span></label>
+            <input type="number" class="form-control" formControlName="hectareRate" step="0.01" (input)="onSaleValue()"
+              [class.is-invalid]="isFieldInvalid('hectareRate')">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('hectareRate')">
+              {{ getFieldError('hectareRate') }}
+            </div>
+          </div>
+          <div class="col-12 col-md-6 col-lg-3">
+            <label class="form-label fw-semibold">End Date <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" formControlName="endDate"
+              [class.is-invalid]="isFieldInvalid('endDate')">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('endDate')">
+              {{ getFieldError('endDate') }}
+            </div>
+          </div>
+          <div class="col-12 col-md-6 col-lg-3">
+            <label class="form-label fw-semibold">Expected Completion Date <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" formControlName="expectedCompletionDate"
+              [class.is-invalid]="isFieldInvalid('expectedCompletionDate')">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('expectedCompletionDate')">
+              {{ getFieldError('expectedCompletionDate') }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 3 -->
+        <div class="row g-3">
+          <div class="col-12 col-md-3">
+            <label class="form-label fw-semibold">Total Sale Value (Excl GST)</label>
+            <input type="number" class="form-control bg-light" formControlName="totalSaleValueExclGst">
+            @if (isFieldInvalid('totalSaleValueExclGst')) {
+            <div class="invalid-feedback d-block">{{ getFieldError('totalSaleValueExclGst') }}</div>
+            }
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label fw-semibold">Total Sale Value (Incl GST)</label>
+            <input type="number" class="form-control bg-light" formControlName="totalSaleValueInclGst">
+            @if (isFieldInvalid('totalSaleValueInclGst')) {
+            <div class="invalid-feedback d-block">{{ getFieldError('totalSaleValueInclGst') }}</div>
+            }
+          </div>
+
+          <div class="col-12 col-md-4 d-flex align-items-end gap-2">
+            <div>
+              <label class="form-label fw-semibold">Extension Letters</label>
+              <button type="button" class="btn btn-outline-primary w-auto" (click)="openExtensionLetterView()">
+                <i class="bi bi-file-earmark-text me-1"></i> View History
+              </button>
+            </div>
+            @if (originalExpectedCompletionDate() &&
+            editProjectForm.controls['expectedCompletionDate'].value !== originalExpectedCompletionDate()) {
+            <div>
+              <span class="badge bg-warning text-dark">
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                Date changed — extension letter will be required on save
+              </span>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Extension Letter Component (handles upload + view modals) -->
+    <app-pb-extension-letter #extensionLetterComp [projectId]="projectId() || ''"
+      [expectedCompletionDate]="editProjectForm.controls['expectedCompletionDate'].value || ''"
+      (uploadComplete)="onExtensionLetterUploaded()" (uploadCancelled)="onExtensionLetterCancelled()">
+    </app-pb-extension-letter>
+
+    <!-- ============================================================ -->
+    <!-- Cost Estimation Section (row-wise update) -->
+    <!-- ============================================================ -->
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-3 p-md-4">
+
+        <!-- Cost Estimation Header -->
+        <div
+          class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center mb-4 pb-3 gap-3"
+          style="border-bottom: 2px solid #e9ecef;">
+          <div>
+            <h5 class="fw-bold mb-1">Cost Estimation Details</h5>
+            <p class="text-muted small mb-0">Update each cost item individually using the row Update button</p>
+          </div>
+        </div>
+
+        <!-- Cost Estimation Table -->
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-primary">
+              <tr>
+                <th style="min-width: 180px;">Cost Item</th>
+                <th style="min-width: 200px;">Cost Basis</th>
+                <th class="text-end" style="min-width: 150px;">Amount (₹)</th>
+                <th style="min-width: 350px;">Vendors & Attachments</th>
+                <th class="text-center" style="min-width: 100px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (costEstimationRows().length > 0) {
+              @for (row of costEstimationRows(); track row.id; let i = $index) {
+              <tr>
+                <!-- ===== Cost Item Column ===== -->
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-primary">{{ i + 1 }}</span>
+                    <strong>{{ row.costHeadName }}</strong>
+                  </div>
+                </td>
+
+                <!-- ===== Cost Basis Column ===== -->
+                <td>
+                  <div class="d-flex flex-column gap-2">
+
+                    <!-- Loading Excel State -->
+                    @if (row.isLoadingExcel) {
+                    <div class="text-center py-2">
+                      <span class="spinner-border spinner-border-sm text-primary"></span>
+                      <small class="text-muted d-block mt-1">Loading...</small>
+                    </div>
+                    }
+
+                    <!--
+                      CASE 1: Has real Excel data (not manual entry) -> Show Excel view button
+                      When CostBasis has a value in excel response OR LineItems are NOT all "Manual Entry"
+                    -->
+                    @else if (row.hasExcel) {
+                    <div>
+                      <!-- Show Excel CostBasis as read-only if present -->
+                      @if (row.excelCostBasis) {
+                      <div class="mb-2">
+                        <label class="form-label small fw-semibold mb-1">Cost Basis (from Excel)</label>
+                        <input type="text" class="form-control form-control-sm bg-light" [value]="row.excelCostBasis"
+                          readonly>
+                      </div>
+                      }
+
+                      <!-- Excel View/Edit Button -->
+                      <button type="button"
+                        class="btn btn-outline-success btn-sm w-100 d-flex align-items-center justify-content-between"
+                        (click)="openExcelModal(row)">
+                        <span>
+                          <i class="bi bi-file-excel"></i> View/Edit Excel
+                        </span>
+                        <span class="badge bg-success">
+                          {{ row.excelData?.length || 0 }} rows
+                        </span>
+                      </button>
+                    </div>
+                    }
+
+                    <!--
+                      CASE 2: Manual entry OR no excel data
+                      CostBasis is empty + LineItems.Item is "Manual Entry" -> show costBasis from costHeadAmounts API
+                      OR no excel data at all -> show editable costBasis input
+                    -->
+                    @else {
+                    <div>
+                      <label class="form-label small fw-semibold mb-1">Cost Basis</label>
+                      <input type="text" class="form-control form-control-sm" placeholder="e.g., Per sq.ft"
+                        [value]="row.costBasis"
+                        (input)="updateRowField(row.id, 'costBasis', $any($event.target).value)">
+                    </div>
+                    }
+
+                  </div>
+                </td>
+
+                <!-- ===== Amount Column ===== -->
+                <td>
+                  <div class="input-group">
+                    <span class="input-group-text">₹</span>
+                    <input type="text" class="form-control text-end" placeholder="0.00" [value]="row.amount"
+                      (input)="updateRowField(row.id, 'amount', $any($event.target).value); validateAmount($event)">
+                  </div>
+                </td>
+
+                <!-- ===== Vendors & Attachments Column ===== -->
+                <td>
+                  <div class="border rounded p-2" style="background: #f8f9fa;">
+
+                    <!-- Loading Vendors State -->
+                    @if (row.isLoadingVendors) {
+                    <div class="text-center py-2">
+                      <span class="spinner-border spinner-border-sm text-primary"></span>
+                      <small class="text-muted d-block mt-1">Loading vendors...</small>
+                    </div>
+                    } @else {
+
+                    <!-- Vendor Selection Dropdown -->
+                    <div class="mb-2">
+                      <small class="text-muted fw-semibold d-block mb-2">Select Vendors:</small>
+                      <div class="dropdown w-100">
+                        <button
+                          class="btn btn-outline-primary btn-sm w-100 d-flex justify-content-between align-items-center"
+                          type="button" (click)="toggleVendorDropdown(row.id)">
+                          <span>
+                            @if (row.selectedVendors.length > 0) {
+                            <i class="bi bi-check-circle-fill text-success"></i> {{ row.selectedVendors.length }}
+                            Selected
+                            } @else {
+                            <i class="bi bi-plus-circle"></i> Add Vendors
+                            }
+                          </span>
+                          <i class="bi bi-chevron-down"></i>
+                        </button>
+
+                        @if (row.showVendorDropdown) {
+                        <div class="dropdown-menu show w-100 shadow p-0" style="max-height: 300px; overflow-y: auto;"
+                          (scroll)="onVendorDropdownScroll($event)">
+                          @if (isLoadingVendors()) {
+                          <div class="text-center py-3">
+                            <span class="spinner-border spinner-border-sm text-primary"></span>
+                            <small class="text-muted d-block mt-2">Loading...</small>
+                          </div>
+                          } @else if (allVendors().length === 0) {
+                          <div class="px-3 py-3 text-center text-muted">
+                            <i class="bi bi-inbox"></i>
+                            <small class="d-block">No vendors found</small>
+                          </div>
+                          } @else {
+                          @for (vendor of allVendors(); track vendor.VendorId) {
+                          <button type="button" class="dropdown-item d-flex align-items-center gap-2 py-2"
+                            [class.active]="isVendorSelected(row.id, vendor.VendorId)"
+                            (click)="toggleVendorSelection(row.id, vendor)">
+                            <i
+                              class="bi bi-{{ isVendorSelected(row.id, vendor.VendorId) ? 'check-square-fill text-primary' : 'square' }}"></i>
+                            <span>{{ vendor.Name }}</span>
+                          </button>
+                          }
+
+                          @if (vendorPagination().page < vendorPagination().totalPages) { <div
+                            class="text-center py-2 border-top">
+                            <small class="text-muted">
+                              <i class="bi bi-arrow-down"></i> Scroll for more
+                            </small>
+                        </div>
+                        }
+                        }
+                      </div>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Selected Vendors Display -->
+                  @if (row.selectedVendors.length > 0) {
+                  <div class="d-flex flex-wrap gap-1 mb-2">
+                    @for (vendor of row.selectedVendors; track vendor.VendorId) {
+                    <span class="badge bg-primary" style="font-size: 0.75rem;">
+                      {{ vendor.Name }}
+                      <i class="bi bi-x-circle ms-1" style="cursor: pointer;"
+                        (click)="toggleVendorSelection(row.id, vendor)"></i>
+                    </span>
+                    }
+                  </div>
+                  }
+
+                  <!-- Vendor Attachments Section -->
+                  @if (row.vendorAttachments.length > 0) {
+                  <div class="mt-2">
+                    <small class="text-muted fw-semibold d-block mb-2">
+                      <i class="bi bi-paperclip"></i> Documents (per vendor):
+                    </small>
+                    <div class="d-flex flex-column gap-2">
+                      @for (vendorAttachment of row.vendorAttachments; track vendorAttachment.vendorId) {
+                      <div class="card border-0 shadow-sm" style="background: white;">
+                        <div class="card-body p-2">
+                          <div class="d-flex align-items-start gap-2">
+                            <div class="flex-shrink-0">
+                              <div
+                                class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                                style="width: 32px; height: 32px; font-size: 0.9rem;">
+                                <i class="bi bi-person-fill"></i>
+                              </div>
+                            </div>
+                            <div class="flex-grow-1" style="min-width: 0;">
+                              <div class="fw-semibold text-dark mb-1" style="font-size: 0.85rem;">
+                                {{ vendorAttachment.vendorName }}
+                              </div>
+
+                              <!-- Assigned Amount for NEW vendors (no projectCostHeadVendorId yet) -->
+                              @if (!vendorAttachment.projectCostHeadVendorId) {
+                              <div class="mb-2">
+                                <label class="form-label small text-muted mb-1">Assigned Amount</label>
+                                <div class="input-group input-group-sm">
+                                  <span class="input-group-text">₹</span>
+                                  <input type="number" class="form-control" placeholder="Enter amount (optional)"
+                                    [value]="getVendorAmount(row.id, vendorAttachment.vendorId)"
+                                    (input)="updateVendorAmount(row.id, vendorAttachment.vendorId, $any($event.target).value)">
+                                </div>
+                                <small class="text-muted"><i class="bi bi-info-circle"></i> New vendor</small>
+                              </div>
+                              }
+
+                              <!-- Loading Attachments State -->
+                              @if (vendorAttachment.isLoadingAttachments) {
+                              <div class="text-center py-2">
+                                <span class="spinner-border spinner-border-sm text-primary"></span>
+                                <small class="text-muted d-block">Loading attachments...</small>
+                              </div>
+                              } @else {
+
+                              <!-- Existing Attachments -->
+                              @if (vendorAttachment.existingAttachments.length > 0) {
+                              <div class="mb-2">
+                                <small class="text-muted d-block mb-1">Existing Files:</small>
+                                <div class="d-flex flex-column gap-1">
+                                  @for (attachment of vendorAttachment.existingAttachments; track
+                                  attachment.AttachmentId) {
+                                  <div class="d-flex align-items-center gap-2 bg-light p-1 rounded"
+                                    style="font-size: 0.75rem;">
+                                    <i class="bi bi-file-earmark-check text-success"></i>
+                                    <span class="flex-grow-1 text-truncate" [title]="attachment.FileNameOriginal">
+                                      {{ attachment.FileNameOriginal }}
+                                    </span>
+                                    <span class="badge bg-secondary">
+                                      {{ formatFileSize(attachment.FileSizeBytes) }}
+                                    </span>
+                                    <button type="button" class="btn btn-sm btn-outline-info p-0"
+                                      style="width: 20px; height: 20px; font-size: 0.7rem;" [title]="'Download'"
+                                      (click)="downloadAttachment(attachment.AttachmentId, vendorAttachment.projectCostHeadVendorId, attachment.FileNameOriginal)">
+                                      <i class="bi bi-download"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger p-0"
+                                      style="width: 20px; height: 20px; font-size: 0.7rem;"
+                                      [title]="'Delete Attachment'"
+                                      (click)="deleteExistingAttachment(row.id, vendorAttachment.vendorId, attachment.AttachmentId)">
+                                      <i class="bi bi-trash"></i>
+                                    </button>
+                                  </div>
+                                  }
+                                </div>
+                              </div>
+                              }
+
+                              <!-- File Upload Input -->
+                              <div class="mb-2">
+                                <input type="file" class="form-control form-control-sm" style="font-size: 0.75rem;"
+                                  accept=".doc,.docx,.pdf" multiple
+                                  (change)="onVendorFileSelect(row.id, vendorAttachment.vendorId, $event)">
+                                <small class="text-muted">Max 5MB per file (.doc, .docx, .pdf)</small>
+                              </div>
+
+                              <!-- New Files to Upload -->
+                              @if (vendorAttachment.files.length > 0) {
+                              <div>
+                                <small class="text-muted d-block mb-1">New Files:</small>
+                                <div class="d-flex flex-column gap-1">
+                                  @for (file of vendorAttachment.files; track $index) {
+                                  <div class="d-flex align-items-center gap-2 bg-info bg-opacity-10 p-1 rounded"
+                                    style="font-size: 0.75rem;">
+                                    <i class="bi bi-file-earmark-plus text-info"></i>
+                                    <span class="flex-grow-1 text-truncate" [title]="file.name">{{ file.name
+                                      }}</span>
+                                    <span class="badge bg-info">{{ (file.size / 1024).toFixed(1) }} KB</span>
+                                    <button type="button" class="btn btn-sm btn-outline-danger p-0"
+                                      style="width: 20px; height: 20px; font-size: 0.7rem;"
+                                      (click)="removeVendorFile(row.id, vendorAttachment.vendorId, $index)">
+                                      <i class="bi bi-x"></i>
+                                    </button>
+                                  </div>
+                                  }
+                                </div>
+                              </div>
+                              }
+
+                              }
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      }
+                    </div>
+                  </div>
+                  }
+
+                  <!-- Save Vendors & Attachments Button -->
+                  @if (row.selectedVendors.length > 0) {
+                  <div class="mt-3 pt-2" style="border-top: 1px dashed #dee2e6;">
+                    <button type="button" class="btn btn-outline-success btn-sm w-100" (click)="saveVendorsForRow(row)"
+                      [disabled]="row.isSavingVendors">
+                      @if (row.isSavingVendors) {
+                      <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                      Saving Vendors...
+                      } @else {
+                      <i class="bi bi-people-fill me-1"></i> Save Vendors & Attachments
+                      }
+                    </button>
+                  </div>
+                  }
+
+                  }
+        </div>
+        </td>
+
+        <!-- ===== Actions Column (Update Cost Head Only) ===== -->
+        <td class="text-center">
+          <button type="button" class="btn btn-success btn-sm" (click)="updateSingleRow(row)"
+            [disabled]="row.isUpdatingRow" title="Update Cost Head (Cost Basis & Amount)">
+            @if (row.isUpdatingRow) {
+            <span class="spinner-border spinner-border-sm" role="status"></span>
+            } @else {
+            <i class="bi bi-check-circle"></i> Update
+            }
+          </button>
+        </td>
+        </tr>
+        }
+        } @else {
+        <tr>
+          <td colspan="5" class="text-center py-5">
+            <div class="d-flex flex-column align-items-center gap-3">
+              <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
+                style="width: 80px; height: 80px;">
+                <i class="bi bi-inbox text-muted" style="font-size: 2.5rem;"></i>
+              </div>
+              <div>
+                <h6 class="text-muted fw-semibold">No Cost Items Found</h6>
+                <p class="text-muted small mb-0">This project doesn't have any cost items yet</p>
+              </div>
+            </div>
+          </td>
+        </tr>
+        }
+        </tbody>
+        <tfoot class="table-primary">
+          <tr>
+            <th colspan="2" class="text-end">Total Cost</th>
+            <th class="text-end">₹ {{ calculateGrandTotal().toFixed(2) }}</th>
+            <th></th>
+            <th></th>
+          </tr>
+        </tfoot>
+        </table>
+      </div>
+
+      @if (costEstimationRows().length > 0) {
+      <div class="alert alert-info mt-3 border-0">
+        <div class="d-flex align-items-start gap-2">
+          <i class="bi bi-info-circle-fill text-primary"></i>
+          <div>
+            <h6 class="fw-bold mb-2">Important:</h6>
+            <ul class="mb-0 small">
+              <li>Use <strong>Update Project Info</strong> button above to save project-level changes (dates, area,
+                rates)</li>
+              <li>Use the <strong>Update</strong> button on each row to save cost basis &amp; amount changes for that
+                cost head</li>
+              <li>Use the <strong>Save Vendors &amp; Attachments</strong> button inside the vendor section to add new
+                vendors, assign amounts, and upload files</li>
+              <li>Removing a vendor will delete all its attachments immediately</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+
+    <!-- Footer (Cancel / Back only) -->
+    <div
+      class="card-footer bg-light d-flex flex-column flex-sm-row justify-content-between align-items-center py-3 gap-2">
+      <div>
+        @if (costEstimationRows().length > 0) {
+        <span class="badge bg-primary">
+          <i class="bi bi-list-check"></i> {{ costEstimationRows().length }} Item(s)
+        </span>
+        }
+      </div>
+      <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-secondary" (click)="onCancel()">
+          <i class="bi bi-x-circle"></i> Cancel
+        </button>
+      </div>
+    </div>
+</div>
+
+<!-- Excel View/Edit Modal -->
+@if (showExcelModal()) {
+<div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered modal-fullscreen-sm-down">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-file-excel"></i> Excel Data: {{ currentExcelRow()?.costHeadName }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeExcelModal()"></button>
+      </div>
+ 
+      <div class="modal-body p-4" style="overflow: auto; background: #f5f5f5;">
+        <app-pb-excel-grid [lineItems]="currentExcelRow()?.excelFullData?.LineItems || []"
+          [metadata]="currentExcelRow()?.excelMetadata"
+          [totalAmount]="currentExcelRow()?.excelFullData?.TotalAmount || 0"
+          [estimateTitle]="currentExcelRow()?.excelMetadata?.EstimateTitle || ''" [projectId]="projectId() || ''"
+          [costHeadId]="currentExcelRow()?.costHeadId || ''"
+          [costBasis]="currentExcelRow()?.excelFullData?.CostBasis || ''" (updateComplete)="onExcelUpdateComplete()">
+        </app-pb-excel-grid>
+      </div>
+
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-secondary" (click)="closeExcelModal()">
+          <i class="bi bi-x-circle"></i> Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+}
+</form>
+
+}
+</div>

@@ -1,0 +1,322 @@
+<div class="content">
+    <!-- Breadcrumb -->
+    <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+        <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+            <div class="me-0 mb-2">
+                <app-breadcrumbs title="Run Jobs" [breadcrumbItems]="breadCrumbItems()"></app-breadcrumbs>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header Card -->
+    <div class="card mb-3">
+        <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
+            <h5 class="mb-0">Run Jobs</h5>
+        </div>
+    </div>
+
+    <!-- Main Panel -->
+    <div class="card shadow-sm border rounded-3 mb-3">
+        <div class="card-body">
+            <form [formGroup]="automationRunForm" class="row gy-3 align-items-end">
+
+                <!-- State Select Dropdown -->
+                <div class="col-12 col-md-6 col-xl-4">
+                    <label for="stateSelect" class="form-label mb-1">
+                        Select State: <span class="text-danger">*</span>
+                    </label>
+                    <select id="stateSelect" class="form-select" formControlName="state"
+                        (change)="onStateChange($event)">
+                        @for (portal of statePortals; track portal.apiValue) {
+                        <option [value]="portal.apiValue">
+                            {{ portal.displayName }}
+                        </option>
+                        }
+                    </select>
+
+                    @if (showStateError() && automationRunForm.get('state')?.invalid) {
+                    <div class="text-danger small mt-1">
+                        <i class="bi bi-exclamation-circle me-1"></i>
+                        Please select a state.
+                    </div>
+                    }
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="col-12 col-md-6 col-xl-8">
+                    <div class="d-flex gap-2 align-items-center flex-wrap">
+                        <button type="button" class="btn btn-primary" (click)="startScraping()"
+                            [disabled]="isLoading() || isScrapingActive()">
+                            @if (isLoading()) {
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            Processing...
+                            } @else {
+                            <i class="bi bi-play-circle me-1"></i>
+                            Start Scraping
+                            }
+                        </button>
+
+                        <button type="button" class="btn btn-outline-primary" (click)="openManual()"
+                            [disabled]="isLoading() || isScrapingActive()">
+                            <i class="bi bi-box-arrow-up-right me-1"></i>
+                            Go Manually
+                        </button>
+
+                        <button type="button" title="Emergency Stop" class="btn btn-outline-primary"
+                            [disabled]="!isScrapingActive()" (click)="stopScrappingDialog()">
+                            <i class="bi bi-sign-stop me-1"></i>
+                            Stop Scrapping
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Status Messages Panel -->
+    @if (isScrapingActive() || statusMessages().length > 0) {
+    <div class="card shadow-sm border rounded-3">
+        <div class="card-header bg-light">
+            <div class="d-flex align-items-center justify-content-between">
+                <h6 class="mb-0">
+                    <i class="bi bi-activity me-2"></i>
+                    Scraping Progress
+                </h6>
+                @if (isScrapingActive()) {
+                <span class="badge bg-primary">
+                    <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                    Active
+                </span>
+                } @else {
+                <span class="badge bg-success">Completed</span>
+                }
+            </div>
+        </div>
+        <div class="card-body">
+            @if (currentJobId()) {
+            <div class="alert alert-info mb-3">
+                <strong>Job ID:</strong> {{ currentJobId() }}
+            </div>
+            }
+
+            <div class="status-messages-container">
+                @if (statusMessages().length === 0) {
+                <div class="text-center text-muted py-3">
+                    <i class="bi bi-hourglass-split fs-3 d-block mb-2"></i>
+                    Waiting for status updates...
+                </div>
+                } @else {
+                @for (status of statusMessages(); track status.timestamp) {
+                <div class="status-message-item border-bottom pb-2 mb-2">
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-check-circle text-success me-2 mt-1 flex-shrink-0"></i>
+                        <div class="flex-grow-1">
+                            <p class="mb-1 status-text">{{ status.message }}</p>
+                            <small class="text-muted">
+                                {{ status.timestamp | date:'medium' }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                }
+                }
+            </div>
+        </div>
+    </div>
+    }
+</div>
+
+<!-- Captcha Modal -->
+<div class="modal fade" tabindex="-1" #captchaModal>
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-warning bg-opacity-10">
+                <h5 class="modal-title">
+                    <i class="bi bi-shield-lock me-2"></i>
+                    Solve Captcha
+                </h5>
+                <button type="button" class="btn-close" (click)="closeModal()" [disabled]="isCaptchaLoading()">
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <!-- Left side - Captcha Image -->
+                    <!-- Left side - Captcha Image -->
+                    <div class="col-12 col-lg-6">
+                        <div class="captcha-image-section">
+                            <h6 class="mb-3">
+                                <i class="bi bi-image me-2"></i>
+                                Captcha Image
+                            </h6>
+
+                            @if (isCaptchaLoading()) {
+                            <div class="captcha-loading d-flex flex-column align-items-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2 text-muted mb-0">Loading captcha...</p>
+                            </div>
+                            } @else if (captchaImageBase64()) {
+
+                            <!-- Zoom Controls -->
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-outline-secondary" (click)="zoomOut()"
+                                        [disabled]="zoomLevel() <= 1" title="Zoom Out">
+                                        <i class="bi bi-dash-lg"></i>
+                                    </button>
+                                    <span class="btn btn-outline-secondary disabled"
+                                        style="min-width: 60px; pointer-events: none;">
+                                        {{ (zoomLevel() * 100).toFixed(0) }}%
+                                    </span>
+                                    <button type="button" class="btn btn-outline-secondary" (click)="zoomIn()"
+                                        [disabled]="zoomLevel() >= 5" title="Zoom In">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-primary" (click)="resetZoom()"
+                                    title="Reset">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                                </button>
+                            </div>
+
+                            <!-- Image Viewer Frame -->
+                            <div class="captcha-viewer-frame" #captchaFrame (mousedown)="onDragStart($event)"
+                                (mousemove)="onDragMove($event)" (mouseup)="onDragEnd()" (mouseleave)="onDragEnd()"
+                                (wheel)="onMouseWheel($event)" (touchstart)="onTouchStart($event)"
+                                (touchmove)="onTouchMove($event)" (touchend)="onDragEnd()">
+
+                                <img [src]="getCaptchaImageSrc()" alt="Captcha" draggable="false"
+                                    class="captcha-pan-image"
+                                    [style.transform]="'translate(' + panX() + 'px, ' + panY() + 'px) scale(' + zoomLevel() + ')'"
+                                    [style.cursor]="zoomLevel() > 1 ? (isDragging() ? 'grabbing' : 'grab') : 'zoom-in'">
+                            </div>
+
+                            <div class="text-center mt-2">
+                                <small class="text-muted">
+                                    <i class="bi bi-mouse me-1"></i>
+                                    Scroll to zoom · Drag to pan
+                                </small>
+                            </div>
+
+                            } @else {
+                            <div class="alert alert-warning mb-0">
+                                No captcha available
+                            </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Right side - Status Messages -->
+                    <div class="col-12 col-lg-6">
+                        <div class="status-section">
+                            <h6 class="mb-3">
+                                <i class="bi bi-list-check me-2"></i>
+                                Process Status
+                            </h6>
+                            <div class="process-status-container">
+                                @if (statusMessages().length > 0) {
+                                @for (status of statusMessages(); track $index) {
+                                <div class="process-status-item">
+                                    <small class="text-muted d-block mb-1">
+                                        <i class="bi bi-clock me-1"></i>
+                                        {{ status.timestamp | date:'HH:mm:ss' }}
+                                    </small>
+                                    <p class="mb-0 small">{{ status.message }}</p>
+                                </div>
+                                }
+                                } @else {
+                                <div class="text-center text-muted py-3">
+                                    <i class="bi bi-hourglass-split fs-4 d-block mb-2"></i>
+                                    <p class="mb-0">No status messages yet...</p>
+                                </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Captcha Input -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Please enter the captcha text shown in the image above.
+                        </div>
+                        <label for="captchaInput" class="form-label fw-semibold">
+                            Enter Captcha Text
+                            <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control form-control-lg text-center" id="captchaInput"
+                            [(ngModel)]="captchaInput" placeholder="Type the captcha here..." (click)="submitCaptcha()"
+                            autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary me-2" (click)="closeModal()" [disabled]="isCaptchaLoading()">
+                    <i class="bi bi-x-circle me-1"></i>
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-primary" (click)="submitCaptcha()"
+                    [disabled]="isCaptchaLoading() || !captchaInput()">
+                    @if (isCaptchaLoading()) {
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    Submitting...
+                    } @else {
+                    <i class="bi bi-check-circle me-1"></i>
+                    Submit
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- OTP Modal -->
+<div class="modal fade" tabindex="-1" #otpModal>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-info bg-opacity-10">
+                <h5 class="modal-title">
+                    <i class="bi bi-key me-2"></i>
+                    Enter OTP
+                </h5>
+                <button type="button" class="btn-close" (click)="closeOtpModal()" [disabled]="isOtpLoading()">
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Please enter the OTP to continue the scraping process.
+                </div>
+
+                <label for="otpInput" class="form-label fw-semibold">
+                    Enter OTP
+                    <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control form-control-lg text-center" id="otpInput" [(ngModel)]="otpInput"
+                    placeholder="Enter OTP here..." [disabled]="isOtpLoading()" (keyup.enter)="submitOtp()"
+                    autocomplete="off" maxlength="6">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="closeOtpModal()" [disabled]="isOtpLoading()">
+                    <i class="bi bi-x-circle me-1"></i>
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-primary" (click)="submitOtp()"
+                    [disabled]="isOtpLoading() || !otpInput()">
+                    @if (isOtpLoading()) {
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    Submitting...
+                    } @else {
+                    <i class="bi bi-check-circle me-1"></i>
+                    Submit
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+

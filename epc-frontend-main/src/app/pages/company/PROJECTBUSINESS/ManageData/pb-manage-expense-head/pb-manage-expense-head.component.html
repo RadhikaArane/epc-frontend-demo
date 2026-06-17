@@ -1,0 +1,123 @@
+<!-- Bootstrap 5 – Expense Head Master (Add / Edit / Delete UI) -->
+<div class="content">
+  <!-- Header -->
+  <div class="card mb-3">
+    <div class="card-header d-flex align-items-center">
+      <h5 class="mb-0">Expense Head Master</h5>
+      <div class="ms-auto">
+        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addExpHeadModal">
+          + Add Expense Head
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card">
+    <div class="card-body p-0">
+      <div class="table-responsive" style="max-height:60vh; overflow:auto;">
+        <table class="table table-bordered table-hover align-middle mb-0">
+          <thead class="table-light" style="position:sticky; top:0; z-index:2;">
+            <tr>
+              <th style="width:90px;">Sr No</th>
+              <th>Name</th>
+              <th style="width:180px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Material Cost</td>
+              <td class="text-nowrap">
+                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editExpHeadModal">Edit</button>
+                <button class="btn btn-sm btn-outline-danger ms-2" data-bs-toggle="modal" data-bs-target="#deleteExpHeadModal">Delete</button>
+              </td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Freight</td>
+              <td class="text-nowrap">
+                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editExpHeadModal">Edit</button>
+                <button class="btn btn-sm btn-outline-danger ms-2" data-bs-toggle="modal" data-bs-target="#deleteExpHeadModal">Delete</button>
+              </td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Installation</td>
+              <td class="text-nowrap">
+                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editExpHeadModal">Edit</button>
+                <button class="btn btn-sm btn-outline-danger ms-2" data-bs-toggle="modal" data-bs-target="#deleteExpHeadModal">Delete</button>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot class="table-light">
+            <tr>
+              <th>—</th>
+              <th>Total: 3 Heads</th>
+              <th>—</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Expense Head Modal -->
+<div class="modal fade" id="addExpHeadModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content" style="border-radius:12px;">
+      <div class="modal-header">
+        <h6 class="modal-title">Add Expense Head</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">Name</label>
+        <input type="text" class="form-control" placeholder="e.g., Supervision Cost">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary ms-2">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Expense Head Modal (UI only; prefill as example) -->
+<div class="modal fade" id="editExpHeadModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content" style="border-radius:12px;">
+      <div class="modal-header">
+        <h6 class="modal-title">Edit Expense Head</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">Name</label>
+        <input type="text" class="form-control" value="Material Cost">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-primary">Update</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal fade" id="deleteExpHeadModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content" style="border-radius:12px;">
+      <div class="modal-header">
+        <h6 class="modal-title">Delete Expense Head</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this expense head?
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>

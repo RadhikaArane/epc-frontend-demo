@@ -1,0 +1,30 @@
+// .wrap-cell {
+//   white-space: normal !important;
+//   word-break: break-word;
+//   overflow-wrap: anywhere;
+//   line-height: 1.25;
+// }
+
+
+
+/* Let columns take only required width */
+table {
+  table-layout: auto;
+}
+
+/* Default: do NOT wrap, take content width */
+.dynamic-header,
+.table td {
+  white-space: nowrap;
+  width: max-content;
+}
+
+/* Only for columns where wrap=true */
+.wrap-cell {
+  white-space: normal !important;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+
+

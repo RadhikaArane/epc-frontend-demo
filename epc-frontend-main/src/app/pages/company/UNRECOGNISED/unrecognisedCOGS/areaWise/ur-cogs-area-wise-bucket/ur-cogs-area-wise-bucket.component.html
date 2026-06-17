@@ -1,0 +1,384 @@
+<div class="content">
+  <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap">
+      <div class="me-0 mb-0">
+        <app-breadcrumbs
+          title="COGS Area-wise Bucket"
+          [breadcrumbItems]="breadCrumbItems()"
+        ></app-breadcrumbs>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <button
+        class="btn btn-primary shadow-sm"
+        style="border-radius: 8px"
+        (click)="openAddRemarkModal()"
+      >
+        <i class="bi bi-plus-lg me-2"></i> Add Remark
+      </button>
+      <button
+        class="btn btn-primary shadow-sm"
+        style="border-radius: 8px"
+        [disabled]="isDownloading()"
+        (click)="downloadExcel()"
+      >
+        <i
+          class="bi"
+          [class.bi-file-earmark-arrow-down]="!isDownloading()"
+          [class.bi-download]="isDownloading()"
+        ></i>
+        {{ isDownloading() ? "Downloading..." : "Export" }}
+      </button>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
+      <div class="d-flex align-items-center gap-2">
+        <button
+          class="btn btn-outline-secondary btn-sm"
+          (click)="navigateBack()"
+          title="Back"
+        >
+          <i class="bi bi-arrow-left"></i> Back
+        </button>
+        <h5 class="mb-0">COGS Area-wise Bucket - {{ selectedArea() }}</h5>
+        @if (selectedStatus()) {
+          <span class="badge bg-info">{{ selectedStatus() }}</span>
+        }
+      </div>
+      <div class="badge bg-primary fs-12">
+        Grand Total: {{ grandTotalAmt() | number: "1.2-2" }}
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="d-flex flex-wrap justify-content-between align-items-end mb-3 gap-3">
+        <div class="col-12 col-md-2">
+          <label class="form-label small mb-1">Show</label>
+          <select
+            class="form-select form-select-sm"
+            [value]="pageSize()"
+            (change)="onPageSizeChange($event)"
+            [disabled]="isLoading()"
+          >
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-2">
+          <label class="form-label small mb-1">Ageing Bucket</label>
+          @if (isShowingAllAgeing()) {
+            <select
+              class="form-select form-select-sm"
+              [value]="selectedAgeing()"
+              (change)="onAgeingFilterChange($event)"
+              [disabled]="isLoading()"
+            >
+              @for (opt of ageingDropdownOptions; track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
+            </select>
+          } @else {
+            <div
+              class="form-control form-control-sm bg-light text-center"
+              style="cursor: not-allowed"
+            >
+              {{ selectedAgeing() }}
+            </div>
+          }
+        </div>
+
+        <div class="col-12 col-md-4">
+          <label class="form-label small mb-1">Search</label>
+          <div class="input-group input-group-sm">
+            <input
+              type="text"
+              class="form-control"
+              [ngModel]="searchTerm()"
+              (ngModelChange)="searchTerm.set($event)"
+              (keypress)="onSearchKeyPress($event)"
+              placeholder="Search..."
+              [disabled]="isLoading()"
+            />
+            @if (searchTerm()) {
+              <button
+                class="btn btn-outline-danger"
+                type="button"
+                (click)="clearSearch()"
+              >
+                <i class="bi bi-x-lg"></i>
+              </button>
+            }
+            <button
+              class="btn btn-primary"
+              type="button"
+              (click)="onSearch()"
+              [disabled]="isLoading() || !searchTerm()"
+            >
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-1">
+          <label
+            for="bucketDate"
+            class="form-label small mb-1 d-block"
+          >Selected Date:
+          </label>
+          <input
+            type="date"
+            id="bucketDate"
+            class="form-control form-control-sm"
+            [value]="selectedDate()"
+            (change)="onBucketDateChange($event)"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body p-2">
+      @if (isLoading()) {
+        <div
+          class="d-flex flex-column align-items-center justify-content-center"
+          style="min-height: 400px"
+        >
+          <div
+            class="spinner-border text-primary"
+            role="status"
+            style="width: 3rem; height: 3rem"
+          ></div>
+          <p class="mt-2 text-muted">Loading data...</p>
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table
+            class="table table-striped table-bordered table-ultra-compact mb-0"
+          >
+            <thead class="thead-light align-middle text-center">
+              <tr>
+                <th
+                  style="
+                    width: 35px;
+                    min-width: 35px;
+                    position: sticky;
+                    left: 0;
+                    z-index: 12;
+                  "
+                >
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    (change)="toggleSelectAll($event)"
+                  />
+                </th>
+
+                @for (col of stickyColumns(); track col.key; let i = $index) {
+                  <th
+                    style="
+                      position: sticky;
+                      z-index: 12;
+                      border-right: 1px solid #dee2e6;
+                    "
+                    [style.left.px]="35 + i * 140"
+                    [style.min-width.px]="140"
+                    [style.max-width.px]="140"
+                    [style.white-space]="'pre-line'" [style.word-wrap]="'break-word'"
+                  >
+                    {{ col.label }}
+                  </th>
+                }
+
+                @for (col of scrollableColumns(); track col.key) {
+                  @if (isColumnCollapsed(col.key)) {
+                    <th
+                      style="
+                        min-width: 40px;
+                        cursor: pointer;
+                        background-color: #6c757d;
+                        text-align: center;
+                      "
+                      (click)="toggleColumn(col.key)"
+                    >
+                      <i class="bi bi-plus-circle-fill text-white"></i>
+                    </th>
+                  } @else {
+                    <th
+                      style="
+                        text-align: center;
+                        word-wrap: break-word;
+                      "
+                      [style.min-width.px]="col.width"
+                      [style.max-width.px]="col.width"
+                    >
+                      <div
+                        class="d-flex align-items-center justify-content-center gap-1"
+                      >
+                        <span style="white-space: pre-line">{{ col.label }}</span> 
+                        @if (col.collapsible) {
+                          <button
+                            class="btn btn-sm btn-link p-0 ms-1 flex-shrink-0"
+                            (click)="toggleColumn(col.key)"
+                          >
+                            <i class="bi bi-dash-circle text-white"></i>
+                          </button>
+                        }
+                      </div>
+                    </th>
+                  }
+                }
+              </tr>
+            </thead>
+
+            <tbody class="align-middle">
+              @if (items().length > 0) {
+                @for (item of items(); track $index) {
+                  <tr>
+                    <td
+                      style="
+                        position: sticky;
+                        left: 0;
+                        z-index: 10;
+                        background-color: #fff;
+                        text-align: center;
+                      "
+                    >
+                      <input
+                        type="checkbox"
+                        class="form-check-input"
+                        [checked]="isRowSelected(item)"
+                        (change)="toggleRowSelection(item, $event)"
+                      />
+                    </td>
+
+                    @for (
+                      col of stickyColumns();
+                      track col.key;
+                      let i = $index
+                    ) {
+                      <td
+                        style="
+                          position: sticky;
+                          z-index: 10;
+                          background-color: #fff;
+                          border-right: 1px solid #dee2e6;
+                        "
+                        [style.left.px]="35 + i * 140"
+                        [style.min-width.px]="140"
+                        [style.max-width.px]="140"
+                        [style.white-space]="'normal'"
+                        [style.word-wrap]="'break-word'"
+                        [class.text-end]="isCurrencyColumn(col)"
+                        [class.text-center]="getCellValue(item, col) === '-'"
+                      >
+                        {{ getCellValue(item, col) }}
+                      </td>
+                    }
+
+                    @for (col of scrollableColumns(); track col.key) {
+                      @if (isColumnCollapsed(col.key)) {
+                        <td
+                          style="
+                            cursor: pointer;
+                            background-color: #6c757d;
+                            text-align: center;
+                          "
+                          (click)="toggleColumn(col.key)"
+                        >
+                          <i class="bi bi-plus-circle-fill text-white"></i>
+                        </td>
+                      } @else {
+                        <td
+                          style="
+                            white-space: normal;
+                            word-wrap: break-word;
+                          "
+                          [style.min-width.px]="col.width"
+                          [style.max-width.px]="col.width"
+                          [class.text-end]="isCurrencyColumn(col)"
+                          [class.text-center]="getCellValue(item, col) === '-'"
+                        >
+                          {{ getCellValue(item, col) }}
+                        </td>
+                      }
+                    }
+                  </tr>
+                }
+              } @else {
+                <tr>
+                  <td
+                    [attr.colspan]="getTotalVisibleColumns()"
+                    class="text-center py-4"
+                  >
+                    No data found
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (totalRecords() > 0) {
+          <div class="row mt-3 align-items-center">
+            <div class="col-12 col-md-5 mb-2 mb-md-0">
+              <div class="dataTables_info text-center text-md-start">
+                Showing {{ getStartRecord() }} to {{ getEndRecord() }} of {{ totalRecords() }} entries
+              </div>
+            </div>
+            <div class="col-12 col-md-7">
+              <div class="dataTables_paginate paging_simple_numbers d-flex justify-content-center justify-content-md-end">
+                <ul class="pagination mb-0">
+                  <li class="paginate_button page-item" [class.disabled]="currentPage() === 1">
+                    <a class="page-link" [class.pe-none]="currentPage() === 1" style="cursor: pointer;"
+                      (click)="currentPage() === 1 ? null : onPageChange(currentPage() - 1)">
+                      Previous
+                    </a>
+                  </li>
+
+                  @for (page of getVisiblePages(); track $index) {
+                    @if (page === -1 || page === -2) {
+                      <li class="paginate_button page-item disabled">
+                        <span class="page-link">...</span>
+                      </li>
+                    } @else {
+                      <li class="paginate_button page-item" [class.active]="page === currentPage()">
+                        <a class="page-link" style="cursor: pointer;" [class.pe-none]="page === currentPage()"
+                          (click)="page === currentPage() ? null : onPageChange(page)">
+                          {{ page }}
+                        </a>
+                      </li>
+                    }
+                  }
+
+                  <li class="paginate_button page-item" [class.disabled]="currentPage() === totalPages()">
+                    <a class="page-link" [class.pe-none]="currentPage() === totalPages()" style="cursor: pointer;"
+                      (click)="currentPage() === totalPages() ? null : onPageChange(currentPage() + 1)">
+                      Next
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  </div>
+</div>
+
+<app-add-remarks
+  [filterParams]="{
+    State: selectedState(),
+    AreaName: selectedArea(),
+    SummaryType: 'AreaWise',
+    DashboardType: 'Cogs'
+  }"
+  (projectAdded)="onRemarkSaved()"
+>
+</app-add-remarks>

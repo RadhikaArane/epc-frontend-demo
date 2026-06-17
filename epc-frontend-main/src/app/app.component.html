@@ -1,0 +1,52 @@
+<style>
+  html {
+    display: none;
+  }
+</style>
+
+<script>
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const locationParam = params.get("location");
+
+    // Whitelisted internal paths
+    const allowedPaths = {
+      "/login": "/login"
+    };
+
+    // Whitelisted full URLs (check up to scheme://domain/)
+    const allowedFullUrls = {
+      "http://localhost:3000//login": "http://localhost:3000//login",
+      "http://localhost:4200/login": "http://localhost:4200/login"
+    };
+
+    let redirectTo = "/login"; // default safe fallback
+
+    if (window.top !== window.self) {
+      if (locationParam) {
+        if (locationParam.startsWith("/")) {
+          if (allowedPaths.hasOwnProperty(locationParam)) {
+            redirectTo = allowedPaths[locationParam];
+          }
+        } else if (locationParam.startsWith("http")) {
+          if (allowedFullUrls.hasOwnProperty(locationParam)) {
+            redirectTo = allowedFullUrls[locationParam];
+          }
+        }
+      }
+      window.top.location.replace(redirectTo);
+    } else {
+      document.documentElement.style.display = 'block';
+    }
+  } catch (e) {
+    console.warn("Framebusting failed:", e);
+    document.documentElement.style.display = 'block';
+  }
+</script>
+
+@if (epcLoaderService.isLoading()) {
+      <div class="loader-overlay">
+        <app-epc-loader/>
+      </div>
+    }
+<router-outlet />

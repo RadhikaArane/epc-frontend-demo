@@ -1,0 +1,237 @@
+<div class="content container-fluid">
+  <!-- Breadcrumb -->
+  <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+    <div class="me-0">
+      <app-breadcrumbs title="One Line Summary" [breadcrumbItems]="breadCrumbItems()"></app-breadcrumbs>
+    </div>
+  </div>
+
+  <!-- Main Card -->
+  <div class="card p-1" style="border: 1px solid #dee2e6;">
+    <!-- Filters -->
+    <div class="card-header" style="background-color: #fff; border-bottom: 1px solid #dee2e6; padding: 0.75rem 1rem;">
+      <div class="d-flex justify-content-center align-items-center gap-3 flex-wrap">
+        <label class="mb-0" style="font-weight: 500; color: #495057;">Month:</label>
+        <select class="form-select form-select-sm" [ngModel]="selectedMonth()"
+          (ngModelChange)="selectedMonth.set($event); onFilterChange()" [disabled]="isLoadingSummary()"
+          style="width: 150px; flex: 0 0 auto; border: 1px solid #ced4da;">
+          <option value="">Select Month</option>
+          @for (m of months(); track m) {
+          <option [value]="m">{{ m }}</option>
+          }
+        </select>
+
+        <label class="mb-0" style="font-weight: 500; color: #495057;">Year:</label>
+        <select class="form-select form-select-sm" [ngModel]="selectedYear()"
+          (ngModelChange)="selectedYear.set($event); onFilterChange()" [disabled]="isLoadingSummary()"
+          style="width: 120px; flex: 0 0 auto; border: 1px solid #ced4da;">
+          <option value="">Select Year</option>
+          @for (y of years(); track y) {
+          <option [value]="y">{{ y }}</option>
+          }
+        </select>
+
+             <label class="mb-0" style="font-weight: 500; color: #495057;">Currency:</label>
+        <select class="form-select form-select-sm" style="width: 120px;" [value]="currencyUnit()"
+          (change)="currencyUnit.set($any($event.target).value)">
+          <option value="Lakhs">₹ Lakhs</option>
+          <option value="Crores">₹ Crores</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card-body" style="padding: 0;">
+
+      <!-- Loading -->
+      @if (isLoadingSummary()) {
+      <div class="text-center" style="padding: 3rem 1rem;">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+        <p style="margin-top: 1rem; color: #6c757d;">Loading summary...</p>
+      </div>
+      }
+
+      <!-- No Data -->
+      @if (!isLoadingSummary() && dashboardData().length === 0) {
+      <div class="text-center" style="padding: 3rem 1rem;">
+        <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+        <p style="margin-top: 1rem; color: #6c757d;">No data found for selected filters</p>
+      </div>
+      }
+
+      <!-- ✅ Outer table: fixed layout, never scrolls -->
+      @if (!isLoadingSummary() && dashboardData().length > 0) {
+      <div style="overflow: visible;">
+        <table class="table table-striped table-bordered table-ultra-compact mb-0"
+          style="table-layout: fixed; width: 100%;">
+          <colgroup>
+            <col style="width: 40%;">
+            <col style="width: 25%;">
+            <col style="width: 25%;">
+            <col style="width: 10%;">
+          </colgroup>
+          <thead class="thead-light" style="background-color: #f8f9fa;">
+            <tr>
+              <th style="padding: 0.75rem; font-weight: 600;">State</th>
+              <th style="padding: 0.75rem; font-weight: 600; text-align: right;">Total Assignment Pending</th>
+              <th style="padding: 0.75rem; font-weight: 600; text-align: right;">Total Adv</th>
+              <th style="padding: 0.75rem; font-weight: 600; text-align: center;">Summary</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of dashboardData(); track row.State) {
+
+            <!-- Summary Row -->
+            <tr>
+              <td style="font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                [title]="row.State">
+                {{ row.State || 'Unknown' }}
+              </td>
+              <td style="text-align: right; font-weight: 600; color: #0d6efd; white-space: nowrap;">
+                 {{ formatAmount(row.TotalAssignmentPending) }} 
+              </td>
+              <td style="text-align: right; font-weight: 600; color: #0d6efd; white-space: nowrap;"> 
+                 {{ formatAmount(row.TotalAdv) }}
+              </td>
+              <td style="text-align: center;">
+                <button class="btn btn-sm btn-outline-primary" style="padding: 0.2rem 0.5rem; line-height: 1;"
+                  (click)="toggleStateDetails(row.State)">
+                  <i class="bi" [class.bi-plus-circle]="!isStateOpen(row.State)"
+                    [class.bi-dash-circle]="isStateOpen(row.State)" style="font-size: 1.1rem;"></i>
+                </button>
+              </td>
+            </tr>
+
+            <!-- ═══ Accordion Row ═══ -->
+            @if (isStateOpen(row.State)) {
+            <tr>
+              <td colspan="4" style="padding: 0; background-color: #f8f9fa; border-top: none;">
+                <div style="padding: 0.75rem;">
+
+                  <!-- Loading -->
+                  @if (getAccordionData(row.State)?.isLoading) {
+                  <div class="text-center" style="padding: 2rem;">
+                    <div class="spinner-border text-primary" role="status" style="width: 2rem; height: 2rem;"></div>
+                    <p style="margin-top: 0.75rem; color: #6c757d; font-size: 0.875rem;">Loading details...</p>
+                  </div>
+                  } @else {
+
+                  <!-- Page Size + Info -->
+                  <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                    <div class="text-muted small">
+                      Showing {{ getStartRecord(row.State) }} to {{ getEndRecord(row.State) }}
+                      of {{ getAccordionData(row.State)!.totalRecords }} entries
+                    </div>
+                    <div class="d-flex align-items-center gap-1">
+                      <span class="small">Show</span>
+                      <select class="form-select form-select-sm" style="width: 75px;"
+                        [value]="getAccordionData(row.State)?.pageSize || 10"
+                        (change)="onPageSizeChange(row.State, $event)">
+                        <option [value]="10">10</option>
+                        <option [value]="25">25</option>
+                        <option [value]="50">50</option>
+                        <option [value]="100">100</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- ✅ Inner table: scrolls independently -->
+                  <div style="max-height: 450px; overflow: auto; border: 1px solid #dee2e6; border-radius: 4px;">
+                    <table class="table table-bordered table-sm table-hover mb-0"
+                      style="background-color: #fff; font-size: 0.8125rem; white-space: nowrap; width: max-content; min-width: 100%;">
+
+                      <!-- Dynamic Headers -->
+                      <thead class="thead-light" style="background-color: #e9ecef; position: sticky; top: 0; z-index: 2;">
+                        <tr>
+                          <th
+                            style="padding: 0.4rem 0.6rem; font-weight: 600; font-size: 0.75rem; position: sticky; left: 0; z-index: 3; min-width: 60px;">
+                            Sr No
+                          </th>
+                          @for (col of detailColumns(); track col) {
+                          <th style="padding: 0.4rem 0.6rem; font-weight: 600; font-size: 0.75rem; white-space: nowrap;"
+                            [style.text-align]="isCurrencyCol(col) ? 'right' : 'left'">
+                            {{ col }}
+                          </th>
+                          }
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        @if (getAccordionData(row.State)?.items?.length) {
+                        @for (item of getAccordionData(row.State)!.items; track $index) {
+                        <tr>
+                          <td
+                            style="padding: 0.4rem 0.6rem; position: sticky; left: 0; z-index: 1; background-color: #fff; min-width: 60px;">
+                            {{ getStartRecord(row.State) + $index }}
+                          </td>
+                          @for (col of detailColumns(); track col) {
+                          <td style="padding: 0.4rem 0.6rem;" [style.text-align]="isCurrencyCol(col) ? 'right' : 'left'"
+                            [style.font-weight]="col === 'Total' || col === 'OS' ? '600' : 'normal'">
+                            @if (isCurrencyCol(col) && item[col] !== null && item[col] !== undefined && item[col] !==
+                            '') {
+                            {{ formatAmount(+item[col]) }}
+                            } @else {
+                            {{ getCellValue(item, col) }}
+                            }
+                          </td>
+                          }
+                        </tr>
+                        }
+                        } @else {
+                        <tr>
+                          <td [attr.colspan]="detailColumns().length + 1" class="text-center"
+                            style="padding: 1.5rem; color: #6c757d;">
+                            No records found
+                          </td>
+                        </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!-- Pagination -->
+                  @if (getAccordionData(row.State)!.totalRecords > 0) {
+                  <div class="row mt-2 align-items-center">
+                    <div class="col-12 col-md-5 small text-muted">
+                      Showing {{ getStartRecord(row.State) }} to {{ getEndRecord(row.State) }}
+                      of {{ getAccordionData(row.State)!.totalRecords }} entries
+                    </div>
+                    <div class="col-12 col-md-7 d-flex justify-content-md-end justify-content-center">
+                      <ul class="pagination pagination-sm mb-0" style="gap: 0.15rem;">
+                        <li class="page-item" [class.disabled]="getAccordionData(row.State)!.currentPage === 1">
+                          <a class="page-link" style="padding: .25rem .5rem; font-size: 12px; cursor: pointer;"
+                            (click)="onPageChange(row.State, getAccordionData(row.State)!.currentPage - 1)">Previous</a>
+                        </li>
+                        @for (p of getVisiblePages(row.State); track $index) {
+                        @if (p < 0) { <li class="page-item disabled"><span class="page-link"
+                            style="padding: .25rem .5rem; font-size: 12px;">...</span></li>
+                          } @else {
+                          <li class="page-item" [class.active]="p === getAccordionData(row.State)!.currentPage">
+                            <a class="page-link" style="padding: .25rem .5rem; font-size: 12px; cursor: pointer;"
+                              (click)="onPageChange(row.State, p)">{{ p }}</a>
+                          </li>
+                          }
+                          }
+                          <li class="page-item"
+                            [class.disabled]="getAccordionData(row.State)!.currentPage === getAccordionData(row.State)!.totalPages">
+                            <a class="page-link" style="padding: .25rem .5rem; font-size: 12px; cursor: pointer;"
+                              (click)="onPageChange(row.State, getAccordionData(row.State)!.currentPage + 1)">Next</a>
+                          </li>
+                      </ul>
+                    </div>
+                  </div>
+                  }
+
+                  }
+                </div>
+              </td>
+            </tr>
+            }
+
+            }
+          </tbody>
+        </table>
+      </div>
+      }
+    </div>
+  </div>
+</div>

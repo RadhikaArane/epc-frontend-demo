@@ -1,0 +1,266 @@
+/* ========== Header User Section ========== */
+.header-user {
+  flex: 1;
+}
+
+.user-menu {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ========== Username Display ========== */
+.header-user p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+/* ========== Menu Buttons ========== */
+.btn-menubar {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  color: #495057;
+  transition: all 0.3s ease;
+  padding: 0;
+  text-decoration: none;
+}
+
+.btn-menubar:hover {
+  background: #e9ecef;
+  color: #212529;
+  border-color: #d0d0d0;
+  transform: translateY(-1px);
+}
+
+.btn-menubar i {
+  font-size: 18px;
+}
+
+/* ========== Avatar Styles ========== */
+.avatar {
+  position: relative;
+  display: inline-block;
+}
+
+.avatar-sm {
+  width: 38px;
+  height: 38px;
+}
+
+.avatar-lg {
+  width: 50px;
+  height: 50px;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 2px solid #fff;
+}
+
+.avatar.online::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  background: #28a745;
+  border: 2px solid #fff;
+  border-radius: 50%;
+}
+
+/* ========== Profile Dropdown ========== */
+.profile-dropdown .dropdown-toggle {
+  text-decoration: none;
+  padding: 5px 12px 5px;
+  margin-bottom: 5px;
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+  gap: 10px;
+}
+
+.profile-dropdown .dropdown-toggle:hover {
+  background: #e9ecef;
+  border-color: #d0d0d0;
+  transform: translateY(-1px);
+}
+
+.profile-dropdown .dropdown-toggle::after {
+  margin-left: 0;
+  vertical-align: middle;
+}
+
+.profile-dropdown .user-display-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c3e50;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.profile-dropdown .dropdown-menu {
+  min-width: 280px;
+  border: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  padding: 0;
+  margin-top: 8px;
+}
+
+/* ========== Dropdown Card ========== */
+.profile-dropdown .card {
+  border: none;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.profile-dropdown .card-header {
+  background: linear-gradient(135deg, #e61938 0%, #e3314cef 100%);
+  border: none;
+  padding: 20px;
+}
+
+.profile-dropdown .card-header h5,
+.profile-dropdown .card-header p {
+  color: #fff;
+  margin: 0;
+}
+
+.profile-dropdown .card-header h5 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.profile-dropdown .card-header .fs-12 {
+  font-size: 13px;
+  opacity: 0.95;
+}
+
+.profile-dropdown .card-header .avatar {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.profile-dropdown .card-header .avatar img {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ========== Dropdown Footer ========== */
+.profile-dropdown .card-footer {
+  background: #fff;
+  border: none;
+  padding: 12px 20px;
+}
+
+.profile-dropdown .dropdown-item {
+  color: #495057;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 0;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.profile-dropdown .dropdown-item:hover {
+  color: #dc3545;
+  background: transparent;
+}
+
+.profile-dropdown .dropdown-item i {
+  font-size: 18px;
+  color: #6c757d;
+  transition: color 0.2s ease;
+}
+
+.profile-dropdown .dropdown-item:hover i {
+  color: #dc3545;
+}
+
+/* ========== Mobile User Menu ========== */
+.mobile-user-menu {
+  display: none;
+}
+
+/* ========== Responsive Styles ========== */
+@media (max-width: 991.98px) {
+  .mobile-user-menu {
+    display: block;
+  }
+  
+  .header-user {
+    display: none;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .profile-dropdown .dropdown-menu {
+    min-width: 260px;
+  }
+  
+  .profile-dropdown .card-header {
+    padding: 16px;
+  }
+  
+  .profile-dropdown .card-footer {
+    padding: 10px 16px;
+  }
+}
+
+/* ========== Utility Classes ========== */
+.me-1 {
+  margin-right: 0.5rem !important;
+}
+
+.me-2 {
+  margin-right: 0.75rem !important;
+}
+
+.me-auto {
+  margin-right: auto !important;
+}
+
+.d-flex {
+  display: flex !important;
+}
+
+.align-items-center {
+  align-items: center !important;
+}
+
+.d-inline-flex {
+  display: inline-flex !important;
+}
+
+.mb-0 {
+  margin-bottom: 0 !important;
+}
+
+.fs-12 {
+  font-size: 12px !important;
+}
+
+.fw-medium {
+  font-weight: 500 !important;
+}
+
+.rounded-circle {
+  border-radius: 50% !important;
+}
+
+.img-fluid {
+  max-width: 100%;
+  height: auto;
+}
