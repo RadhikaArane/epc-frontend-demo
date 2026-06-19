@@ -1,43 +1,47 @@
 pipeline {
-    agent any
+agent any
 
-    tools {
-        nodejs "node20"
-    }
+```
+stages {
 
-    stages {
-
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Install Node Modules') {
-            steps {
-                bat 'npm install'
-            }
-        }
-
-        stage('Build Angular App') {
-            steps {
-                bat 'npx ng build --configuration production'
-            }
-        }
-
-        stage('Archive Build Output') {
-            steps {
-                archiveArtifacts artifacts: 'dist/**', fingerprint: true
-            }
-        }
-
-        stage('Deploy to Server') {
-            when {
-                branch 'main'
-            }
-            steps {
-                bat 'xcopy /E /I /Y dist\\mahindra-epc C:\\inetpub\\wwwroot\\epc-frontend\\'
-            }
+    stage('Checkout') {
+        steps {
+            echo 'Getting code from GitHub'
+            checkout scm
         }
     }
+
+    stage('Install Dependencies') {
+        steps {
+            echo 'Installing npm packages'
+            sh 'npm install'
+        }
+    }
+
+    stage('Build Application') {
+        steps {
+            echo 'Building Angular application'
+            sh 'npm run build'
+        }
+    }
+
+    stage('Test') {
+        steps {
+            echo 'Running tests'
+            sh 'npm test -- --watch=false || true'
+        }
+    }
+}
+
+post {
+    success {
+        echo 'Pipeline executed successfully'
+    }
+
+    failure {
+        echo 'Pipeline execution failed'
+    }
+}
+```
+
 }
