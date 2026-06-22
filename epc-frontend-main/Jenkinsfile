@@ -5,29 +5,31 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                echo 'Getting code from GitHub'
                 checkout scm
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                echo 'Installing npm packages'
-                sh 'npm install'
+                dir('epc-frontend-main') {
+                    sh 'npm install'
+                }
             }
         }
 
         stage('Build Application') {
             steps {
-                echo 'Building Angular application'
-                sh 'npm run build'
+                dir('epc-frontend-main') {
+                    sh 'npm run build'
+                }
             }
         }
 
         stage('Test') {
             steps {
-                echo 'Running tests'
-                sh 'npm test -- --watch=false || true'
+                dir('epc-frontend-main') {
+                    sh 'npm test -- --watch=false || true'
+                }
             }
         }
     }
@@ -36,7 +38,6 @@ pipeline {
         success {
             echo 'Pipeline executed successfully'
         }
-
         failure {
             echo 'Pipeline execution failed'
         }
