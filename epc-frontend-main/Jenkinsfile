@@ -1,47 +1,44 @@
 pipeline {
-agent any
+    agent any
 
-```
-stages {
+    stages {
 
-    stage('Checkout') {
-        steps {
-            echo 'Getting code from GitHub'
-            checkout scm
+        stage('Checkout') {
+            steps {
+                echo 'Getting code from GitHub'
+                checkout scm
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                echo 'Installing npm packages'
+                sh 'npm install'
+            }
+        }
+
+        stage('Build Application') {
+            steps {
+                echo 'Building Angular application'
+                sh 'npm run build'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running tests'
+                sh 'npm test -- --watch=false || true'
+            }
         }
     }
 
-    stage('Install Dependencies') {
-        steps {
-            echo 'Installing npm packages'
-            sh 'npm install'
+    post {
+        success {
+            echo 'Pipeline executed successfully'
+        }
+
+        failure {
+            echo 'Pipeline execution failed'
         }
     }
-
-    stage('Build Application') {
-        steps {
-            echo 'Building Angular application'
-            sh 'npm run build'
-        }
-    }
-
-    stage('Test') {
-        steps {
-            echo 'Running tests'
-            sh 'npm test -- --watch=false || true'
-        }
-    }
-}
-
-post {
-    success {
-        echo 'Pipeline executed successfully'
-    }
-
-    failure {
-        echo 'Pipeline execution failed'
-    }
-}
-```
-
 }
