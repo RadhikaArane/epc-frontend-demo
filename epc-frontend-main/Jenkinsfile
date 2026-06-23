@@ -25,11 +25,17 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Docker Build') {
             steps {
                 dir('epc-frontend-main') {
-                    sh 'npm test -- --watch=false || true'
+                    sh 'docker build -t epc-frontend:v1 .'
                 }
+            }
+        }
+
+        stage('Docker Images') {
+            steps {
+                sh 'docker images'
             }
         }
     }
@@ -38,6 +44,7 @@ pipeline {
         success {
             echo 'Pipeline executed successfully'
         }
+
         failure {
             echo 'Pipeline execution failed'
         }
