@@ -25,7 +25,7 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
+        stage('Build Docker Image') {
             steps {
                 dir('epc-frontend-main') {
                     sh 'docker build -t epc-frontend:v1 .'
@@ -33,11 +33,6 @@ pipeline {
             }
         }
 
-        stage('Docker Images') {
-            steps {
-                sh 'docker images'
-            }
-        }
     }
 
     post {
