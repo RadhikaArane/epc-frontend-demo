@@ -1,3 +1,4 @@
+# Stage 1: Build Angular application
 FROM node:20 AS builder
 
 WORKDIR /app
@@ -8,13 +9,16 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build --configuration production
+# Build Angular application
+RUN npm run build
 
+# Stage 2: Serve using Nginx
 FROM nginx:alpine
 
 RUN rm -rf /usr/share/nginx/html/*
 
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Copy Angular build output
+COPY --from=builder /app/dist/mahindra-epc/browser/ /usr/share/nginx/html/
 
 EXPOSE 80
 
