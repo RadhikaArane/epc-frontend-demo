@@ -33,6 +33,19 @@ pipeline {
             }
         }
 
+        stage('Deploy Container') {
+            steps {
+                sh '''
+                docker stop epc-frontend-container || true
+                docker rm epc-frontend-container || true
+
+                docker run -d \
+                  --name epc-frontend-container \
+                  -p 80:80 \
+                  epc-frontend:v1
+                '''
+            }
+        }
     }
 
     post {
