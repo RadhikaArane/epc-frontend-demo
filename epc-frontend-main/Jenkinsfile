@@ -4,7 +4,7 @@ pipeline {
     environment {
         AWS_REGION = "ap-south-1"
         ECR_REPO = "924263791418.dkr.ecr.ap-south-1.amazonaws.com/epc-frontend"
-        IMAGE_TAG = "v1"
+        IMAGE_TAG = "${BUILD_NUMBER}"
     }
 
     stages {
@@ -34,7 +34,9 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 dir('epc-frontend-main') {
-                    sh 'docker build -t epc-frontend:v1 .'
+                    sh '''
+                    docker build --no-cache -t epc-frontend:${IMAGE_TAG} .
+                    '''
                 }
             }
         }
@@ -51,7 +53,7 @@ pipeline {
         stage('Tag Image') {
             steps {
                 sh '''
-                docker tag epc-frontend:v1 ${ECR_REPO}:${IMAGE_TAG}
+                docker tag epc-frontend:${IMAGE_TAG} ${ECR_REPO}:${IMAGE_TAG}
                 '''
             }
         }
@@ -67,13 +69,15 @@ pipeline {
         stage('Deploy Container') {
             steps {
                 sh '''
+                docker pull ${ECR_REPO}:${IMAGE_TAG}
+
                 docker stop epc-frontend-container || true
                 docker rm epc-frontend-container || true
 
                 docker run -d \
-                  --name epc-frontend-container \
-                  -p 80:80 \
-                  epc-frontend:v1
+                    --name epc-frontend-container \
+                    -p 80:80 \
+                    ${ECR_REPO}:${IMAGE_TAG}
                 '''
             }
         }
