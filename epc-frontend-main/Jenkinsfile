@@ -1,6 +1,12 @@
 pipeline {
     agent any
 
+    environment {
+        AWS_REGION = "ap-south-1"
+        ECR_REPO = "924263791418.dkr.ecr.ap-south-1.amazonaws.com/epc-frontend"
+        IMAGE_TAG = "v1"
+    }
+
     stages {
 
         stage('Checkout') {
@@ -30,6 +36,31 @@ pipeline {
                 dir('epc-frontend-main') {
                     sh 'docker build -t epc-frontend:v1 .'
                 }
+            }
+        }
+
+        stage('Login to ECR') {
+            steps {
+                sh '''
+                aws ecr get-login-password --region ${AWS_REGION} | \
+                docker login --username AWS --password-stdin 924263791418.dkr.ecr.ap-south-1.amazonaws.com
+                '''
+            }
+        }
+
+        stage('Tag Image') {
+            steps {
+                sh '''
+                docker tag epc-frontend:v1 ${ECR_REPO}:${IMAGE_TAG}
+                '''
+            }
+        }
+
+        stage('Push Image to ECR') {
+            steps {
+                sh '''
+                docker push ${ECR_REPO}:${IMAGE_TAG}
+                '''
             }
         }
 
