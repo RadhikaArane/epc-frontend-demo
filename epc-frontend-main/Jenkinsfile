@@ -5,6 +5,7 @@ pipeline {
         AWS_REGION = "ap-south-1"
         ECR_REPO = "924263791418.dkr.ecr.ap-south-1.amazonaws.com/epc-frontend"
         IMAGE_TAG = "${BUILD_NUMBER}"
+        FRONTEND_SERVER = "13.207.57.145"
     }
 
     stages {
@@ -66,30 +67,37 @@ pipeline {
             }
         }
 
-        stage('Deploy Container') {
+        stage('Deploy to Frontend UAT') {
             steps {
-                sh '''
-                docker pull ${ECR_REPO}:${IMAGE_TAG}
+                sshagent(credentials: ['frontend-key']) {
+                    sh """
+                    ssh -o StrictHostKeyChecking=no ubuntu@${FRONTEND_SERVER} '
+                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin 924263791418.dkr.ecr.ap-south-1.amazonaws.com
 
-                docker stop epc-frontend-container || true
-                docker rm epc-frontend-container || true
+                    docker pull ${ECR_REPO}:${IMAGE_TAG}
 
-                docker run -d \
-                    --name epc-frontend-container \
-                    -p 80:80 \
-                    ${ECR_REPO}:${IMAGE_TAG}
-                '''
+                    docker stop epc-frontend || true
+                    docker rm epc-frontend || true
+
+                    docker run -d \
+                      --name epc-frontend \
+                      -p 80:80 \
+                      --restart unless-stopped \
+                      ${ECR_REPO}:${IMAGE_TAG}
+                    '
+                    """
+                }
             }
         }
     }
 
     post {
         success {
-            echo 'Pipeline executed successfully'
+            echo 'Pipeline executed successfully.'
         }
 
         failure {
-            echo 'Pipeline execution failed'
+            echo 'Pipeline execution failed.'
         }
     }
 }
