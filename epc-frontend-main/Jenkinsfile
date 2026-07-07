@@ -16,54 +16,38 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                dir('epc-frontend-main') {
-                    sh 'npm install'
-                }
-            }
-        }
-
-        stage('Build Application') {
-            steps {
-                dir('epc-frontend-main') {
-                    sh 'npm run build'
-                }
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 dir('epc-frontend-main') {
-                    sh '''
-                    docker build --no-cache -t epc-frontend:${IMAGE_TAG} .
-                    '''
+                    sh """
+                        docker build -t epc-frontend:${IMAGE_TAG} .
+                    """
                 }
             }
         }
 
         stage('Login to ECR') {
             steps {
-                sh '''
-                aws ecr get-login-password --region ${AWS_REGION} | \
-                docker login --username AWS --password-stdin 924263791418.dkr.ecr.ap-south-1.amazonaws.com
-                '''
+                sh """
+                    aws ecr get-login-password --region ${AWS_REGION} | \
+                    docker login --username AWS --password-stdin 924263791418.dkr.ecr.ap-south-1.amazonaws.com
+                """
             }
         }
 
         stage('Tag Image') {
             steps {
-                sh '''
-                docker tag epc-frontend:${IMAGE_TAG} ${ECR_REPO}:${IMAGE_TAG}
-                '''
+                sh """
+                    docker tag epc-frontend:${IMAGE_TAG} ${ECR_REPO}:${IMAGE_TAG}
+                """
             }
         }
 
         stage('Push Image to ECR') {
             steps {
-                sh '''
-                docker push ${ECR_REPO}:${IMAGE_TAG}
-                '''
+                sh """
+                    docker push ${ECR_REPO}:${IMAGE_TAG}
+                """
             }
         }
 
