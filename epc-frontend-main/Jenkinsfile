@@ -5,7 +5,7 @@ pipeline {
         AWS_REGION = "ap-south-1"
         ECR_REPO = "924263791418.dkr.ecr.ap-south-1.amazonaws.com/epc-frontend"
         IMAGE_TAG = "${BUILD_NUMBER}"
-        FRONTEND_SERVER = "65.1.85.177"
+        FRONTEND_SERVER = "YOUR_PRODUCTION_ELASTIC_IP"
     }
 
     stages {
@@ -29,8 +29,7 @@ pipeline {
         stage('Login to ECR') {
             steps {
                 sh """
-                    aws ecr get-login-password --region ${AWS_REGION} | \
-                    docker login --username AWS --password-stdin 924263791418.dkr.ecr.ap-south-1.amazonaws.com
+                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin 924263791418.dkr.ecr.ap-south-1.amazonaws.com
                 """
             }
         }
@@ -56,18 +55,18 @@ pipeline {
                 sshagent(credentials: ['frontend-key']) {
                     sh """
                     ssh -o StrictHostKeyChecking=no ubuntu@${FRONTEND_SERVER} '
-                    aws ecr get-login-password --region ${AWS_REGION} | sudo docker login --username AWS --password-stdin 924263791418.dkr.ecr.ap-south-1.amazonaws.com
+                        aws ecr get-login-password --region ${AWS_REGION} | sudo docker login --username AWS --password-stdin 924263791418.dkr.ecr.ap-south-1.amazonaws.com
 
-                    sudo docker pull ${ECR_REPO}:${IMAGE_TAG}
+                        sudo docker pull ${ECR_REPO}:${IMAGE_TAG}
 
-                    sudo docker stop epc-frontend || true
-                    sudo docker rm epc-frontend || true
+                        sudo docker stop epc-frontend || true
+                        sudo docker rm epc-frontend || true
 
-                    sudo docker run -d \
-                      --name epc-frontend \
-                      -p 80:80 \
-                      --restart always \
-                      ${ECR_REPO}:${IMAGE_TAG}
+                        sudo docker run -d \
+                            --name epc-frontend \
+                            -p 80:80 \
+                            --restart always \
+                            ${ECR_REPO}:${IMAGE_TAG}
                     '
                     """
                 }
