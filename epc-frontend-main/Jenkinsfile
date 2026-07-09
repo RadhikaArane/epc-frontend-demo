@@ -33,7 +33,7 @@ pipeline {
             steps {
                 sh """
                     aws ecr get-login-password --region ${AWS_REGION} | \
-                    docker login --username AWS --password-stdin ${ECR_REPO}
+                    docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
                 """
             }
         }
@@ -59,30 +59,26 @@ pipeline {
         stage('Deploy to Production') {
             steps {
                 sshagent(credentials: ['frontend-key']) {
-
                     sh """
-                    ssh -o StrictHostKeyChecking=no ubuntu@${FRONTEND_SERVER} <<EOF
+ssh -o StrictHostKeyChecking=no ubuntu@${FRONTEND_SERVER} '
+aws ecr get-login-password --region ${AWS_REGION} | sudo docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
 
-                    set -e
+sudo docker pull ${ECR_REPO}:${IMAGE_TAG}
 
-                    aws ecr get-login-password --region ${AWS_REGION} | \
-                    sudo docker login --username AWS --password-stdin ${ECR_REPO}
+sudo docker stop epc-frontend || true
+sudo docker rm epc-frontend || true
 
-                    sudo docker pull ${ECR_REPO}:${IMAGE_TAG}
+sudo docker run -d \
+  --name epc-frontend \
+  --restart always \
+  -p 80:80 \
+  ${ECR_REPO}:${IMAGE_TAG}
 
-                    sudo docker stop epc-frontend || true
-                    sudo docker rm epc-frontend || true
+sudo docker image prune -af
 
-                    sudo docker run -d \
-                        --name epc-frontend \
-                        --restart always \
-                        -p 80:80 \
-                        ${ECR_REPO}:${IMAGE_TAG}
-
-                    sudo docker image prune -f
-
-                    EOF
-                    """
+sudo docker ps
+'
+"""
                 }
             }
         }
