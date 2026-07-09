@@ -7,8 +7,8 @@ pipeline {
         ECR_REPO = "${AWS_ACCOUNT_ID}.dkr.ecr.ap-south-1.amazonaws.com/epc-frontend"
         IMAGE_TAG = "${BUILD_NUMBER}"
 
-        // Production EC2 Public IP / Elastic IP
-        FRONTEND_SERVER = "43.204.165.63"
+        // Production EC2 Private IP
+        FRONTEND_SERVER = "172.31.47.24"
     }
 
     stages {
@@ -33,7 +33,7 @@ pipeline {
             steps {
                 sh """
                     aws ecr get-login-password --region ${AWS_REGION} | \
-                    docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                    docker login --username AWS --password-stdin ${ECR_REPO}
                 """
             }
         }
@@ -42,6 +42,7 @@ pipeline {
             steps {
                 sh """
                     docker tag epc-frontend:${IMAGE_TAG} ${ECR_REPO}:${IMAGE_TAG}
+                    docker tag epc-frontend:${IMAGE_TAG} ${ECR_REPO}:latest
                 """
             }
         }
@@ -50,6 +51,7 @@ pipeline {
             steps {
                 sh """
                     docker push ${ECR_REPO}:${IMAGE_TAG}
+                    docker push ${ECR_REPO}:latest
                 """
             }
         }
@@ -59,31 +61,34 @@ pipeline {
                 sshagent(credentials: ['frontend-key']) {
 
                     sh """
-ssh -o StrictHostKeyChecking=no ubuntu@${FRONTEND_SERVER} <<EOF
+                    ssh -o StrictHostKeyChecking=no ubuntu@${FRONTEND_SERVER} <<EOF
 
-aws ecr get-login-password --region ${AWS_REGION} | \
-sudo docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                    set -e
 
-sudo docker pull ${ECR_REPO}:${IMAGE_TAG}
+                    aws ecr get-login-password --region ${AWS_REGION} | \
+                    sudo docker login --username AWS --password-stdin ${ECR_REPO}
 
-sudo docker stop epc-frontend || true
-sudo docker rm epc-frontend || true
+                    sudo docker pull ${ECR_REPO}:${IMAGE_TAG}
 
-sudo docker run -d \
-    --name epc-frontend \
-    -p 80:80 \
-    --restart always \
-    ${ECR_REPO}:${IMAGE_TAG}
+                    sudo docker stop epc-frontend || true
+                    sudo docker rm epc-frontend || true
 
-EOF
-"""
+                    sudo docker run -d \
+                        --name epc-frontend \
+                        --restart always \
+                        -p 80:80 \
+                        ${ECR_REPO}:${IMAGE_TAG}
+
+                    sudo docker image prune -f
+
+                    EOF
+                    """
                 }
             }
         }
     }
 
     post {
-
         success {
             echo "Production deployment completed successfully."
         }
